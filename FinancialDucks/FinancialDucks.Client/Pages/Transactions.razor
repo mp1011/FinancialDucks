@@ -1,0 +1,37 @@
+﻿@page "/transactions"
+@inherits TransactionsPage
+
+<h3>Transactions</h3>
+
+
+<p>@ImportMessage</p>
+
+ <table class="table">
+    <thead>
+    <tr>
+      <th scope="col">Date</th>
+      <th scope="col">Credit</th>
+      <th scope="col">Debit</th>
+      <th scope="col">Description</th>
+    </tr>
+  </thead>
+  <tbody>
+        @foreach(var row in Transactions.OrderBy(p=>p.Date))
+        {
+            <tr>
+                <td>@row.Date.ToShortDateString()</td>
+                @if(row.Amount > 0)
+                {
+                    <td>@row.Amount.ToString("C")</td>
+                    <td></td>
+                }
+                else
+                {
+                    <td></td>
+                    <td>@row.Amount.ToString("C")</td>                    
+                }
+                <td>@row.Description</td>               
+            </tr>
+        }
+    </tbody>
+</table>

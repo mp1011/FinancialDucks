@@ -18,15 +18,16 @@ namespace FinancialDucks.Application.Services
 
         public ITransactionSource DetectTransactionSource(FileInfo fileInfo)
         {
-            var name = fileInfo.Name.ToLower();
+            string fileName = fileInfo.Name.ToLower();
 
-            var source= _dataContext.TransactionSourcesDetail
-                .FirstOrDefault(p => p.SourceFileMappings.Any(s => name.Contains(s.FilePattern)));
-
-            if (source == null)
-                throw new Exception($"Unable to find source for file {fileInfo.FullName}");
-
-            return source;
+            foreach(var source in _dataContext.TransactionSourcesDetail)
+            {
+                if (source.SourceFileMappings.Any(p => fileName.Contains(p.FilePattern, StringComparison.OrdinalIgnoreCase)))
+                    return source;
+            }
+           
+            
+            throw new Exception($"Unable to find source for file {fileInfo.FullName}");
         }
     }
 }

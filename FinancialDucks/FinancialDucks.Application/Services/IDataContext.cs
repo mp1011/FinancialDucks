@@ -6,6 +6,8 @@ namespace FinancialDucks.Application.Services
     {
         IQueryable<ITransactionSource> TransactionSources { get; }
         IQueryable<ITransactionSourceDetail> TransactionSourcesDetail { get; }
+        IQueryable<ITransactionDetail> TransactionsDetail { get; }
 
+        Task<ITransaction[]> UploadTransactions(ITransaction[] transactions);
     }
 }

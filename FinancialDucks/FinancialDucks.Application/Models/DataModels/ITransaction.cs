@@ -7,4 +7,9 @@
         string Description { get; }
         int SourceId { get; }
     }
+
+    public interface ITransactionDetail : ITransaction
+    {
+        ITransactionSource Source { get; }
+    }
 }

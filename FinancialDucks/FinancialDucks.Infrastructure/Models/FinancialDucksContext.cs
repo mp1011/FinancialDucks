@@ -7,15 +7,6 @@ namespace FinancialDucks.Infrastructure.Models
 {
     public partial class FinancialDucksContext : DbContext
     {
-        public FinancialDucksContext()
-        {
-        }
-
-        public FinancialDucksContext(DbContextOptions<FinancialDucksContext> options)
-            : base(options)
-        {
-        }
-
         public virtual DbSet<Category> Categories { get; set; }
         public virtual DbSet<Transaction> Transactions { get; set; }
         public virtual DbSet<TransactionCategory> TransactionCategories { get; set; }
@@ -23,21 +14,10 @@ namespace FinancialDucks.Infrastructure.Models
         public virtual DbSet<TransactionSourceFileMapping> TransactionSourceFileMappings { get; set; }
         public virtual DbSet<TransactionSourceType> TransactionSourceTypes { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            if (!optionsBuilder.IsConfigured)
-            {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-                optionsBuilder.UseSqlServer("Server=localhost;Database=FinancialDucks;Trusted_Connection=True;", x => x.UseHierarchyId());
-            }
-        }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Category>(entity =>
             {
-                entity.Property(e => e.Id).ValueGeneratedNever();
-
                 entity.Property(e => e.HierarchyId).IsRequired();
 
                 entity.Property(e => e.Name)
@@ -48,8 +28,6 @@ namespace FinancialDucks.Infrastructure.Models
 
             modelBuilder.Entity<Transaction>(entity =>
             {
-                entity.Property(e => e.Id).ValueGeneratedNever();
-
                 entity.Property(e => e.Amount).HasColumnType("money");
 
                 entity.Property(e => e.Date).HasColumnType("date");

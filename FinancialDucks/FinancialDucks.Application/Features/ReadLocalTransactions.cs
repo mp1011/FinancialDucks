@@ -4,7 +4,7 @@ using MediatR;
 
 namespace FinancialDucks.Application.Features
 {
-    public class ImportFeature
+    public class ReadLocalTransactions
     {
         public record Request() : IRequest<ITransaction[]> { }
 

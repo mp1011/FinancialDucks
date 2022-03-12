@@ -23,7 +23,7 @@ namespace FinancialDucks.Tests
             var builder = Host.CreateDefaultBuilder()
                .ConfigureServices(sc =>
                {
-                   sc.AddMediatR(typeof(ImportFeature));
+                   sc.AddMediatR(typeof(ReadLocalTransactions));
                    sc.AddSingleton<IEqualityComparer<ITransaction>, TransactionEqualityComparer>();
                    sc.AddSingleton<ITransactionReader, TransactionReader>();
                    sc.AddSingleton<ISettingsService, SettingsService>();

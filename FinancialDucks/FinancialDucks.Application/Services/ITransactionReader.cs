@@ -36,12 +36,16 @@ namespace FinancialDucks.Application.Services
                     csv.ReadHeader();
                 else
                 {
-                    transactions.Add(new ImportedTransaction(
-                        SourceFile: file,
-                        Amount: ReadAmount(csv),
-                        Date: ReadDate(csv),
-                        Description: ReadDescription(csv),
-                        SourceId: _transactionFileSourceIdentifier.DetectTransactionSource(file).Id));
+                    var date = ReadDate(csv);
+                    if (date.HasValue)
+                    {
+                        transactions.Add(new ImportedTransaction(
+                            SourceFile: file,
+                            Amount: ReadAmount(csv),
+                            Date: date.Value,
+                            Description: ReadDescription(csv),
+                            SourceId: _transactionFileSourceIdentifier.DetectTransactionSource(file).Id));
+                    }
                 }
             }
 
@@ -57,10 +61,10 @@ namespace FinancialDucks.Application.Services
             return Math.Abs(credit) - Math.Abs(debit);
         }
 
-        private DateTime ReadDate(CsvReader csv)
+        private DateTime? ReadDate(CsvReader csv)
         {
             var date = csv.TryReadDate("Date", "Transaction Date");
-            return date.Value;
+            return date;
         }
 
         private string ReadDescription(CsvReader csv)
@@ -74,7 +78,7 @@ namespace FinancialDucks.Application.Services
             else if (description != null && memo != null)
                 return $"{description}: {memo}";
             else
-                return description;
+                return description ?? "";
         }
 
         

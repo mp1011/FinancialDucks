@@ -6,9 +6,13 @@ namespace FinancialDucks.Application.Extensions
     {
         public static string? TryRead(this CsvReader csv, params string[] possibleColumns)
         {
+            var headers = csv.HeaderRecord
+                .Select(p => p.Trim())
+                .ToArray();
+
             foreach (var possibleColumn in possibleColumns)
             {
-                var col = Array.IndexOf(csv.HeaderRecord, possibleColumn);
+                var col = Array.IndexOf(headers, possibleColumn);
                 if (col == -1)
                     continue;
 
