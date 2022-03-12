@@ -7,6 +7,7 @@ namespace FinancialDucks.Infrastructure.Models
     {
         public TransactionSource()
         {
+            TransactionSourceFileMappings = new HashSet<TransactionSourceFileMapping>();
             Transactions = new HashSet<Transaction>();
         }
 
@@ -15,6 +16,7 @@ namespace FinancialDucks.Infrastructure.Models
         public int TypeId { get; set; }
 
         public virtual TransactionSourceType Type { get; set; }
+        public virtual ICollection<TransactionSourceFileMapping> TransactionSourceFileMappings { get; set; }
         public virtual ICollection<Transaction> Transactions { get; set; }
     }
 }
