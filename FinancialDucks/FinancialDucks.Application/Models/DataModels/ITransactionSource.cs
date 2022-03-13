@@ -1,8 +1,7 @@
 ﻿namespace FinancialDucks.Application.Models
 {
-    public interface ITransactionSource : IWithId
+    public interface ITransactionSource : IWithId, IWithName
     {
-        string Name { get; set; }
         int TypeId { get; set; }
     }
 

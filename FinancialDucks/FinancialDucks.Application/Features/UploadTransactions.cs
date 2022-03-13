@@ -1,4 +1,5 @@
-﻿using FinancialDucks.Application.Models;
+﻿// Stryker disable all
+using FinancialDucks.Application.Models;
 using FinancialDucks.Application.Services;
 using MediatR;
 

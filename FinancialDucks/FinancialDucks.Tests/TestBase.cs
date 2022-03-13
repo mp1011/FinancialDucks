@@ -11,6 +11,7 @@ using System.Linq;
 using FinancialDucks.Application.Features;
 using System.Collections.Generic;
 using FinancialDucks.Application.Models;
+using System.Threading.Tasks;
 
 namespace FinancialDucks.Tests
 {
@@ -28,11 +29,28 @@ namespace FinancialDucks.Tests
                    sc.AddSingleton<ITransactionReader, TransactionReader>();
                    sc.AddSingleton<ISettingsService, SettingsService>();
                    sc.AddSingleton<ITransactionFileSourceIdentifier, TransactionFileSourceIdentifier>();
+                   sc.AddSingleton<ITransactionClassifier, TransactionClassifier>();
+
+                   sc.AddSingleton(_ =>
+                   {
+                       var mock = new Mock<ICategoryTreeProvider>();
+                       mock.Setup(x => x.GetCategoryTree())
+                            .Returns(() => Task.FromResult(MockDataHelper.GetMockCategoryTree()));
+                       return mock.Object;
+                   });
+
                    sc.AddSingleton(_ =>
                    {
                        var mock = new Mock<IDataContext>();
                        mock.Setup(r => r.TransactionSourcesDetail)
                            .Returns(() => MockDataHelper.GetMockTransactionSources().AsQueryable());
+
+                       mock.Setup(r=> r.CategoryRulesDetail)
+                           .Returns(() => MockDataHelper.GetMockCategoryRules().AsQueryable());
+
+                       mock.Setup(r => r.TransactionsDetail)
+                           .Returns(() => MockDataHelper.GetMockTransactions().AsQueryable());
+
                        return mock.Object;
                    });
                })

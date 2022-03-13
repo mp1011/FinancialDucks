@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿// Stryker disable all
+using Microsoft.Extensions.Configuration;
 
 namespace FinancialDucks.Application.Services
 {

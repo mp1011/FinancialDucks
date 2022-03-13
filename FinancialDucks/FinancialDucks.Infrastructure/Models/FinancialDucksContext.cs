@@ -1,13 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace FinancialDucks.Infrastructure.Models
 {
     public partial class FinancialDucksContext : DbContext
     {
         public virtual DbSet<Category> Categories { get; set; }
+        public virtual DbSet<CategoryRule> CategoryRules { get; set; }
         public virtual DbSet<Transaction> Transactions { get; set; }
         public virtual DbSet<TransactionCategory> TransactionCategories { get; set; }
         public virtual DbSet<TransactionSource> TransactionSources { get; set; }
@@ -24,6 +22,27 @@ namespace FinancialDucks.Infrastructure.Models
                     .IsRequired()
                     .HasMaxLength(100)
                     .IsUnicode(false);
+            });
+
+            modelBuilder.Entity<CategoryRule>(entity =>
+            {
+                entity.Property(e => e.AmountMax).HasColumnType("money");
+
+                entity.Property(e => e.AmountMin).HasColumnType("money");
+
+                entity.Property(e => e.DateMax).HasColumnType("datetime");
+
+                entity.Property(e => e.DateMin).HasColumnType("datetime");
+
+                entity.Property(e => e.SubstringMatch)
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.HasOne(d => d.Category)
+                    .WithMany(p => p.CategoryRules)
+                    .HasForeignKey(d => d.CategoryId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_CategoryRules_Categories");
             });
 
             modelBuilder.Entity<Transaction>(entity =>

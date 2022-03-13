@@ -1,4 +1,5 @@
-﻿namespace FinancialDucks.Application.Services
+﻿// Stryker disable all
+namespace FinancialDucks.Application.Services
 {
     public interface IObjectMapper
     {
