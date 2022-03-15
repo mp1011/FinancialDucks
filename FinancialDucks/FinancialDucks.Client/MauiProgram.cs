@@ -2,6 +2,7 @@
 using FinancialDucks.Application.Models;
 using FinancialDucks.Application.Services;
 using FinancialDucks.Infrastructure.Models;
+using FinancialDucks.Infrastructure.Services;
 using MediatR;
 using Microsoft.AspNetCore.Components.WebView.Maui;
 using Microsoft.Extensions.Configuration;
@@ -31,6 +32,8 @@ namespace FinancialDucks.Client
             builder.Services.AddSingleton<ITransactionReader, TransactionReader>();
             builder.Services.AddSingleton<ISettingsService, SettingsService>();
             builder.Services.AddSingleton<ITransactionFileSourceIdentifier, TransactionFileSourceIdentifier>();
+            builder.Services.AddSingleton<ITransactionClassifier, TransactionClassifier>();
+            builder.Services.AddSingleton<ICategoryTreeProvider, SqlCategoryTreeProvider>();
 
             var path = AppContext.BaseDirectory;
             var configBuilder = new ConfigurationBuilder()

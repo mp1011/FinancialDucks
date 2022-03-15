@@ -9,5 +9,6 @@ namespace FinancialDucks.Application.Services
         IQueryable<ITransactionDetail> TransactionsDetail { get; }
         IQueryable<ICategoryRuleDetail> CategoryRulesDetail { get; }
         Task<ITransaction[]> UploadTransactions(ITransaction[] transactions);
+        Task<ICategory> AddSubcategory(ICategory parent, string name);
     }
 }

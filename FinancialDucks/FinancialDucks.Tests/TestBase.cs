@@ -12,6 +12,7 @@ using FinancialDucks.Application.Features;
 using System.Collections.Generic;
 using FinancialDucks.Application.Models;
 using System.Threading.Tasks;
+using FinancialDucks.Tests.TestModels;
 
 namespace FinancialDucks.Tests
 {
@@ -50,6 +51,13 @@ namespace FinancialDucks.Tests
 
                        mock.Setup(r => r.TransactionsDetail)
                            .Returns(() => MockDataHelper.GetMockTransactions().AsQueryable());
+
+                       mock.Setup(r => r.AddSubcategory(It.IsAny<ICategory>(), It.IsAny<string>()))
+                            .Returns<ICategory, string>((category, name) =>
+                            {
+                                return Task.FromResult(new TestCategory(0, name, category as TestCategory) as ICategory);
+                            });
+   
 
                        return mock.Object;
                    });

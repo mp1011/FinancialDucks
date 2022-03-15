@@ -1,5 +1,6 @@
 ﻿using FinancialDucks.Application.Models;
 using FinancialDucks.Application.Models.AppModels;
+using FinancialDucks.Tests.TestModels;
 using Moq;
 using System;
 using System.Collections.Generic;
@@ -49,7 +50,7 @@ namespace FinancialDucks.Tests
 
         public static ICategoryDetail GetMockCategoryTree()
         {
-            var root = new Category(1, "Master", null);
+            var root = new TestCategory(1, "Master", null);
 
             var debits = root.AddChild(2, "Debits");
 

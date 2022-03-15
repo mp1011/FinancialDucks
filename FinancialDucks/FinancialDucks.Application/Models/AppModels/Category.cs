@@ -17,16 +17,21 @@
 
         public List<Category> Children { get; } = new List<Category>();
 
+        public List<ICategoryRule> Rules { get; } = new List<ICategoryRule>();
+
         ICategoryDetail? ICategoryDetail.Parent => Parent;
 
         IEnumerable<ICategoryDetail> ICategoryDetail.Children => Children;
 
-        public Category AddChild(int id, string Name)
+        IEnumerable<ICategoryRule> ICategoryDetail.Rules => Rules;
+
+        ICategoryDetail ICategoryDetail.AddSubcategory(ICategory child)
         {
-            var child = new Category(id, Name, this);
-            Children.Add(child);
-            return child;
+            var childCategory = new Category(child.Id, child.Name, this);
+            Children.Add(childCategory);
+            return childCategory;
         }
 
+        
     }
 }

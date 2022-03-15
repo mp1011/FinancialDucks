@@ -64,6 +64,33 @@ namespace FinancialDucks.Infrastructure.Models
             return insertedRows.ToArray();
         }
 
+        public async Task<ICategory> AddSubcategory(ICategory parent, string name)
+        {
+            using var transaction = Database.BeginTransaction();
+
+            var parentCategory = Categories
+                .AsNoTracking()
+                .First(p => p.Id == parent.Id);
+
+            var latestChild = Categories
+                .AsNoTracking()
+                .Where(p => p.HierarchyId.GetAncestor(1) == parentCategory.HierarchyId)
+                .Select(p => p.HierarchyId)
+                .OrderByDescending(p => p)
+                .FirstOrDefault();
+
+            var newCategory = new Category
+            {
+                Name = name,
+                HierarchyId = parentCategory.HierarchyId.GetDescendant(latestChild, null)
+            };
+
+            Categories.Add(newCategory);
+            await SaveChangesAsync();
+            await transaction.CommitAsync();
+
+            return newCategory;
+        }
 
     }
 }

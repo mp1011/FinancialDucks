@@ -1,0 +1,39 @@
+﻿@using FinancialDucks.Application.Models
+@using static FinancialDucks.Application.Features.CategoriesFeature
+
+<li>
+    <p @onclick="()=> CategorySelected.InvokeAsync(Category)">@Category.Name</p>
+    <ul>
+        @foreach(var child in Category.Children)
+        {
+            <li>
+                <CategoryTreeNode Category=child NewButtonClick=@NewButtonClick CategorySelected=@CategorySelected/>
+            </li>                    
+        }          
+        <li>
+            <div class="input-group mb-3">
+              <input @bind=NewCategoryText type="text" class="form-control" aria-label="New Category Name">
+              <div class="input-group-append">
+                <button type="button" class="btn btn-primary"
+                    @onclick="() => NewButtonClick.InvokeAsync(new AddCategoryCommand(Category, NewCategoryText))">+</button>
+              </div>
+            </div>   
+        </li>
+    </ul>      
+    
+</li>
+
+@code 
+{
+    public string NewCategoryText { get; set; }
+
+    [Parameter]
+    public ICategoryDetail Category { get; set; }
+
+    [Parameter]
+    public EventCallback<AddCategoryCommand> NewButtonClick { get; set; }
+
+    [Parameter]
+    public EventCallback<ICategoryDetail> CategorySelected { get; set; }
+
+}

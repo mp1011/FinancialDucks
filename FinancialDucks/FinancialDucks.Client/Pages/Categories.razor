@@ -1,0 +1,37 @@
+﻿@page "/categories"
+@inherits CategoriesPage
+@using FinancialDucks.Client.Components
+
+<h1>Categories</h1>
+
+<div class="container">
+  <div class="row">
+    <div class="col-sm">
+        @if(Root == null)
+        {
+            <p>Loading categories...</p>
+        }
+        else 
+        {
+            <ul>
+                @foreach(var child in Root.Children)
+                {
+                    <li>
+                        <CategoryTreeNode   Category=child 
+                                            NewButtonClick=NewCategoryButton_Click
+                                            CategorySelected=OnCategorySelected />
+                    </li>                    
+                }
+            </ul>
+        }
+    </div>
+    <div class="col-sm">
+        @if(SelectedCategory != null)
+        {
+            <CategoryDetailView Category=@SelectedCategory />       
+        }        
+    </div>
+  </div>
+</div>
+
+

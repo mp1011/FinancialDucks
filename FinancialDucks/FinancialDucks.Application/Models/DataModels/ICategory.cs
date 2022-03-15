@@ -11,6 +11,8 @@ namespace FinancialDucks.Application.Models
     {
         ICategoryDetail? Parent { get; }
         IEnumerable<ICategoryDetail> Children { get; }
+        IEnumerable<ICategoryRule> Rules { get; }
+        ICategoryDetail AddSubcategory(ICategory child);
     }
 
     public static class ICategoryDetailExtensions

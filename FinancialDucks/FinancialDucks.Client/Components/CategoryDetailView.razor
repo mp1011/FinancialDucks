@@ -1,0 +1,26 @@
+﻿@using FinancialDucks.Application.Models
+<h3>@Category.Name</h3>
+
+<h4>Rules</h4>
+<ul>
+    @foreach(var rule in Category.Rules)
+    {
+        <li>@rule</li> 
+    }
+    <li>
+         <button type="button" class="btn btn-primary" lab
+                    @onclick="AddRule">Add Rule</button>
+  
+    </li>
+</ul>
+
+@code 
+{
+    [Parameter]
+    public ICategoryDetail Category { get; set; }
+
+    public void AddRule()
+    {
+        
+    }
+}
