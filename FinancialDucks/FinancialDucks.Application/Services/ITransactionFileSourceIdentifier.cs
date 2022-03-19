@@ -9,18 +9,19 @@ namespace FinancialDucks.Application.Services
 
     public class TransactionFileSourceIdentifier : ITransactionFileSourceIdentifier
     {
-        private readonly IDataContext _dataContext;
+        private readonly IDataContextProvider _dataContextProvider;
 
-        public TransactionFileSourceIdentifier(IDataContext dataContext)
+        public TransactionFileSourceIdentifier(IDataContextProvider dataContext)
         {
-            _dataContext = dataContext;
+            _dataContextProvider = dataContext;
         }
 
         public ITransactionSource DetectTransactionSource(FileInfo fileInfo)
         {
+            using var dataContext = _dataContextProvider.CreateDataContext();
             string fileName = fileInfo.Name.ToLower();
 
-            foreach(var source in _dataContext.TransactionSourcesDetail)
+            foreach(var source in dataContext.TransactionSourcesDetail)
             {
                 if (source.SourceFileMappings.Any(p => fileName.Contains(p.FilePattern, StringComparison.OrdinalIgnoreCase)))
                     return source;

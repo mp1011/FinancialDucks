@@ -9,18 +9,19 @@ namespace FinancialDucks.Application.Services
 
     public class TransactionClassifier : ITransactionClassifier
     {
-        private readonly IDataContext _dataContext;
+        private readonly IDataContextProvider _dataContextProvider;
         private readonly ICategoryTreeProvider _categoryTreeProvider;
 
-        public TransactionClassifier(IDataContext dataContext, ICategoryTreeProvider categoryTreeProvider)
+        public TransactionClassifier(IDataContextProvider dataContextProvider, ICategoryTreeProvider categoryTreeProvider)
         {
-            _dataContext = dataContext;
+            _dataContextProvider = dataContextProvider;
             _categoryTreeProvider = categoryTreeProvider;
         }
 
         public async Task<ICategoryDetail[]> Classify(ITransaction transaction)
         {
-            var rules = _dataContext.CategoryRulesDetail
+            using var dataContext = _dataContextProvider.CreateDataContext();
+            var rules = dataContext.CategoryRulesDetail
                 .Where(rule =>
                         (rule.SubstringMatch == null || transaction.Description.Contains(rule.SubstringMatch, StringComparison.OrdinalIgnoreCase))
                         && (rule.AmountMin == null || transaction.Amount >= rule.AmountMin)
@@ -37,7 +38,8 @@ namespace FinancialDucks.Application.Services
 
             return results
                 .Select(r => categoryTree.GetDescendant(r.Name))
-                .ToArray();
+                .Where(p=>p!= null)
+                .ToArray()!;
         }
     }
 }

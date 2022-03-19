@@ -50,29 +50,33 @@ namespace FinancialDucks.Tests
 
         public static ICategoryDetail GetMockCategoryTree()
         {
-            var root = new TestCategory(1, "Master", null);
+            int id = 1;
+            var root = new TestCategory(id++, "Master", null);
 
-            var debits = root.AddChild(2, "Debits");
+            var debits = root.AddChild(id++, "Debits");
+            
+            debits
+                 .AddChild(id++, "Food")
+                 .AddChild(id++, "Restaurants")
+                 .AddChild(id++, "Fast-Food")
+                 .AddChildReturnThis(id++, "Krusty Burger")
+                 .AddChildReturnThis(id++, "McDonalds");
+
+
 
             debits
-                 .AddChild(3, "Food")
-                 .AddChild(4, "Restaurants")
-                 .AddChild(5, "Fast-Food")
-                 .AddChild(6, "Krusty Burger");
+                .AddChild(id++, "Entertainment")
+                .AddChild(id++, "Streaming Services")
+                .AddChild(id++, "Netflix");
 
             debits
-                .AddChild(7, "Entertainment")
-                .AddChild(8, "Streaming Services")
-                .AddChild(9, "Netflix");
+                .AddChild(id++, "$20 or Less");
 
             debits
-                .AddChild(10, "$20 or Less");
+                .AddChild(id++, "$50-$100");
 
             debits
-               .AddChild(10, "$50-$100");
-
-            debits
-                .AddChild(10, "2022 Debits");
+                .AddChild(id++, "2022 Debits");
 
             return root;
         }
@@ -83,6 +87,10 @@ namespace FinancialDucks.Tests
 
             yield return new CategoryRule(1, Priority: 0, categories.GetDescendant("Krusty Burger")!,
                 SubstringMatch: "Krusty Burger");
+
+            yield return new CategoryRule(1, Priority: 0, categories.GetDescendant("McDonalds")!,
+              SubstringMatch: "McDonalds");
+
 
             yield return new CategoryRule(2, Priority: 0, categories.GetDescendant("$20 or Less")!,
                AmountMax: 0M,
@@ -106,7 +114,17 @@ namespace FinancialDucks.Tests
                 yield return GetMockTransaction(date, 9.99M, "Krusty Burger");
                 date = date.AddDays(5);
             }
+
+            date = new DateTime(2022, 1, 15);
+
+            while (date.Month < 3)
+            {
+                yield return GetMockTransaction(date, 7.99M, "McDonalds");
+                date = date.AddDays(8);
+            }
+
         }
+
 
         private static ITransactionDetail GetMockTransaction(DateTime date, decimal amount, string description)
         {

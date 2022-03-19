@@ -43,5 +43,11 @@ namespace FinancialDucks.Tests.TestModels
         {
             return AddSubcategory(new Category(id, name,null));
         }
+
+        public TestCategory AddChildReturnThis(int id, string name)
+        {
+            AddSubcategory(new Category(id, name, null));
+            return this;
+        }
     }
 }

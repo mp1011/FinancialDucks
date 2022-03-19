@@ -5,12 +5,19 @@
 <ul>
     @foreach(var rule in Category.Rules)
     {
-        <li>@rule</li> 
+        <li><CategoryRuleRow CategoryRule=@rule/></li> 
     }
     <li>
-         <button type="button" class="btn btn-primary" lab
-                    @onclick="AddRule">Add Rule</button>
-  
+        @if(!AddingRule)
+        {
+             <button type="button" class="btn btn-primary" lab
+                        @onclick="AddRule">Add Rule</button>
+        }
+        else
+        {
+           <AddCategoryRuleView Category=@Category />
+        }
+
     </li>
 </ul>
 
@@ -19,8 +26,15 @@
     [Parameter]
     public ICategoryDetail Category { get; set; }
 
+    public bool AddingRule { get; set; }
+
+    protected override void OnInitialized()
+    {
+        AddingRule = false;
+    }
+
     public void AddRule()
     {
-        
+        AddingRule = true;
     }
 }

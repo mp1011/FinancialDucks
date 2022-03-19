@@ -13,6 +13,7 @@ using System.Collections.Generic;
 using FinancialDucks.Application.Models;
 using System.Threading.Tasks;
 using FinancialDucks.Tests.TestModels;
+using FinancialDucks.Tests.CustomMocks;
 
 namespace FinancialDucks.Tests
 {
@@ -40,27 +41,16 @@ namespace FinancialDucks.Tests
                        return mock.Object;
                    });
 
-                   sc.AddSingleton(_ =>
+                   sc.AddSingleton(s =>
                    {
-                       var mock = new Mock<IDataContext>();
-                       mock.Setup(r => r.TransactionSourcesDetail)
-                           .Returns(() => MockDataHelper.GetMockTransactionSources().AsQueryable());
-
-                       mock.Setup(r=> r.CategoryRulesDetail)
-                           .Returns(() => MockDataHelper.GetMockCategoryRules().AsQueryable());
-
-                       mock.Setup(r => r.TransactionsDetail)
-                           .Returns(() => MockDataHelper.GetMockTransactions().AsQueryable());
-
-                       mock.Setup(r => r.AddSubcategory(It.IsAny<ICategory>(), It.IsAny<string>()))
-                            .Returns<ICategory, string>((category, name) =>
-                            {
-                                return Task.FromResult(new TestCategory(0, name, category as TestCategory) as ICategory);
-                            });
-   
-
+                       var mock = new Mock<IDataContextProvider>();
+                       mock.Setup(r => r.CreateDataContext())
+                            .Returns(() => s.GetService<IDataContext>()!);
                        return mock.Object;
                    });
+
+                   sc.AddSingleton<IDataContext, MockDataContext>();
+                  
                })
                .ConfigureAppConfiguration(cb =>
                {

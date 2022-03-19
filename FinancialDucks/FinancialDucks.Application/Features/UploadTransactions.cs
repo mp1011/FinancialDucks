@@ -12,16 +12,17 @@ namespace FinancialDucks.Application.Features
 
         public class Handler : IRequestHandler<Command, ITransaction[]>
         {
-            private readonly IDataContext _dataContext;
+            private readonly IDataContextProvider _dataContextProvider;
 
-            public Handler(IDataContext dataContext)
+            public Handler(IDataContextProvider dataContextProvider)
             {
-                _dataContext = dataContext;
+                _dataContextProvider = dataContextProvider;
             }
 
             public async Task<ITransaction[]> Handle(Command request, CancellationToken cancellationToken)
             {
-                return await _dataContext.UploadTransactions(request.Transactions);
+                using var dataContext = _dataContextProvider.CreateDataContext();
+                return await dataContext.UploadTransactions(request.Transactions);
             }
         }
 

@@ -9,18 +9,20 @@ namespace FinancialDucks.Application.Features
     {
         public class Handler : IRequestHandler<QueryTransactions, ITransactionDetail[]>
         {
-            private readonly IDataContext _dataContext;
+            private readonly IDataContextProvider _dataContextProvider;
 
-            public Handler(IDataContext dataContext)
+            public Handler(IDataContextProvider dataContextProvider)
             {
-                _dataContext = dataContext;
+                _dataContextProvider = dataContextProvider;
             }
 
             public Task<ITransactionDetail[]> Handle(QueryTransactions request, CancellationToken cancellationToken)
             {
+                using var dataContext = _dataContextProvider.CreateDataContext();
+
                 int start = request.Page * request.ResultsPerPage;
 
-                var result = _dataContext.TransactionsDetail
+                var result = dataContext.TransactionsDetail
                     .Where(p => p.Date >= request.RangeStart
                             && p.Date <= request.RangeEnd)
                     .OrderBy(p => p.Date)

@@ -92,5 +92,28 @@ namespace FinancialDucks.Infrastructure.Models
             return newCategory;
         }
 
+        public async Task<ICategoryRule> AddCategoryRule(ICategory category, ICategoryRule rule)
+        {
+            using var transaction = await Database.BeginTransactionAsync();
+
+            var newRule = _objectMapper.CopyIntoNew<ICategoryRule, CategoryRule>(rule);
+            CategoryRules.Add(newRule);
+            await SaveChangesAsync();
+            await transaction.CommitAsync();
+
+            return newRule;
+        }
+
+        async Task<T[]> IDataContext.ToArrayAsync<T>(IQueryable<T> query)
+        {
+            return await query.ToArrayAsync();
+        }
+
+        IQueryable<T> IDataContext.WatchCommandText<T>(IQueryable<T> query, Action<string> watcher)
+        {
+            var txt = query.ToQueryString();
+            watcher?.Invoke(txt);
+            return query;
+        }
     }
 }

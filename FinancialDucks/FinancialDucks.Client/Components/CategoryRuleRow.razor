@@ -1,0 +1,12 @@
+﻿@using FinancialDucks.Application.Models
+
+@if(CategoryRule.SubstringMatch != null)
+{
+    <p>Description contains 
+    <mark>@CategoryRule.SubstringMatch</mark></p>
+}
+@code 
+{
+    [Parameter]
+    public ICategoryRule CategoryRule { get; set; }
+}
