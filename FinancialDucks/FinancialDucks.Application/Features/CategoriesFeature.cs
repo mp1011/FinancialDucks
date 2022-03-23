@@ -25,16 +25,17 @@ namespace FinancialDucks.Application.Features
 
         public class AddCategoryHandler : IRequestHandler<AddCategoryCommand, ICategory>
         {
-            private readonly IDataContext _dataContext;
+            private readonly IDataContextProvider _dataContextProvider;
 
-            public AddCategoryHandler(IDataContext dataContext)
+            public AddCategoryHandler(IDataContextProvider dataContextProvider)
             {
-                _dataContext = dataContext;
+                _dataContextProvider = dataContextProvider;
             }
 
             public async Task<ICategory> Handle(AddCategoryCommand request, CancellationToken cancellationToken)
             {
-                return await _dataContext.AddSubcategory(request.Parent, request.Text);
+                using var dataContext = _dataContextProvider.CreateDataContext();
+                return await dataContext.AddSubcategory(request.Parent, request.Text);
             }
         }
     }

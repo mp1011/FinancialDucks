@@ -8,23 +8,24 @@ namespace FinancialDucks.Infrastructure.Services
 {
     public class SqlCategoryTreeProvider : ICategoryTreeProvider
     {
-        private readonly FinancialDucksContext _dbContext;
+        private readonly DataContextProvider _dbContextProvider;
 
-        public SqlCategoryTreeProvider(FinancialDucksContext dbContext)
+        public SqlCategoryTreeProvider(DataContextProvider dbContextProvider)
         {
-            _dbContext = dbContext;
+            _dbContextProvider = dbContextProvider;
         }
 
         public async Task<ICategoryDetail> GetCategoryTree()
         {
+            using var dbContext = _dbContextProvider.CreateDataContext();
             var rootHierarchy = HierarchyId.GetRoot();
-            var root = _dbContext.Categories.Single(p=>p.HierarchyId == rootHierarchy);
-            return await BuildCategoryTree(new AppCategory(root.Id, root.Name, null), rootHierarchy);       
+            var root = dbContext.Categories.Single(p=>p.HierarchyId == rootHierarchy);
+            return await BuildCategoryTree(dbContext, new AppCategory(root.Id, root.Name, null), rootHierarchy);       
         }
 
-        private async Task<AppCategory> BuildCategoryTree(AppCategory category, HierarchyId hierarchyId)
+        private async Task<AppCategory> BuildCategoryTree(FinancialDucksContext dbContext, AppCategory category, HierarchyId hierarchyId)
         {
-            var children = await _dbContext.Categories
+            var children = await dbContext.Categories
                    .AsNoTracking()
                    .Include(p=>p.CategoryRules)
                    .Where(p => p.HierarchyId.GetAncestor(1) == hierarchyId)
@@ -35,7 +36,7 @@ namespace FinancialDucks.Infrastructure.Services
                 var childCategory = new AppCategory(child.Id, child.Name, category);
                 childCategory.Rules.AddRange(child.CategoryRules);
                 category.Children.Add(childCategory);
-                await BuildCategoryTree(childCategory, child.HierarchyId);
+                await BuildCategoryTree(dbContext, childCategory, child.HierarchyId);
             }
 
             return category;

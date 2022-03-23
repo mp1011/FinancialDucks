@@ -2,7 +2,18 @@
 @using static FinancialDucks.Application.Features.CategoriesFeature
 
 <li>
-    <p @onclick="()=> CategorySelected.InvokeAsync(Category)">@Category.Name</p>
+    <p @onclick="()=> CategorySelected.InvokeAsync(Category)">@Category.Name
+        @if (!NumTransactions.HasValue)
+        {
+            <span class="badge bg-secondary">...</span> 
+            <span class="badge bg-secondary">...</span>
+        }
+        else
+        {
+            <span class="badge bg-secondary">@NumTransactions</span> 
+            <span class="badge bg-secondary">@DollarTotal.Value.ToString("C")</span>
+        }
+    </p> 
     <ul>
         @foreach(var child in Category.Children)
         {
@@ -22,18 +33,3 @@
     </ul>      
     
 </li>
-
-@code 
-{
-    public string NewCategoryText { get; set; }
-
-    [Parameter]
-    public ICategoryDetail Category { get; set; }
-
-    [Parameter]
-    public EventCallback<AddCategoryCommand> NewButtonClick { get; set; }
-
-    [Parameter]
-    public EventCallback<ICategoryDetail> CategorySelected { get; set; }
-
-}

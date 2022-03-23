@@ -17,9 +17,11 @@ namespace FinancialDucks.Infrastructure.Services
             _objectMapper = objectMapper;
         }
 
-        public IDataContext CreateDataContext()
+        public FinancialDucksContext CreateDataContext()
         {
             return new FinancialDucksContext(_settingsService, _transactionEqualityComparer, _objectMapper);
         }
+
+        IDataContext IDataContextProvider.CreateDataContext() => CreateDataContext();
     }
 }

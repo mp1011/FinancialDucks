@@ -28,6 +28,7 @@ namespace FinancialDucks.Client
             builder.Services.AddMediatR(typeof(ReadLocalTransactions));
             builder.Services.AddSingleton<IObjectMapper, ReflectionObjectMapper>();
             builder.Services.AddSingleton<IDataContextProvider, DataContextProvider>();
+            builder.Services.AddSingleton<DataContextProvider>();
             builder.Services.AddSingleton<IEqualityComparer<ITransaction>, TransactionEqualityComparer>();
             builder.Services.AddSingleton<ITransactionReader, TransactionReader>();
             builder.Services.AddSingleton<ISettingsService, SettingsService>();

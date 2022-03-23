@@ -113,7 +113,7 @@ namespace FinancialDucks.Tests
 
             while(date.Month < 3)
             {
-                MockTransations.Add(GetMockTransaction(date, 9.99M, "Krusty Burger"));
+                MockTransations.Add(GetMockTransaction(date, -9.99M, "Krusty Burger"));
                 date = date.AddDays(5);
             }
         }
@@ -124,8 +124,19 @@ namespace FinancialDucks.Tests
 
             while (date.Month < 3)
             {
-                MockTransations.Add(GetMockTransaction(date, 7.99M, "McDonalds"));
+                MockTransations.Add(GetMockTransaction(date, -7.99M, "McDonalds"));
                 date = date.AddDays(8);
+            }
+        }
+
+        public void AddUnclassifiedTransactions()
+        {
+            DateTime date = new DateTime(2022, 1, 1);
+
+            while (date.Month < 3)
+            {
+                MockTransations.Add(GetMockTransaction(date, -7.99M, "Unknown Transaction"));
+                date = date.AddDays(5);
             }
         }
 
