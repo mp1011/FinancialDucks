@@ -22,10 +22,14 @@ namespace FinancialDucks.Tests.FeatureTests
         [InlineData("2022/1/2", "2022/2/24", 0, 12, 10)]
         public async Task CanQueryTransactions(string dateStartStr, string dateEndStr, int page, int resultsPerPage, int expectedResults)
         {
+            var serviceProvider = CreateServiceProvider();
+            var mockDataHelper = serviceProvider.GetRequiredService<MockDataHelper>();
+
+            mockDataHelper.AddKrustyBurgerTransactions();
             var dateStart = DateTime.Parse(dateStartStr);
             var dateEnd = DateTime.Parse(dateEndStr);
 
-            var mediator = _serviceProvider.GetService<IMediator>();
+            var mediator = serviceProvider.GetService<IMediator>();
             var results = await mediator!.Send(new QueryTransactions(
                 dateStart,
                 dateEnd,

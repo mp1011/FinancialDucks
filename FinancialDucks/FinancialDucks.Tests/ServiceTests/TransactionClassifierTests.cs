@@ -20,7 +20,8 @@ namespace FinancialDucks.Tests.ServiceTests
         [InlineData("Krusty Burger #Shelbyville", -50.00D, "2022/12/31", "2022 Debits", "Debits")]
         public async Task CanClassifyTransaction(string description, decimal amount, string dateStr, string expectedClassification, string expectedAncestors)
         {
-            var classifier = _serviceProvider.GetService<ITransactionClassifier>();
+            var serviceProvider = CreateServiceProvider();
+            var classifier = serviceProvider.GetService<ITransactionClassifier>();
 
             var transaction = new ImportedTransaction(null, amount, DateTime.Parse(dateStr), description, 0);
 
@@ -41,7 +42,8 @@ namespace FinancialDucks.Tests.ServiceTests
         [InlineData("Krusty Burger #Shelbyville", -50.00D, "2023/1/1", "2022 Debits")]
         public async Task TestNegativeClassification(string description, decimal amount, string dateStr, string shouldNotHaveClassification)
         {
-            var classifier = _serviceProvider.GetService<ITransactionClassifier>();
+            var serviceProvider = CreateServiceProvider();
+            var classifier = serviceProvider.GetService<ITransactionClassifier>();
 
             var transaction = new ImportedTransaction(null, amount, DateTime.Parse(dateStr), description, 0);
 

@@ -12,12 +12,18 @@ namespace FinancialDucks.Tests.FeatureTests
         [Theory]
         [InlineData("Krusty Burger", 119.88)]
         [InlineData("McDonalds", 47.94)]
-        [InlineData("Fast-Food", 333.33)]
+        [InlineData("Fast-Food", 167.82)]
         public async Task CanGetStatsForCategory(string categoryName, decimal expectedSum)
         {
-            var mediator = _serviceProvider.GetService<IMediator>()!;
+            var serviceProvider = CreateServiceProvider();
+            var mockDataHelper = serviceProvider.GetRequiredService<MockDataHelper>();
 
-            var category = MockDataHelper.GetMockCategoryTree()
+            mockDataHelper.AddMcDonaldsTransations();
+            mockDataHelper.AddKrustyBurgerTransactions();
+
+            var mediator = serviceProvider.GetService<IMediator>()!;
+
+            var category = mockDataHelper.GetMockCategoryTree()
                                          .GetDescendant(categoryName)!;
 
             var result = await mediator.Send(new CategoryStatsFeature.Query(category));

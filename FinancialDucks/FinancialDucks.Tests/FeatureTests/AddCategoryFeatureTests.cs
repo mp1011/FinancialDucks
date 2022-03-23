@@ -14,10 +14,11 @@ namespace FinancialDucks.Tests.FeatureTests
         [InlineData("Food","Big Kahuna Burger")]
         public async Task CanAddSubcategory(string parent, string newChild)
         {
-            var root = MockDataHelper.GetMockCategoryTree();
+            var serviceProvider = CreateServiceProvider();
+            var root = serviceProvider.GetRequiredService<MockDataHelper>().GetMockCategoryTree();
             var parentNode = root.GetDescendant(parent)!;
 
-            var result = await _serviceProvider.GetService<IMediator>()!
+            var result = await serviceProvider.GetService<IMediator>()!
                 .Send(new CategoriesFeature.AddCategoryCommand(parentNode, newChild));
 
             parentNode.AddSubcategory(result);

@@ -22,9 +22,10 @@ namespace FinancialDucks.Tests.ServiceTests
         [InlineData($"\\Jan2021\\tfcu.csv", -2364.59, "1/4/2021", "Electronic Withdrawal: Nationstar dba - Mr Cooper",5)]
         public async Task CanParseFile(string source, decimal expectedTotal, string expectedDate, string expectedDescription, int expectedSourceId)
         {
-            var sourceDataFolder = _serviceProvider.GetService<ISettingsService>()!.SourcePath;
+            var serviceProvider = CreateServiceProvider();
+            var sourceDataFolder = serviceProvider.GetService<ISettingsService>()!.SourcePath;
 
-            var importService = _serviceProvider.GetService<ITransactionReader>();
+            var importService = serviceProvider.GetService<ITransactionReader>();
             var results = await importService!.ParseTransactions(new FileInfo($"{sourceDataFolder.FullName}{source}"));
 
             Assert.NotNull(results);

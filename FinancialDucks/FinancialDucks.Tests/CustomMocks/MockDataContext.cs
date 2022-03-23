@@ -9,13 +9,20 @@ namespace FinancialDucks.Tests.CustomMocks
 {
     class MockDataContext : IDataContext
     {
+        private readonly MockDataHelper _mockDataHelper;
+
+        public MockDataContext(MockDataHelper mockDataHelper)
+        {
+            _mockDataHelper = mockDataHelper;
+        }
+
         public IQueryable<ITransactionSource> TransactionSources => throw new NotImplementedException();
 
-        public IQueryable<ITransactionSourceDetail> TransactionSourcesDetail => MockDataHelper.GetMockTransactionSources().AsQueryable();
+        public IQueryable<ITransactionSourceDetail> TransactionSourcesDetail => _mockDataHelper.GetMockTransactionSources().AsQueryable();
 
-        public IQueryable<ITransactionDetail> TransactionsDetail => MockDataHelper.GetMockTransactions().AsQueryable();
+        public IQueryable<ITransactionDetail> TransactionsDetail => _mockDataHelper.MockTransations.AsQueryable();
 
-        public IQueryable<ICategoryRuleDetail> CategoryRulesDetail => MockDataHelper.GetMockCategoryRules().AsQueryable();
+        public IQueryable<ICategoryRuleDetail> CategoryRulesDetail => _mockDataHelper.GetMockCategoryRules().AsQueryable();
 
         public Task<ICategoryRule> AddCategoryRule(ICategory category, ICategoryRule rule)
         {

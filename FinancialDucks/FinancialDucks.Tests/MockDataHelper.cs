@@ -9,9 +9,10 @@ using System.Linq;
 
 namespace FinancialDucks.Tests
 {
-    public static class MockDataHelper
+    public class MockDataHelper
     {
-        public static ITransactionSourceDetail[] GetMockTransactionSources()
+
+        public ITransactionSourceDetail[] GetMockTransactionSources()
         {
             return new ITransactionSourceDetail[]
             {
@@ -23,7 +24,7 @@ namespace FinancialDucks.Tests
             };
         }
 
-        public static ITransactionSourceDetail CreateMockTransactionSource(int id, string name, params string[] fileMappings)
+        public ITransactionSourceDetail CreateMockTransactionSource(int id, string name, params string[] fileMappings)
         {
             var mock = new Mock<ITransactionSourceDetail>();
             mock.Setup(x => x.Id).Returns(id);
@@ -34,7 +35,7 @@ namespace FinancialDucks.Tests
             return mock.Object;
         }
 
-        private static IEnumerable<ITransactionSourceFileMappingDetail> CreateMockTransactionSourceMapping(ITransactionSourceDetail source, 
+        private IEnumerable<ITransactionSourceFileMappingDetail> CreateMockTransactionSourceMapping(ITransactionSourceDetail source, 
             string[] fileMappings)
         {
             foreach(var mapping in fileMappings)
@@ -48,7 +49,7 @@ namespace FinancialDucks.Tests
 
         }
 
-        public static ICategoryDetail GetMockCategoryTree()
+        public ICategoryDetail GetMockCategoryTree()
         {
             int id = 1;
             var root = new TestCategory(id++, "Master", null);
@@ -81,7 +82,7 @@ namespace FinancialDucks.Tests
             return root;
         }
 
-        public static IEnumerable<ICategoryRuleDetail> GetMockCategoryRules()
+        public IEnumerable<ICategoryRuleDetail> GetMockCategoryRules()
         {
             var categories = GetMockCategoryTree();
 
@@ -105,28 +106,30 @@ namespace FinancialDucks.Tests
                DateMax: new DateTime(2022, 12, 31));
         }
 
-        public static IEnumerable<ITransactionDetail> GetMockTransactions()
+        public List<ITransactionDetail> MockTransations { get; } = new List<ITransactionDetail>();
+        public void AddKrustyBurgerTransactions()
         {
             DateTime date = new DateTime(2022, 1, 1);
 
             while(date.Month < 3)
             {
-                yield return GetMockTransaction(date, 9.99M, "Krusty Burger");
+                MockTransations.Add(GetMockTransaction(date, 9.99M, "Krusty Burger"));
                 date = date.AddDays(5);
             }
+        }
 
-            date = new DateTime(2022, 1, 15);
+        public void AddMcDonaldsTransations()
+        {
+            DateTime  date = new DateTime(2022, 1, 15);
 
             while (date.Month < 3)
             {
-                yield return GetMockTransaction(date, 7.99M, "McDonalds");
+                MockTransations.Add(GetMockTransaction(date, 7.99M, "McDonalds"));
                 date = date.AddDays(8);
             }
-
         }
 
-
-        private static ITransactionDetail GetMockTransaction(DateTime date, decimal amount, string description)
+        private ITransactionDetail GetMockTransaction(DateTime date, decimal amount, string description)
         {
             var mock = new Mock<ITransactionDetail>();
             mock.Setup(x => x.Amount).Returns(amount);

@@ -26,6 +26,13 @@ namespace FinancialDucks.Application.Models
             }
         }
 
+        public static IEnumerable<ICategoryDetail> GetThisAndAllDescendants(this ICategoryDetail category)
+        {
+            yield return category;
+            foreach(var d in category.GetDescendants())
+                yield return d;
+        }
+
         public static IEnumerable<ICategoryDetail> GetDescendants(this ICategoryDetail category)
         {
             foreach(var child in category.Children)
@@ -40,6 +47,11 @@ namespace FinancialDucks.Application.Models
         public static ICategoryDetail? GetDescendant(this ICategoryDetail category, string name)
         {
             return category.GetDescendants().FirstOrDefault(x => x.Name == name);
+        }
+
+        public static ICategoryDetail? GetDescendant(this ICategoryDetail category, int id)
+        {
+            return category.GetDescendants().FirstOrDefault(x => x.Id == id);
         }
     }
 }

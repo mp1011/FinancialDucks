@@ -14,11 +14,12 @@ namespace FinancialDucks.Tests.ServiceTests
         [InlineData($"\\Jan2021\\unknown.csv", null)]
         public void CanDetectTransactionFileSource(string fileName, string expectedSource)
         {
-            var sourceDetector = _serviceProvider.GetService<ITransactionFileSourceIdentifier>();
+            var serviceProvider = CreateServiceProvider();
+            var sourceDetector = serviceProvider.GetService<ITransactionFileSourceIdentifier>();
 
             try
             {
-                var sourceDataFolder = _serviceProvider.GetService<ISettingsService>()!.SourcePath;
+                var sourceDataFolder = serviceProvider.GetService<ISettingsService>()!.SourcePath;
                 var file =  new FileInfo($"{sourceDataFolder.FullName}{fileName}");
                 var result = sourceDetector!.DetectTransactionSource(file);
                 Assert.Equal(expectedSource, result.Name);

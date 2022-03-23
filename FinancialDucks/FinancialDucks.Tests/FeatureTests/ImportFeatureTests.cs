@@ -13,7 +13,8 @@ namespace FinancialDucks.Tests.FeatureTests
         [Fact]
         public async Task CanImportAllTransactionsInFolder()
         {
-            var mediator = _serviceProvider.GetService<IMediator>();
+            var serviceProvider = CreateServiceProvider();
+            var mediator = serviceProvider.GetService<IMediator>();
             var result = await mediator!.Send(new ReadLocalTransactions.Request());
 
             Assert.Equal(-13441.22M, result.Sum(p => p.Amount));

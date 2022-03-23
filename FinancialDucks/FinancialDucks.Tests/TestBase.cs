@@ -1,31 +1,30 @@
-﻿using FinancialDucks.Application.Services;
+﻿using FinancialDucks.Application.Features;
+using FinancialDucks.Application.Models;
+using FinancialDucks.Application.Services;
+using FinancialDucks.Tests.CustomMocks;
 using FinancialDucks.Tests.ServiceTests;
+using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Moq;
-using MediatR;
 using System;
-using System.IO;
-using System.Linq;
-using FinancialDucks.Application.Features;
 using System.Collections.Generic;
-using FinancialDucks.Application.Models;
+using System.IO;
 using System.Threading.Tasks;
-using FinancialDucks.Tests.TestModels;
-using FinancialDucks.Tests.CustomMocks;
 
 namespace FinancialDucks.Tests
 {
-    public class TestBase
+    public class TestBase 
     {
-        protected readonly IServiceProvider _serviceProvider;
+        private bool disposedValue;
 
-        public TestBase()
+        protected IServiceProvider CreateServiceProvider()
         {
             var builder = Host.CreateDefaultBuilder()
                .ConfigureServices(sc =>
                {
+                   sc.AddSingleton<MockDataHelper>();
                    sc.AddMediatR(typeof(ReadLocalTransactions));
                    sc.AddSingleton<IEqualityComparer<ITransaction>, TransactionEqualityComparer>();
                    sc.AddSingleton<ITransactionReader, TransactionReader>();
@@ -33,11 +32,11 @@ namespace FinancialDucks.Tests
                    sc.AddSingleton<ITransactionFileSourceIdentifier, TransactionFileSourceIdentifier>();
                    sc.AddSingleton<ITransactionClassifier, TransactionClassifier>();
 
-                   sc.AddSingleton(_ =>
+                   sc.AddSingleton(sp =>
                    {
                        var mock = new Mock<ICategoryTreeProvider>();
                        mock.Setup(x => x.GetCategoryTree())
-                            .Returns(() => Task.FromResult(MockDataHelper.GetMockCategoryTree()));
+                            .Returns(() => Task.FromResult(sp.GetRequiredService<MockDataHelper>().GetMockCategoryTree()));
                        return mock.Object;
                    });
 
@@ -58,7 +57,7 @@ namespace FinancialDucks.Tests
                    cb.AddJsonFile($@"{path!.FullName}\appsettings.json");
                });
 
-            _serviceProvider = builder.Build().Services;
+            return builder.Build().Services;
         }
     }
 }

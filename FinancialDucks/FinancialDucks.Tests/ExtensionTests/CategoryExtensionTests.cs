@@ -14,7 +14,8 @@ namespace FinancialDucks.Tests.ExtensionTests
         [InlineData("Krusty Burger", "Entertainment", true)]
         public async Task CanGetAncestor(string categoryName, string ancestorName, bool expectEmpty)
         {
-            var tree = await _serviceProvider.GetService<ICategoryTreeProvider>()!.GetCategoryTree();
+            var serviceProvider = CreateServiceProvider();
+            var tree = await serviceProvider.GetService<ICategoryTreeProvider>()!.GetCategoryTree();
 
             var category = tree.GetDescendant(categoryName)!;
             var ancestor = category.GetAncestors()
@@ -29,10 +30,11 @@ namespace FinancialDucks.Tests.ExtensionTests
         [Theory]
         [InlineData("Fast-Food", "Krusty Burger", false)]
         [InlineData("Restaurants", "Krusty Burger", false)]
-        [InlineData("Restaurants", "McDonalds", true)]
+        [InlineData("Restaurants", "NotARestaurant", true)]
         public async Task CanGetDescendant(string categoryName, string descendantName, bool expectEmpty)
         {
-            var tree = await _serviceProvider.GetService<ICategoryTreeProvider>()!.GetCategoryTree();
+            var serviceProvider = CreateServiceProvider();
+            var tree = await serviceProvider.GetService<ICategoryTreeProvider>()!.GetCategoryTree();
 
             var category = tree.GetDescendant(categoryName)!;
 
