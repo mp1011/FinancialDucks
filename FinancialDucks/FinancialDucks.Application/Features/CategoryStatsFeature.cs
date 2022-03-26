@@ -91,12 +91,24 @@ namespace FinancialDucks.Application.Features
                      .DebugWatchCommandText(ctx)
                      .ToArrayAsync(ctx);
 
-                var descriptionCounts = result
-                   .Select(p => p.Transaction.Description.CleanNumbersAndSpecialCharacters())
-                   .GroupBy(g => g)
-                   .Select(g => new DescriptionWithCount(g.Key, g.Count()))
-                   .OrderByDescending(p => p.Count)
-                   .ToArray();
+
+                var queryCategorized = from t in ctx.TransactionsDetail
+                                          from cr in ctx.CategoryRulesDetail
+                                          where cr.SubstringMatch != null
+                                              && t.Description.Contains(cr.SubstringMatch)
+                                          select t;
+
+                var queryUncategorized = ctx.TransactionsDetail
+                                .Where(condition)
+                                .Except(queryCategorized);
+
+                var descriptionCounts = queryUncategorized
+                    .ToArray()
+                    .Select(p => p.Description.CleanNumbersAndSpecialCharacters())
+                    .GroupBy(g => g)
+                    .Select(g => new DescriptionWithCount(g.Key, g.Count()))
+                    .OrderByDescending(p => p.Count)
+                    .ToArray();
 
                 return new CategoryStats(result.Count(), result.Sum(p => p.Transaction.Amount), descriptionCounts);
             }

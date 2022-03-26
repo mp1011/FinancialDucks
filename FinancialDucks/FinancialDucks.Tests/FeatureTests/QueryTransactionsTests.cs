@@ -30,7 +30,7 @@ namespace FinancialDucks.Tests.FeatureTests
             var dateEnd = DateTime.Parse(dateEndStr);
 
             var mediator = serviceProvider.GetService<IMediator>();
-            var results = await mediator!.Send(new QueryTransactions(
+            var results = await mediator!.Send(new TransactionsFeature.QueryTransactions(
                 dateStart,
                 dateEnd,
                 page,

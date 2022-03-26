@@ -48,7 +48,15 @@ else
 
     </li>
 </ul>
-<h4>Transactions</h4>
+
+@if(Category.IsSpecialCategory())
+{
+    <h4>Uncategorized Transactions</h4>
+}
+else
+{
+    <h4>Transactions</h4>
+}
 <ul>
     @if (DescriptionCounts != null)
     {

@@ -17,6 +17,7 @@ namespace FinancialDucks.Client.Components
         [Inject]
         public IMediator Mediator { get; set; }
 
+        public bool ShowUncategorizedOnly { get; set; }
         public bool AddingRule { get; set; }
 
         private string _newCategoryName;

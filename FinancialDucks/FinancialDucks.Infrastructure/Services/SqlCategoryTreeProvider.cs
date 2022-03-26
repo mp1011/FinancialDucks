@@ -29,6 +29,7 @@ namespace FinancialDucks.Infrastructure.Services
                    .AsNoTracking()
                    .Include(p=>p.CategoryRules)
                    .Where(p => p.HierarchyId.GetAncestor(1) == hierarchyId)
+                   .OrderBy(p=>p.Name)
                    .ToArrayAsync();
 
             foreach(var child in children)
