@@ -2,7 +2,9 @@
 {
     public enum SpecialCategory
     {
+        None,
         Credits,
-        Debits
+        Debits,
+        Transfers
     }
 }

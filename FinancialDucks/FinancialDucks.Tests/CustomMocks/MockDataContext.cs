@@ -43,6 +43,11 @@ namespace FinancialDucks.Tests.CustomMocks
             return Task.FromResult(query.ToArray());
         }
 
+        public Task<ICategory> Update(ICategory category)
+        {
+            throw new NotImplementedException();
+        }
+
         public Task<ITransaction[]> UploadTransactions(ITransaction[] transactions)
         {
             throw new NotImplementedException();

@@ -7,7 +7,17 @@ namespace FinancialDucks.Tests.ServiceTests
 {
     public class ObjectMapperTests 
     {
-        class DummyTypeA
+        public interface IDummyInterfaceBase
+        {
+            public string PropertyA { get; set; }
+        }
+
+        public interface IDummyInterface : IDummyInterfaceBase
+        {
+            public int PropertyB { get; set; }
+        }
+
+        class DummyTypeA : IDummyInterface
         {
             public string PropertyA { get; set; }
             public int PropertyB { get; set; }
@@ -24,7 +34,7 @@ namespace FinancialDucks.Tests.ServiceTests
             public string ThrowsError => throw new Exception("error");
         }
 
-        class DummyTypeB
+        class DummyTypeB : IDummyInterface
         {
             public string PropertyA { get; set; }
             public int PropertyB { get; set; }
@@ -53,6 +63,22 @@ namespace FinancialDucks.Tests.ServiceTests
             Assert.IsType<DummyTypeB>(typeB);
             Assert.Equal(typeA.PropertyA, typeB.PropertyA);
             Assert.Equal(typeA.PropertyB, typeB.PropertyB);
+        }
+
+        [Fact]
+        public void CanConvertTypesThroughInterface()
+        {
+            var mapper = new ReflectionObjectMapper();
+
+            IDummyInterface typeA = new DummyTypeA { PropertyA = "TEST STRING", PropertyB = 123 };
+            IDummyInterface typeB = new DummyTypeB();
+
+            mapper.CopyAllProperties<IDummyInterface, IDummyInterface>(typeA, typeB);
+
+            Assert.IsType<DummyTypeB>(typeB);
+            Assert.Equal(typeA.PropertyA, typeB.PropertyA);
+            Assert.Equal(typeA.PropertyB, typeB.PropertyB);
+
         }
     }
 }

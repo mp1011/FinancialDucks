@@ -1,4 +1,6 @@
 ﻿// Stryker disable all
+using System.Reflection;
+
 namespace FinancialDucks.Application.Services
 {
     public interface IObjectMapper
@@ -37,16 +39,34 @@ namespace FinancialDucks.Application.Services
             return output;
         }
 
+        private IEnumerable<PropertyInfo> GetAllPublicProperties<T>()
+        {
+            return GetAllPublicProperties(typeof(T));
+        }
+
+        private IEnumerable<PropertyInfo> GetAllPublicProperties(Type t)
+        {
+            List<PropertyInfo> properties = new List<PropertyInfo>();
+            properties.AddRange(t.GetProperties());
+
+            foreach(var implementedInterface in t.GetInterfaces())            
+                properties.AddRange(GetAllPublicProperties(implementedInterface));
+            
+            return properties;
+        }
+
         public void CopyAllProperties<TIn,TOut>(TIn source, TOut destination)
         {
-            foreach (var inProperty in typeof(TIn).GetProperties())
+            var outProperties = GetAllPublicProperties<TOut>();
+
+            foreach (var inProperty in GetAllPublicProperties<TIn>())
             {
                 if (!inProperty.CanRead)
                     continue;
 
                 try
                 {
-                    var outProperty = typeof(TOut).GetProperty(inProperty.Name);
+                    var outProperty = outProperties.FirstOrDefault(p=>p.Name == inProperty.Name);
                     if (outProperty == null || !outProperty.CanWrite)
                         continue;
 

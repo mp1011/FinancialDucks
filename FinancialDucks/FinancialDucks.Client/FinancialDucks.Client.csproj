@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Razor">
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
 	<PropertyGroup>
 		<TargetFrameworks>net6.0-android;net6.0-ios;net6.0-maccatalyst</TargetFrameworks>
@@ -59,6 +59,25 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <AndroidResource Remove="npm\**" />
+	  <AndroidResource Remove="wwwroot\css\jstree\**" />
+	  <AndroidResource Remove="wwwroot\js\jstree\**" />
+	  <Compile Remove="npm\**" />
+	  <Compile Remove="wwwroot\css\jstree\**" />
+	  <Compile Remove="wwwroot\js\jstree\**" />
+	  <Content Remove="npm\**" />
+	  <Content Remove="wwwroot\css\jstree\**" />
+	  <Content Remove="wwwroot\js\jstree\**" />
+	  <EmbeddedResource Remove="npm\**" />
+	  <EmbeddedResource Remove="wwwroot\css\jstree\**" />
+	  <EmbeddedResource Remove="wwwroot\js\jstree\**" />
+	  <MauiXaml Remove="npm\**" />
+	  <None Remove="npm\**" />
+	  <None Remove="wwwroot\css\jstree\**" />
+	  <None Remove="wwwroot\js\jstree\**" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<Content Remove="appsettings.json" />
 		<Content Remove="Properties\launchSettings.json" />
 	</ItemGroup>
@@ -79,5 +98,4 @@
 	  <ProjectReference Include="..\FinancialDucks.Application\FinancialDucks.Application.csproj" />
 	  <ProjectReference Include="..\FinancialDucks.Infrastructure\FinancialDucks.Infrastructure.csproj" />
 	</ItemGroup>
-
-</Project>
+	</Project>

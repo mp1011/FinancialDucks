@@ -1,4 +1,5 @@
 ﻿using FinancialDucks.Application.Models;
+using FinancialDucks.Application.Models.AppModels;
 using FinancialDucks.Application.Services;
 using MediatR;
 
@@ -8,6 +9,8 @@ namespace FinancialDucks.Application.Features
     {
         public record CategoryTreeRequest() : IRequest<ICategoryDetail> { }
         public record AddCategoryCommand(ICategory Parent, string Text) : IRequest<ICategory> { }
+        public record UpdateCategoryCommand(ICategory Category) : IRequest<ICategory> { }
+
         public class CategoryTreeRequestHandler : IRequestHandler<CategoryTreeRequest, ICategoryDetail>
         {
             private readonly ICategoryTreeProvider _categoryTreeProvider;
@@ -22,7 +25,6 @@ namespace FinancialDucks.Application.Features
                 return await _categoryTreeProvider.GetCategoryTree();
             }
         }
-
         public class AddCategoryHandler : IRequestHandler<AddCategoryCommand, ICategory>
         {
             private readonly IDataContextProvider _dataContextProvider;
@@ -36,6 +38,26 @@ namespace FinancialDucks.Application.Features
             {
                 using var dataContext = _dataContextProvider.CreateDataContext();
                 return await dataContext.AddSubcategory(request.Parent, request.Text);
+            }
+        }
+
+        public class UpdateHandler : IRequestHandler<UpdateCategoryCommand,ICategory>
+        {
+            private readonly IMediator _mediator;
+            private readonly IDataContextProvider _dataContextProvider;
+
+            public UpdateHandler(IMediator mediator, IDataContextProvider dataContextProvider)
+            {
+                _mediator = mediator;
+                _dataContextProvider = dataContextProvider;
+            }
+
+            public async Task<ICategory> Handle(UpdateCategoryCommand request, CancellationToken cancellationToken)
+            {
+                using var dataContext= _dataContextProvider.CreateDataContext();
+                var result = await dataContext.Update(request.Category);
+                await _mediator.Publish(new CategoryChangeNotification(result));
+                return result;
             }
         }
     }

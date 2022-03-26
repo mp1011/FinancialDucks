@@ -1,8 +1,13 @@
 ﻿@using FinancialDucks.Application.Models
 @using static FinancialDucks.Application.Features.CategoriesFeature
-
+@**@
 <li>
-    <p @onclick="()=> CategorySelected.InvokeAsync(Category)">@Category.Name
+    <button  
+        type="button"
+        data-bs-toggle="collapse" 
+        data-bs-target="#children_@Id"
+        @onclick="Category_Clicked">
+        @Category.Name
         @if (!NumTransactions.HasValue)
         {
             <span class="badge bg-secondary">...</span> 
@@ -13,23 +18,26 @@
             <span class="badge bg-secondary">@NumTransactions</span> 
             <span class="badge bg-secondary">@DollarTotal.Value.ToString("C")</span>
         }
-    </p> 
-    <ul>
-        @foreach(var child in Category.Children)
+    </button> 
+ 
+    <ul id="children_@Id" class="collapse">
+        <li>
+            <div class="input-group mb-3">
+                <input @bind=NewCategoryText type="text" class="form-control" aria-label="New Category Name">
+                <div class="input-group-append">
+                <button type="button" class="btn btn-primary"
+                    @onclick="NewButton_Clicked">+</button>
+                </div>
+            </div>   
+        </li>
+        @foreach (var child in Category.Children)
         {
             <li>
                 <CategoryTreeNode Category=child NewButtonClick=@NewButtonClick CategorySelected=@CategorySelected/>
-            </li>                    
+            </li>
         }          
-        <li>
-            <div class="input-group mb-3">
-              <input @bind=NewCategoryText type="text" class="form-control" aria-label="New Category Name">
-              <div class="input-group-append">
-                <button type="button" class="btn btn-primary"
-                    @onclick="() => NewButtonClick.InvokeAsync(new AddCategoryCommand(Category, NewCategoryText))">+</button>
-              </div>
-            </div>   
-        </li>
-    </ul>      
+        
+    </ul>  
+    
     
 </li>

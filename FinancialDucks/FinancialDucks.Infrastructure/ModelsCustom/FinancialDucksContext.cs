@@ -87,6 +87,16 @@ namespace FinancialDucks.Infrastructure.Models
 
             Categories.Add(newCategory);
             await SaveChangesAsync();
+
+            var autoRule = new CategoryRule
+            {
+                CategoryId = newCategory.Id,
+                SubstringMatch = newCategory.Name
+            };
+            CategoryRules.Add(autoRule);
+            await SaveChangesAsync();
+
+
             await transaction.CommitAsync();
 
             return newCategory;
@@ -114,6 +124,22 @@ namespace FinancialDucks.Infrastructure.Models
             var txt = query.ToQueryString();
             watcher?.Invoke(txt);
             return query;
+        }
+
+        public async Task<ICategory> Update(ICategory category)
+        {
+            using var transaction = await Database.BeginTransactionAsync();
+
+            var dbRecord = Categories.FirstOrDefault(c => c.Id == category.Id);
+            if (dbRecord == null)
+                throw new Exception($"Category {category.Id} not found");
+
+            _objectMapper.CopyAllProperties(category, dbRecord);
+            Entry(dbRecord).State = EntityState.Modified;
+            await SaveChangesAsync();
+            await transaction.CommitAsync();
+
+            return dbRecord;
         }
     }
 }

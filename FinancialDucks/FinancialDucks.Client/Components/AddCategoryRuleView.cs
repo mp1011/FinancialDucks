@@ -1,6 +1,5 @@
 ﻿using FinancialDucks.Application.Features;
 using FinancialDucks.Application.Models;
-using FinancialDucks.Application.Models.AppModels;
 using MediatR;
 using Microsoft.AspNetCore.Components;
 
@@ -13,6 +12,9 @@ namespace FinancialDucks.Client.Components
 
         [Parameter]
         public ICategory Category { get; set; }
+
+        [Parameter]
+        public EventCallback<ICategoryRule> OnCategoryRuleCreated { get; set; }
 
         public string DescriptionContains { get; set; }
 
@@ -44,7 +46,10 @@ namespace FinancialDucks.Client.Components
 
         public async void CreateButton_Click()
         {
-            await Mediator.Send(new AddCategoryRule.Command(Category, this));
+            var newRule = await Mediator.Send(new AddCategoryRule.Command(Category, this));
+            SubstringMatch = "";
+            await OnCategoryRuleCreated.InvokeAsync(newRule);
+            await Mediator.Publish(new CategoryChangeNotification(Category));            
         }
     }
 }

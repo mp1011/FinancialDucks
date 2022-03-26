@@ -35,6 +35,7 @@ namespace FinancialDucks.Client
             builder.Services.AddSingleton<ITransactionFileSourceIdentifier, TransactionFileSourceIdentifier>();
             builder.Services.AddSingleton<ITransactionClassifier, TransactionClassifier>();
             builder.Services.AddSingleton<ICategoryTreeProvider, SqlCategoryTreeProvider>();
+            builder.Services.AddSingleton<NotificationDispatcher<CategoryChangeNotification>>();
 
             var path = AppContext.BaseDirectory;
             var configBuilder = new ConfigurationBuilder()

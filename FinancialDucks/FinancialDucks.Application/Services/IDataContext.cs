@@ -12,6 +12,7 @@ namespace FinancialDucks.Application.Services
         Task<ITransaction[]> UploadTransactions(ITransaction[] transactions);
         Task<ICategory> AddSubcategory(ICategory parent, string name);
         Task<ICategoryRule> AddCategoryRule(ICategory category, ICategoryRule rule);
+        Task<ICategory> Update(ICategory category);
         Task<T[]> ToArrayAsync<T>(IQueryable<T> query);
         IQueryable<T> WatchCommandText<T>(IQueryable<T> query, Action<string> watcher);
     }

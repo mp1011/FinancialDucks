@@ -15,8 +15,16 @@ namespace FinancialDucks.Application.Models
         ICategoryDetail AddSubcategory(ICategory child);
     }
 
-    public static class ICategoryDetailExtensions
+    public static class ICategoryExtensions
     {
+        public static bool IsSpecialCategory(this ICategory category)
+        {
+            if (category == null)
+                return false;
+
+            return Enum.TryParse<SpecialCategory>(category.Name, out _);
+        }
+
         public static IEnumerable<ICategoryDetail> GetAncestors(this ICategoryDetail category)
         {
             while (category.Parent != null)

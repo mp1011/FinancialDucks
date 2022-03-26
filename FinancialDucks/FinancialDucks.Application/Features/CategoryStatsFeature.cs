@@ -1,4 +1,5 @@
-﻿using FinancialDucks.Application.Models;
+﻿using FinancialDucks.Application.Extensions;
+using FinancialDucks.Application.Models;
 using FinancialDucks.Application.Models.AppModels;
 using FinancialDucks.Application.Services;
 using MediatR;
@@ -27,7 +28,7 @@ namespace FinancialDucks.Application.Features
 
                 var requestCategory = categories.GetDescendant(request.Category.Id);
                 if(requestCategory == null)
-                        return new CategoryStats(0, 0);
+                        return new CategoryStats(0, 0, new DescriptionWithCount[] { });
 
                 if (request.Category.Name == SpecialCategory.Debits.ToString())
                     return await GetTotalStats(requestCategory, p=>p.Amount < 0);
@@ -43,17 +44,24 @@ namespace FinancialDucks.Application.Features
                 using var ctx = _dataContextProvider.CreateDataContext();
 
                 var query = from t in ctx.TransactionsDetail
-                        from cr in ctx.CategoryRulesDetail
-                        where requestCategoryIds.Contains(cr.CategoryId)
-                            && cr.SubstringMatch != null
-                            && t.Description.Contains(cr.SubstringMatch)
-                        select new { Transaction = t, Category = cr.Category };
+                            from cr in ctx.CategoryRulesDetail
+                            where requestCategoryIds.Contains(cr.CategoryId)
+                                && cr.SubstringMatch != null
+                                && t.Description.Contains(cr.SubstringMatch)
+                            select new { Transaction = t, Category = cr.Category };
 
                 var result = await query
                      .DebugWatchCommandText(ctx)
                      .ToArrayAsync(ctx);
 
-                return new CategoryStats(result.Count(), result.Sum(p => p.Transaction.Amount));
+                var descriptionCounts = result
+                    .Select(p => p.Transaction.Description.CleanNumbersAndSpecialCharacters())
+                    .GroupBy(g => g)
+                    .Select(g => new DescriptionWithCount(g.Key, g.Count()))
+                    .OrderByDescending(p => p.Count)
+                    .ToArray();
+
+                return new CategoryStats(result.Count(), result.Sum(p => p.Transaction.Amount), descriptionCounts);
             }
         
         
@@ -69,7 +77,14 @@ namespace FinancialDucks.Application.Features
                      .DebugWatchCommandText(ctx)
                      .ToArrayAsync(ctx);
 
-                return new CategoryStats(result.Count(), result.Sum(p => p.Transaction.Amount));
+                var descriptionCounts = result
+                   .Select(p => p.Transaction.Description.CleanNumbersAndSpecialCharacters())
+                   .GroupBy(g => g)
+                   .Select(g => new DescriptionWithCount(g.Key, g.Count()))
+                   .OrderByDescending(p => p.Count)
+                   .ToArray();
+
+                return new CategoryStats(result.Count(), result.Sum(p => p.Transaction.Amount), descriptionCounts);
             }
         }
     }

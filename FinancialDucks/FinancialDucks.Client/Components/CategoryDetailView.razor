@@ -1,5 +1,22 @@
 ﻿@using FinancialDucks.Application.Models
-<h3>@Category.Name</h3>
+@using FinancialDucks.Application.Models.AppModels
+<h3>
+    @if(Category.IsSpecialCategory())
+    {
+        @Category.Name
+    }
+    else 
+    {
+        <input class="form-control form-control-lg" type="text" @bind=@Name @bind:event="oninput" />        
+    }
+</h3>
+@if(IsChangingName)
+{
+    <div class="btn-group" role="group" aria-label="Save or Cancel">
+        <button type="button" class="btn btn-primary" @onclick="UpdateCategoryName">Save</button>
+        <button type="button" class="btn btn-primary" @onclick="CancelCategoryName">Cancel</button>
+    </div>
+}
 
 <h4>Rules</h4>
 <ul>
@@ -15,26 +32,21 @@
         }
         else
         {
-           <AddCategoryRuleView Category=@Category />
+           <AddCategoryRuleView Category=@Category OnCategoryRuleCreated="OnCategoryRuleCreated" />
         }
 
     </li>
 </ul>
-
-@code 
-{
-    [Parameter]
-    public ICategoryDetail Category { get; set; }
-
-    public bool AddingRule { get; set; }
-
-    protected override void OnInitialized()
+<h4>Transactions</h4>
+<ul>
+    @if (DescriptionCounts != null)
     {
-        AddingRule = false;
-    }
+        @foreach (var description in DescriptionCounts)
+        {
+            <li>@description.Description
+                <span class="badge bg-info">@description.Count</span> 
+            </li>
+        }
 
-    public void AddRule()
-    {
-        AddingRule = true;
     }
-}
+</ul>
