@@ -79,31 +79,38 @@ namespace FinancialDucks.Tests
             debits
                 .AddChild(id++, "2022 Debits");
 
+            root.AddChild(id++, "Transfers");
+            root.AddChild(id++, "Credits");
+
             return root;
         }
 
         public IEnumerable<ICategoryRuleDetail> GetMockCategoryRules()
         {
             var categories = GetMockCategoryTree();
+            int id = 1;
 
-            yield return new CategoryRule(1, Priority: 0, categories.GetDescendant("Krusty Burger")!,
+            yield return new CategoryRule(id++, Priority: 0, categories.GetDescendant("Krusty Burger")!,
                 SubstringMatch: "Krusty Burger");
 
-            yield return new CategoryRule(1, Priority: 0, categories.GetDescendant("McDonalds")!,
+            yield return new CategoryRule(id++, Priority: 0, categories.GetDescendant("McDonalds")!,
               SubstringMatch: "McDonalds");
 
 
-            yield return new CategoryRule(2, Priority: 0, categories.GetDescendant("$20 or Less")!,
+            yield return new CategoryRule(id++, Priority: 0, categories.GetDescendant("$20 or Less")!,
                AmountMax: 0M,
                AmountMin: -20M);
 
-            yield return new CategoryRule(2, Priority: 0, categories.GetDescendant("$50-$100")!,
+            yield return new CategoryRule(id++, Priority: 0, categories.GetDescendant("$50-$100")!,
                 AmountMax: -50M,
                 AmountMin: -100M);
 
-            yield return new CategoryRule(2, Priority: 0, categories.GetDescendant("2022 Debits")!,
+            yield return new CategoryRule(id++, Priority: 0, categories.GetDescendant("2022 Debits")!,
                DateMin: new DateTime(2022, 1, 1),
                DateMax: new DateTime(2022, 12, 31));
+
+            yield return new CategoryRule(id++, Priority:0, Category:categories.GetDescendant("Transfers")!,
+                SubstringMatch: "Transfer");
         }
 
         public List<ITransactionDetail> MockTransations { get; } = new List<ITransactionDetail>();
@@ -128,6 +135,33 @@ namespace FinancialDucks.Tests
                 date = date.AddDays(8);
             }
         }
+
+        public void AddTransferTransactions()
+        {
+            DateTime date = new DateTime(2022, 1, 1);
+
+            while (date.Month < 3)
+            {
+                MockTransations.Add(GetMockTransaction(date, -99.99M, "Transfer From Account"));
+                MockTransations.Add(GetMockTransaction(date, 99.99M, "Transfer To Account"));
+
+                date = date.AddDays(5);
+            }
+        }
+
+
+        public void AddPaycheckTransactions()
+        {
+            DateTime date = new DateTime(2022, 1, 1);
+
+            while (date.Month < 3)
+            {
+                MockTransations.Add(GetMockTransaction(date, 500.00M, "Paycheck"));
+
+                date = date.AddDays(5);
+            }
+        }
+
 
         public void AddUnclassifiedTransactions()
         {

@@ -52,5 +52,40 @@ namespace FinancialDucks.Tests.FeatureTests
             Assert.Equal(fullTotal, result.Total);
 
         }
+
+        [Fact]
+        public async Task TransfersDoNotCountAsCreditOrDebit()
+        {
+            var serviceProvider = CreateServiceProvider();
+            var mockDataHelper = serviceProvider.GetRequiredService<MockDataHelper>();
+            var mediator = serviceProvider.GetService<IMediator>()!;
+
+            mockDataHelper.AddMcDonaldsTransations();
+            mockDataHelper.AddKrustyBurgerTransactions();
+            mockDataHelper.AddTransferTransactions();
+            mockDataHelper.AddPaycheckTransactions();
+
+            var allTransactions = mockDataHelper.MockTransations;
+
+            var categoryTree = mockDataHelper.GetMockCategoryTree();
+
+
+            var debitsStats = await mediator.Send(
+                new CategoryStatsFeature.Query(categoryTree.GetDescendant("Debits")!));
+            var creditsStats = await mediator.Send(
+                new CategoryStatsFeature.Query(categoryTree.GetDescendant("Credits")!));
+
+
+            var expectedDebits = allTransactions
+                    .Where(p => p.Amount < 0 && !p.Description.Contains("Transfer"))
+                    .Sum(p => p.Amount);
+
+            var expectedCredits = allTransactions
+                   .Where(p => p.Amount > 0 && !p.Description.Contains("Transfer"))
+                   .Sum(p => p.Amount);
+
+            Assert.Equal(expectedDebits, debitsStats.Total);
+            Assert.Equal(expectedCredits, creditsStats.Total);
+        }
     }
 }

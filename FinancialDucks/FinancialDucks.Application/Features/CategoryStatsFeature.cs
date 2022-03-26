@@ -69,8 +69,22 @@ namespace FinancialDucks.Application.Features
             {
                 using var ctx = _dataContextProvider.CreateDataContext();
 
+                var transferCategoryIds = category.Root()
+                                                  .GetDescendant(SpecialCategory.Transfers.ToString())!
+                                                  .GetThisAndAllDescendants()
+                                                  .Select(p => p.Id)
+                                                  .ToArray();
+
+                var tranferTransactions = from t in ctx.TransactionsDetail
+                                          from cr in ctx.CategoryRulesDetail
+                                          where transferCategoryIds.Contains(cr.CategoryId)
+                                              && cr.SubstringMatch != null
+                                              && t.Description.Contains(cr.SubstringMatch)
+                                          select t;
+
                 var query = ctx.TransactionsDetail
                                 .Where(condition)
+                                .Except(tranferTransactions)
                                 .Select(t=> new { Transaction = t, Category = category });
 
                 var result = await query
