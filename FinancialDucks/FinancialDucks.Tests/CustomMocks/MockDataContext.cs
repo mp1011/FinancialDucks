@@ -24,7 +24,7 @@ namespace FinancialDucks.Tests.CustomMocks
 
         public IQueryable<ICategoryRuleDetail> CategoryRulesDetail => _mockDataHelper.GetMockCategoryRules().AsQueryable();
 
-        public Task<ICategoryRule> AddCategoryRule(ICategory category, ICategoryRule rule)
+        public Task<ICategoryRuleDetail> AddCategoryRule(ICategory category, ICategoryRule rule)
         {
             throw new NotImplementedException();
         }
@@ -32,6 +32,16 @@ namespace FinancialDucks.Tests.CustomMocks
         public Task<ICategory> AddSubcategory(ICategory category, string name)
         {
             return Task.FromResult(new TestCategory(0, name, category as TestCategory) as ICategory);
+        }
+
+        public Task<ICategory> Delete(ICategory category)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ICategoryRuleDetail> Delete(ICategoryRule rule)
+        {
+            throw new NotImplementedException();
         }
 
         public void Dispose()

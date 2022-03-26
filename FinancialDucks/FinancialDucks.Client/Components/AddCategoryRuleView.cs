@@ -46,7 +46,7 @@ namespace FinancialDucks.Client.Components
 
         public async void CreateButton_Click()
         {
-            var newRule = await Mediator.Send(new AddCategoryRule.Command(Category, this));
+            var newRule = await Mediator.Send(new CategoryRulesFeature.AddCommand(Category, this));
             SubstringMatch = "";
             await OnCategoryRuleCreated.InvokeAsync(newRule);
             await Mediator.Publish(new CategoryChangeNotification(Category));            

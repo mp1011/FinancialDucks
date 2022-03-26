@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FinancialDucks.Infrastructu
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FinancialDucks.Client", "FinancialDucks.Client\FinancialDucks.Client.csproj", "{9528D9C4-0446-4293-B6F7-E5CF7A196931}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Scratchpad", "Scratchpad\Scratchpad.csproj", "{5212D71B-8BF9-41EE-8BDA-82B421723662}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scratchpad", "Scratchpad\Scratchpad.csproj", "{5212D71B-8BF9-41EE-8BDA-82B421723662}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -10,6 +10,7 @@ namespace FinancialDucks.Application.Features
         public record CategoryTreeRequest() : IRequest<ICategoryDetail> { }
         public record AddCategoryCommand(ICategory Parent, string Text) : IRequest<ICategory> { }
         public record UpdateCategoryCommand(ICategory Category) : IRequest<ICategory> { }
+        public record DeleteCommand(ICategory Category) : IRequest<ICategory> { }
 
         public class CategoryTreeRequestHandler : IRequestHandler<CategoryTreeRequest, ICategoryDetail>
         {
@@ -56,6 +57,26 @@ namespace FinancialDucks.Application.Features
             {
                 using var dataContext= _dataContextProvider.CreateDataContext();
                 var result = await dataContext.Update(request.Category);
+                await _mediator.Publish(new CategoryChangeNotification(result));
+                return result;
+            }
+        }
+
+        public class DeleteHandler : IRequestHandler<DeleteCommand, ICategory>
+        {
+            private readonly IMediator _mediator;
+            private readonly IDataContextProvider _dataContextProvider;
+
+            public DeleteHandler(IMediator mediator, IDataContextProvider dataContextProvider)
+            {
+                _mediator = mediator;
+                _dataContextProvider = dataContextProvider;
+            }
+
+            public async Task<ICategory> Handle(DeleteCommand request, CancellationToken cancellationToken)
+            {
+                using var dataContext = _dataContextProvider.CreateDataContext();
+                var result = await dataContext.Delete(request.Category);
                 await _mediator.Publish(new CategoryChangeNotification(result));
                 return result;
             }

@@ -45,5 +45,24 @@ namespace FinancialDucks.Tests.ExtensionTests
             else
                 Assert.NotNull(descendant);
         }
+
+        [Theory]
+        [InlineData("Fast-Food", "Krusty Burger", true)]
+        [InlineData("Krusty Burger", "Fast-Food", true)]
+        [InlineData("Krusty Burger", "McDonalds", false)]
+        [InlineData("Krusty Burger", "Food", true)]
+        [InlineData("Food","Krusty Burger", true)]
+        [InlineData("Krusty Burger", "Entertainment", false)]
+        public async Task TestHasLinearRelation(string name1, string name2, bool expectRelated)
+        {
+            var serviceProvider = CreateServiceProvider();
+
+            var tree = await serviceProvider.GetService<ICategoryTreeProvider>()!.GetCategoryTree();
+
+            var category1 = tree.GetDescendant(name1)!;
+            var category2 = tree.GetDescendant(name2)!;
+
+            Assert.Equal(expectRelated, category1.HasLinearRelationTo(category2));
+        }
     }
 }

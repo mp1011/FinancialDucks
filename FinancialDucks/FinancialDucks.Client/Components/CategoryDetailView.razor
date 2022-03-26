@@ -1,15 +1,23 @@
 ﻿@using FinancialDucks.Application.Models
 @using FinancialDucks.Application.Models.AppModels
-<h3>
-    @if(Category.IsSpecialCategory())
-    {
-        @Category.Name
-    }
-    else 
-    {
-        <input class="form-control form-control-lg" type="text" @bind=@Name @bind:event="oninput" />        
-    }
-</h3>
+
+
+
+@if(Category.IsSpecialCategory())
+{
+    <h3>@Category.Name</h3>
+}
+else 
+{
+    <div class="input-group mb-3">
+      <input class="form-control form-control-lg" type="text" @bind=@Name @bind:event="oninput" />        
+      <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false"></button>
+      <ul class="dropdown-menu dropdown-menu-end">
+        <li><button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#ConfirmDeletePrompt">Delete</button></li>
+      </ul>
+    </div>
+}
+
 @if(IsChangingName)
 {
     <div class="btn-group" role="group" aria-label="Save or Cancel">
@@ -17,6 +25,9 @@
         <button type="button" class="btn btn-primary" @onclick="CancelCategoryName">Cancel</button>
     </div>
 }
+
+<ConfirmDialog Id="ConfirmDeletePrompt" Message=@($"Are you sure you want to delete the category \"{Category.Name}\"?") 
+    OnDialogClosed="OnPromptDeleteDialog" />
 
 <h4>Rules</h4>
 <ul>

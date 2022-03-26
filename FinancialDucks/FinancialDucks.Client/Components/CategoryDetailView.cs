@@ -53,14 +53,27 @@ namespace FinancialDucks.Client.Components
             AddingRule = false;
         }
 
+        public void DeleteButton_Click()
+        {
+
+        }
+
         public async void UpdateCategoryName()
         {
             await Mediator.Send(new CategoriesFeature.UpdateCategoryCommand(this));
+            _newCategoryName = null;
+            StateHasChanged();
         }
 
         public void CancelCategoryName()
         {
             _newCategoryName = null;
+        }
+
+        public async void OnPromptDeleteDialog(bool confirm)
+        {
+            if(confirm)
+                await Mediator.Send(new CategoriesFeature.DeleteCommand(Category));
         }
     }
 }

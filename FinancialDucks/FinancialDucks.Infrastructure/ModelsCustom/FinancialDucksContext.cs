@@ -102,7 +102,7 @@ namespace FinancialDucks.Infrastructure.Models
             return newCategory;
         }
 
-        public async Task<ICategoryRule> AddCategoryRule(ICategory category, ICategoryRule rule)
+        public async Task<ICategoryRuleDetail> AddCategoryRule(ICategory category, ICategoryRule rule)
         {
             using var transaction = await Database.BeginTransactionAsync();
 
@@ -111,7 +111,9 @@ namespace FinancialDucks.Infrastructure.Models
             await SaveChangesAsync();
             await transaction.CommitAsync();
 
-            return newRule;
+            return CategoryRules
+                .Include(p => p.Category)
+                .First(p => p.Id == newRule.Id);
         }
 
         async Task<T[]> IDataContext.ToArrayAsync<T>(IQueryable<T> query)
@@ -141,5 +143,42 @@ namespace FinancialDucks.Infrastructure.Models
 
             return dbRecord;
         }
+
+        public async Task<ICategory> Delete(ICategory category)
+        {
+            using var transaction = await Database.BeginTransactionAsync();
+
+            var dbRecord = Categories.FirstOrDefault(c => c.Id == category.Id);
+            if (dbRecord == null)
+                return category;
+
+            Categories.Remove(dbRecord);
+            CategoryRules.RemoveRange(CategoryRules.Where(p => p.CategoryId == dbRecord.Id));
+
+            await SaveChangesAsync();
+            await transaction.CommitAsync();
+
+            return dbRecord;
+        }
+
+        public async Task<ICategoryRuleDetail?> Delete(ICategoryRule category)
+        {
+            using var transaction = await Database.BeginTransactionAsync();
+
+            var dbRecord = CategoryRules
+                            .Include(p=>p.Category)
+                            .FirstOrDefault(c => c.Id == category.Id);
+
+            if (dbRecord == null)
+                return null;
+
+            CategoryRules.Remove(dbRecord);
+           
+            await SaveChangesAsync();
+            await transaction.CommitAsync(); 
+
+            return dbRecord;
+        }
+
     }
 }
