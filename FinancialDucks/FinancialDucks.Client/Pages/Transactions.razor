@@ -1,16 +1,27 @@
 ﻿@page "/transactions"
-@inherits TransactionsPage
+@using FinancialDucks.Client.Components
 
 <h3>Transactions</h3>
 
+
+
 <div class="btn-toolbar mb-3" role="toolbar" aria-label="Toolbar">
-  <div class="btn-group me-2" role="group" aria-label="First group">
-    <button type="button" class="btn btn-outline-secondary" @onclick="()=>RefreshTransactionsFromDisk()">Refresh from Disk</button>
-  </div>
-  <div class="input-group">
-    <div class="input-group-text" id="btnGroupAddon">Filter</div>
-    <input type="text" class="form-control" placeholder="Input group example" aria-label="Input group example" aria-describedby="btnGroupAddon">
-  </div>
+    <div class="btn-group me-2" role="group" aria-label="First group">
+        <button type="button" class="btn btn-outline-secondary" @onclick="()=>RefreshTransactionsFromDisk()">Refresh from Disk</button>
+    </div>
+    <div class="input-group mb-3">
+        <div class="input-group-text">Filter</div>
+        <input type="text" class="form-control" placeholder="" aria-label="Filter" aria-describedby="btnGroupAddon">    
+    </div>
+    <DatePicker 
+        Title="From" 
+        Date=@RangeStart 
+        OnDateSelected="async date=>{ RangeStart=date; await LoadTransactions(false);}" />
+
+    <DatePicker 
+        Title="To"
+        Date=@RangeEnd 
+        OnDateSelected="async date=>{ RangeEnd=date; await LoadTransactions(false);}" />
 </div>
 
 
@@ -26,7 +37,7 @@
     </tr>
   </thead>
   <tbody>
-        @foreach(var row in Transactions.OrderBy(p=>p.Date))
+        @foreach(var row in TransactionsList.OrderBy(p=>p.Date))
         {
             <tr>
                 <td>@row.Date.ToShortDateString()</td>

@@ -5,14 +5,14 @@ using Microsoft.AspNetCore.Components;
 
 namespace FinancialDucks.Client.Pages
 {
-    public class TransactionsPage : ComponentBase
+    public partial class Transactions 
     {
         [Inject]
         public IMediator Mediator { get; set; }
 
         public string ImportMessage { get; private set; }
 
-        public ITransaction[] Transactions { get; private set; } = new ITransaction[0];
+        public ITransaction[] TransactionsList { get; private set; } = new ITransaction[0];
 
         public int PageSize { get; private set; } = 10;
 
@@ -56,7 +56,7 @@ namespace FinancialDucks.Client.Pages
             else
                 ImportMessage = $"No new transactions to insert.";
 
-            Transactions = await Mediator.Send(new TransactionsFeature.QueryTransactions(
+            TransactionsList = await Mediator.Send(new TransactionsFeature.QueryTransactions(
                 RangeStart: DateTime.Now.AddMonths(-1),
                 RangeEnd: DateTime.Now,
                 Page: 0,
@@ -86,7 +86,7 @@ namespace FinancialDucks.Client.Pages
                 RangeEnd: RangeEnd,
                 ResultsPerPage: PageSize));
 
-            Transactions = await Mediator.Send(new TransactionsFeature.QueryTransactions(
+            TransactionsList = await Mediator.Send(new TransactionsFeature.QueryTransactions(
                 RangeStart: RangeStart,
                 RangeEnd: RangeEnd,
                 Page: Page-1,

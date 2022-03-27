@@ -1,0 +1,48 @@
+﻿@inject IJSRuntime JSRuntime;
+
+<div class="input-group mb-3">
+    <div class="input-group-text">@Title</div>
+    <input type="text" class="form-control"
+        id=@Id
+        placeholder="Select date" 
+        @bind="DateString">
+    <button class="btn btn-outline-secondary" type="button" @onclick="ShowDatePicker">
+       <span class="oi oi-calendar"></span>
+    </button>
+</div>
+
+@code 
+{
+    public string Id => "Date" + Title.Replace(" ", "");
+
+    [Parameter]
+    public string Title { get; set; }
+
+    private DateTime _lastDate;
+
+    [Parameter]
+    public DateTime Date { get; set; }
+
+    public string DateString
+    {
+        get => Date.ToString("MMMM d, yyyy");
+        set => Date = DateTime.Parse(value);
+    }
+
+    [Parameter]
+    public EventCallback<DateTime> OnDateSelected { get; set; }
+
+    public async Task ShowDatePicker()
+    {
+        await JSRuntime.InvokeVoidAsync("createDatePicker", Id);        
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if(Date != _lastDate)
+        {
+            _lastDate = Date;
+            await OnDateSelected.InvokeAsync(Date);
+        }
+    }
+}
