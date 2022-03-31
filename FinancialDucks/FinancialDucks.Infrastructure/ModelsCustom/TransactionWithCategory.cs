@@ -4,6 +4,5 @@ namespace FinancialDucks.Infrastructure.Models
 {
     public partial class TransactionCategory : ITransactionWithCategory
     {
-       
     }
 }

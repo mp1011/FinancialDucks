@@ -63,6 +63,9 @@ namespace FinancialDucks.Application.Models
 
         public static ICategoryDetail? GetDescendant(this ICategoryDetail category, string name)
         {
+            if(name == category.Name)
+                return category; 
+
             return category.GetDescendants().FirstOrDefault(x => x.Name == name);
         }
 

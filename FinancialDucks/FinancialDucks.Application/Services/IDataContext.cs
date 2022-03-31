@@ -9,6 +9,7 @@ namespace FinancialDucks.Application.Services
         IQueryable<ITransactionSourceDetail> TransactionSourcesDetail { get; }
         IQueryable<ITransactionDetail> TransactionsDetail { get; }
         IQueryable<ICategoryRuleDetail> CategoryRulesDetail { get; }
+        IQueryable<ITransactionWithCategory> TransactionsWithCategories { get; }
         Task<ITransaction[]> UploadTransactions(ITransaction[] transactions);
         Task<ICategory> AddSubcategory(ICategory parent, string name);
         Task<ICategoryRuleDetail> AddCategoryRule(ICategory category, ICategoryRule rule);

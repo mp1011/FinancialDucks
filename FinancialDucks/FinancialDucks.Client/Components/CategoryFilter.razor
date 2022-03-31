@@ -1,0 +1,66 @@
+﻿@using FinancialDucks.Application.Models
+@using FinancialDucks.Application.Models.AppModels
+@using FinancialDucks.Application.Services
+@inject ICategoryTreeProvider CategoryTreeProvider
+
+<div class="d-flex p-2 bd-highlight">
+@foreach(var categorySelection in CategorySelections)
+{
+    <div class="dropdown">
+        <button class="btn btn-secondary dropdown-toggle" id=@Id type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            @if(categorySelection.SelectedChild != null)
+            {
+                @categorySelection.SelectedChild.Name
+            }
+            else
+            {
+                <span>All</span>
+            }
+        </button>
+        <ul class="dropdown-menu" aria-labelledby=@Id>
+            <li><button type="button" class="dropdown-item" @onclick="()=>SetCategory(categorySelection,null)">All</button></li>
+            @foreach (var subcat in categorySelection.Parent.Children)
+            {
+                <li><button type="button" class="dropdown-item" @onclick="()=>SetCategory(categorySelection, subcat)">@subcat.Name</button></li>
+            }      
+        </ul>
+    </div>
+}
+</div>
+
+@code 
+{
+    public record CategorySelection(ICategoryDetail Parent, ICategoryDetail? SelectedChild);
+
+    public string Id { get; private set; }
+
+    [Parameter]
+    public EventCallback<ICategoryDetail> OnCategorySelected { get; set; }
+
+    public List<CategorySelection> CategorySelections { get; private set; } = new List<CategorySelection>();    
+
+    public async Task SetCategory(CategorySelection selection, ICategoryDetail category)
+    {
+        var index = CategorySelections.IndexOf(selection);
+        CategorySelections[index] = new CategorySelection(selection.Parent, category);
+
+        if (index < CategorySelections.Count - 1)
+            CategorySelections = CategorySelections.Take(index+1).ToList();
+
+        if (category != null && category.Children.Any())
+            CategorySelections.Add(new CategorySelection(category, null));
+
+        if (category == null)
+            await OnCategorySelected.InvokeAsync(selection.Parent);
+        else
+            await OnCategorySelected.InvokeAsync(category);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Id = $"CategorySelection_{Guid.NewGuid}";
+        var tree = await CategoryTreeProvider.GetCategoryTree();
+        CategorySelections.Clear();
+        CategorySelections.Add(new CategorySelection(tree,null));        
+    }
+}

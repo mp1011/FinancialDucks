@@ -11,6 +11,10 @@ namespace FinancialDucks.Tests
 {
     public class MockDataHelper
     {
+        public MockDataHelper()
+        {
+            MockCategoryRules.AddRange(GetMockCategoryRules());
+        }
 
         public ITransactionSourceDetail[] GetMockTransactionSources()
         {
@@ -49,6 +53,14 @@ namespace FinancialDucks.Tests
 
         }
 
+        private int _nextId;
+
+        private int NextId()
+        {
+            _nextId++;
+            return _nextId;
+        }
+        
         public ICategoryDetail GetMockCategoryTree()
         {
             int id = 1;
@@ -80,12 +92,17 @@ namespace FinancialDucks.Tests
                 .AddChild(id++, "2022 Debits");
 
             root.AddChild(id++, "Transfers");
-            root.AddChild(id++, "Credits");
+ 
+            var credits = root.AddChild(id++, "Credits");
+            credits
+                .AddChild(id++, "Paychecks");
 
             return root;
         }
 
-        public IEnumerable<ICategoryRuleDetail> GetMockCategoryRules()
+        public List<ICategoryRuleDetail> MockCategoryRules { get; } = new List<ICategoryRuleDetail>();
+
+        private IEnumerable<ICategoryRuleDetail> GetMockCategoryRules()
         {
             var categories = GetMockCategoryTree();
             int id = 1;
@@ -111,76 +128,97 @@ namespace FinancialDucks.Tests
 
             yield return new CategoryRule(id++, Priority:0, Category:categories.GetDescendant("Transfers")!,
                 SubstringMatch: "Transfer");
+
+            yield return new CategoryRule(id++, Priority: 0, Category: categories.GetDescendant("Paychecks")!,
+               SubstringMatch: "Paycheck");
+
         }
 
         public List<ITransactionDetail> MockTransations { get; } = new List<ITransactionDetail>();
-        public void AddKrustyBurgerTransactions()
+        public IEnumerable<ITransactionDetail> AddKrustyBurgerTransactions()
         {
+            List<ITransactionDetail> transactionDetails = new List<ITransactionDetail>();
             DateTime date = new DateTime(2022, 1, 1);
 
             while(date.Month < 3)
             {
-                MockTransations.Add(GetMockTransaction(date, -9.99M, "Krusty Burger"));
+                transactionDetails.Add(AddMockTransaction(date, -9.99M, "Krusty Burger"));
                 date = date.AddDays(5);
             }
+
+            return transactionDetails;
         }
 
-        public void AddMcDonaldsTransations()
+        public IEnumerable<ITransactionDetail> AddMcDonaldsTransations()
         {
+            List<ITransactionDetail> transactionDetails = new List<ITransactionDetail>();
             DateTime  date = new DateTime(2022, 1, 15);
 
             while (date.Month < 3)
             {
-                MockTransations.Add(GetMockTransaction(date, -7.99M, "McDonalds"));
+                transactionDetails.Add(AddMockTransaction(date, -7.99M, "McDonalds"));
                 date = date.AddDays(8);
             }
+
+            return transactionDetails;
         }
 
-        public void AddTransferTransactions()
+        public IEnumerable<ITransactionDetail> AddTransferTransactions()
         {
+            List<ITransactionDetail> transactionDetails = new List<ITransactionDetail>();
             DateTime date = new DateTime(2022, 1, 1);
 
             while (date.Month < 3)
             {
-                MockTransations.Add(GetMockTransaction(date, -99.99M, "Transfer From Account"));
-                MockTransations.Add(GetMockTransaction(date, 99.99M, "Transfer To Account"));
+                transactionDetails.Add(AddMockTransaction(date, -999.99M, "Transfer From Account"));
+                transactionDetails.Add(AddMockTransaction(date, 999.99M, "Transfer To Account"));
 
                 date = date.AddDays(5);
             }
+
+            return transactionDetails;
         }
 
-
-        public void AddPaycheckTransactions()
+        public IEnumerable<ITransactionDetail> AddPaycheckTransactions()
         {
+            List<ITransactionDetail> transactionDetails = new List<ITransactionDetail>();
             DateTime date = new DateTime(2022, 1, 1);
 
             while (date.Month < 3)
             {
-                MockTransations.Add(GetMockTransaction(date, 500.00M, "Paycheck"));
-
-                date = date.AddDays(5);
+                transactionDetails.Add(AddMockTransaction(date, 500.00M, "Paycheck"));
+                date = date.AddDays(7);
             }
+
+            return transactionDetails;
         }
 
 
-        public void AddUnclassifiedTransactions()
+        public IEnumerable<ITransactionDetail> AddUnclassifiedTransactions()
         {
+            List<ITransactionDetail> transactionDetails = new List<ITransactionDetail>();
             DateTime date = new DateTime(2022, 1, 1);
 
             while (date.Month < 3)
             {
-                MockTransations.Add(GetMockTransaction(date, -7.99M, "Unknown Transaction"));
+                transactionDetails.Add(AddMockTransaction(date, -3.99M, "Unknown Transaction"));
                 date = date.AddDays(5);
             }
+
+            return transactionDetails;
         }
 
-        private ITransactionDetail GetMockTransaction(DateTime date, decimal amount, string description)
+        private ITransactionDetail AddMockTransaction(DateTime date, decimal amount, string description)
         {
-            var mock = new Mock<ITransactionDetail>();
-            mock.Setup(x => x.Amount).Returns(amount);
-            mock.Setup(x => x.Description).Returns(description);
-            mock.Setup(x=>x.Date).Returns(date);
-            return mock.Object;
+            var t = new TestTransaction
+            {
+                Id=NextId(),
+                Amount=amount,
+                Description=description,
+                Date=date,
+            };
+            MockTransations.Add(t);
+            return t;
         }
     }
 }

@@ -5,6 +5,8 @@
         None,
         Credits,
         Debits,
-        Transfers
+        Transfers,
+        Unclassified,
+        All
     }
 }

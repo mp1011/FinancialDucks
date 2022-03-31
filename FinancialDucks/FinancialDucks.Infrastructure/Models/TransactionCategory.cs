@@ -5,10 +5,12 @@ namespace FinancialDucks.Infrastructure.Models
 {
     public partial class TransactionCategory
     {
-        public int TransactionId { get; set; }
-        public int CategoryId { get; set; }
-
-        public virtual Category Category { get; set; }
-        public virtual Transaction Transaction { get; set; }
+        public int Id { get; set; }
+        public DateTime Date { get; set; }
+        public string Description { get; set; }
+        public decimal Amount { get; set; }
+        public int SourceId { get; set; }
+        public int? CategoryId { get; set; }
+        public string Category { get; set; }
     }
 }

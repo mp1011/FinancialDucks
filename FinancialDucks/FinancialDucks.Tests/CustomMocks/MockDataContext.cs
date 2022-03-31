@@ -1,4 +1,5 @@
 ﻿using FinancialDucks.Application.Models;
+using FinancialDucks.Application.Models.AppModels;
 using FinancialDucks.Application.Services;
 using FinancialDucks.Tests.TestModels;
 using System;
@@ -22,7 +23,26 @@ namespace FinancialDucks.Tests.CustomMocks
 
         public IQueryable<ITransactionDetail> TransactionsDetail => _mockDataHelper.MockTransations.AsQueryable();
 
-        public IQueryable<ICategoryRuleDetail> CategoryRulesDetail => _mockDataHelper.GetMockCategoryRules().AsQueryable();
+        public IQueryable<ICategoryRuleDetail> CategoryRulesDetail => _mockDataHelper.MockCategoryRules.AsQueryable();
+
+        public IQueryable<ITransactionWithCategory> TransactionsWithCategories
+        {
+            get
+            {
+                return _mockDataHelper.MockTransations
+                    .SelectMany(t =>
+                    {
+                        var matchingRules = _mockDataHelper.MockCategoryRules
+                            .Where(r => r.SubstringMatch != null && t.Description.Contains(r.SubstringMatch))
+                            .ToArray();
+
+                        if (matchingRules.Any())
+                            return matchingRules.Select(mr => new TransactionWithCategory(t.Id, t.SourceId, t.Description, t.Date, t.Amount, mr.CategoryId, mr.Category.Name));
+                        else
+                            return new TransactionWithCategory[] { new TransactionWithCategory(t.Id, t.SourceId, t.Description, t.Date, t.Amount, null, null) };
+                    }).AsQueryable();                       
+            }
+        }
 
         public Task<ICategoryRuleDetail> AddCategoryRule(ICategory category, ICategoryRule rule)
         {

@@ -1,4 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using System.Collections.Generic;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace FinancialDucks.Infrastructure.Models
 {
@@ -67,20 +70,20 @@ namespace FinancialDucks.Infrastructure.Models
             {
                 entity.HasNoKey();
 
-                entity.HasIndex(e => new { e.TransactionId, e.CategoryId }, "IX_TransactionCategories")
-                    .IsUnique();
+                entity.ToView("TransactionCategories");
 
-                entity.HasOne(d => d.Category)
-                    .WithMany()
-                    .HasForeignKey(d => d.CategoryId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_TransactionCategories_Categories");
+                entity.Property(e => e.Amount).HasColumnType("money");
 
-                entity.HasOne(d => d.Transaction)
-                    .WithMany()
-                    .HasForeignKey(d => d.TransactionId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_TransactionCategories_Transactions");
+                entity.Property(e => e.Category)
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Date).HasColumnType("date");
+
+                entity.Property(e => e.Description)
+                    .IsRequired()
+                    .HasMaxLength(250)
+                    .IsUnicode(false);
             });
 
             modelBuilder.Entity<TransactionSource>(entity =>

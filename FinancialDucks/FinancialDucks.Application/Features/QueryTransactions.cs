@@ -6,10 +6,13 @@ namespace FinancialDucks.Application.Features
 {
     public class TransactionsFeature
     {
-        public record QueryTransactions(DateTime RangeStart, DateTime RangeEnd, int Page, int ResultsPerPage)
+        public record TransactionsFilter(DateTime RangeStart, DateTime RangeEnd, ICategoryDetail? Category);
+
+   
+        public record QueryTransactions(TransactionsFilter Filter, int Page, int ResultsPerPage)
             : IRequest<ITransactionDetail[]> { }
 
-        public record QueryTotalPages(DateTime RangeStart, DateTime RangeEnd, int ResultsPerPage)
+        public record QueryTotalPages(TransactionsFilter Filter, int ResultsPerPage)
            : IRequest<int>
         { }
 
@@ -17,53 +20,63 @@ namespace FinancialDucks.Application.Features
         public class QueryTransactionsHandler : IRequestHandler<QueryTransactions, ITransactionDetail[]>
         {
             private readonly IDataContextProvider _dataContextProvider;
+            private readonly ITransactionsQueryBuilder _transactionQueryBuilder;
+            private readonly ICategoryTreeProvider _categoryTreeProvider;
 
-            public QueryTransactionsHandler(IDataContextProvider dataContextProvider)
+            public QueryTransactionsHandler(IDataContextProvider dataContextProvider, ITransactionsQueryBuilder transactionQueryBuilder, ICategoryTreeProvider categoryTreeProvider)
             {
                 _dataContextProvider = dataContextProvider;
+                _transactionQueryBuilder = transactionQueryBuilder;
+                _categoryTreeProvider = categoryTreeProvider;
             }
 
-            public Task<ITransactionDetail[]> Handle(QueryTransactions request, CancellationToken cancellationToken)
+            public async Task<ITransactionDetail[]> Handle(QueryTransactions request, CancellationToken cancellationToken)
             {
                 using var dataContext = _dataContextProvider.CreateDataContext();
 
                 int start = request.Page * request.ResultsPerPage;
 
-                var result = dataContext.TransactionsDetail
-                    .Where(p => p.Date >= request.RangeStart
-                            && p.Date <= request.RangeEnd)
+                var categoryTree = await _categoryTreeProvider.GetCategoryTree();
+                var query = _transactionQueryBuilder.GetTransactionsQuery(dataContext, categoryTree, request.Filter);
+
+                query = query
                     .OrderBy(p => p.Date)
                     .Skip(start)
-                    .Take(request.ResultsPerPage)
-                    .ToArray();
+                    .Take(request.ResultsPerPage);
 
-                return Task.FromResult(result);
+                return (from q in query
+                        join t in dataContext.TransactionsDetail on q.Id equals t.Id
+                        select t).ToArray();
             }
         }
 
         public class QueryTransactionPagesHandler : IRequestHandler<QueryTotalPages, int>
         {
             private readonly IDataContextProvider _dataContextProvider;
+            private readonly ITransactionsQueryBuilder _transactionQueryBuilder;
+            private readonly ICategoryTreeProvider _categoryTreeProvider;
 
-            public QueryTransactionPagesHandler(IDataContextProvider dataContextProvider)
+            public QueryTransactionPagesHandler(IDataContextProvider dataContextProvider, ITransactionsQueryBuilder transactionQueryBuilder, ICategoryTreeProvider categoryTreeProvider)
             {
                 _dataContextProvider = dataContextProvider;
+                _transactionQueryBuilder = transactionQueryBuilder;
+                _categoryTreeProvider = categoryTreeProvider;
             }
 
-            public Task<int> Handle(QueryTotalPages request, CancellationToken cancellationToken)
+            public async Task<int> Handle(QueryTotalPages request, CancellationToken cancellationToken)
             {
                 if (request.ResultsPerPage <= 0)
-                    return Task.FromResult(0);
+                    return 0;
 
+                var categoryTree = await _categoryTreeProvider.GetCategoryTree();
                 using var dataContext = _dataContextProvider.CreateDataContext();
 
-                var totalCount = dataContext.TransactionsDetail
-                    .Where(p => p.Date >= request.RangeStart
-                            && p.Date <= request.RangeEnd)
-                    .Count();
+                var query = _transactionQueryBuilder.GetTransactionsQuery(dataContext, categoryTree, request.Filter);
+
+                var totalCount = query.Count();
 
                 var count = (int)Math.Ceiling((decimal)totalCount / request.ResultsPerPage);
-                return Task.FromResult(count);
+                return count;
             }
         }
 

@@ -31,7 +31,7 @@ namespace FinancialDucks.Tests
                    sc.AddSingleton<ISettingsService, SettingsService>();
                    sc.AddSingleton<ITransactionFileSourceIdentifier, TransactionFileSourceIdentifier>();
                    sc.AddSingleton<ITransactionClassifier, TransactionClassifier>();
-
+                   sc.AddSingleton<ITransactionsQueryBuilder, TransactionsQueryBuilder>();
                    sc.AddSingleton(sp =>
                    {
                        var mock = new Mock<ICategoryTreeProvider>();

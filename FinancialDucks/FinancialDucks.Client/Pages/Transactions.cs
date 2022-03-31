@@ -26,6 +26,8 @@ namespace FinancialDucks.Client.Pages
 
         public DateTime RangeEnd { get; set; } = DateTime.Now;
 
+        public ICategoryDetail? FilterCategory { get; set; }
+
         public int[] VisibleNavigationPages
         {
             get
@@ -57,12 +59,21 @@ namespace FinancialDucks.Client.Pages
                 ImportMessage = $"No new transactions to insert.";
 
             TransactionsList = await Mediator.Send(new TransactionsFeature.QueryTransactions(
-                RangeStart: DateTime.Now.AddMonths(-1),
-                RangeEnd: DateTime.Now,
+                new TransactionsFeature.TransactionsFilter(
+                    RangeStart: DateTime.Now.AddMonths(-1),
+                    RangeEnd: DateTime.Now,
+                    Category: null),
                 Page: 0,
                 ResultsPerPage: 50));
 
             StateHasChanged();
+        }
+
+        public async Task OnCategorySelected(ICategoryDetail category)
+        {
+            FilterCategory = category;
+            Page = 1;
+            await LoadTransactions();
         }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -82,13 +93,17 @@ namespace FinancialDucks.Client.Pages
         public async Task LoadTransactions(bool recalcPages=true)
         {
             TotalPages = await Mediator.Send(new TransactionsFeature.QueryTotalPages(
-                RangeStart: RangeStart,
-                RangeEnd: RangeEnd,
+                new TransactionsFeature.TransactionsFilter(
+                    RangeStart: RangeStart,
+                    RangeEnd: RangeEnd,
+                    Category: FilterCategory),
                 ResultsPerPage: PageSize));
 
             TransactionsList = await Mediator.Send(new TransactionsFeature.QueryTransactions(
-                RangeStart: RangeStart,
-                RangeEnd: RangeEnd,
+                new TransactionsFeature.TransactionsFilter(
+                    RangeStart: RangeStart,
+                    RangeEnd: RangeEnd,
+                    Category: FilterCategory),
                 Page: Page-1,
                 ResultsPerPage: PageSize));
 

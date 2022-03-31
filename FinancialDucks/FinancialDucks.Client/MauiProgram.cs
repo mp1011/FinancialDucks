@@ -36,7 +36,7 @@ namespace FinancialDucks.Client
             builder.Services.AddSingleton<ITransactionClassifier, TransactionClassifier>();
             builder.Services.AddSingleton<ICategoryTreeProvider, SqlCategoryTreeProvider>();
             builder.Services.AddSingleton<NotificationDispatcher<CategoryChangeNotification>>();
-
+            builder.Services.AddSingleton<ITransactionsQueryBuilder, TransactionsQueryBuilder>();
             var path = AppContext.BaseDirectory;
             var configBuilder = new ConfigurationBuilder()
                 .AddJsonFile($@"{path}\appsettings.json");
