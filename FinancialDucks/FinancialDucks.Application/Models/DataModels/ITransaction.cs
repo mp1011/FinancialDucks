@@ -16,6 +16,6 @@
     public interface ITransactionWithCategory : ITransaction
     {      
         int? CategoryId { get; }
-        string Category { get; }        
+        string? Category { get; }        
     }
 }

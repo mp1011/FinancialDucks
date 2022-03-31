@@ -30,18 +30,6 @@ namespace FinancialDucks.Application.Services
                     .Except(GetTransferTransactions(dataContext, root));
         }
 
-        private IQueryable<ITransactionDetail> GetUncategorizedTransactions(IDataContext dataContext, ICategoryDetail root)
-        {
-            var queryCategorized = from t in dataContext.TransactionsDetail
-                                   from cr in dataContext.CategoryRulesDetail
-                                   where cr.SubstringMatch != null
-                                       && t.Description.Contains(cr.SubstringMatch)
-                                   select t;
-
-            return dataContext.TransactionsDetail
-                            .Except(queryCategorized);
-        }
-
         public IQueryable<ITransactionWithCategory> GetTransactionCategoriesQuery(IDataContext dataContext,
                 ICategoryDetail categoryTree,
                 TransactionsFeature.TransactionsFilter filter)
@@ -62,13 +50,21 @@ namespace FinancialDucks.Application.Services
                 query = GetNonTransferTransactions(dataContext, categoryTree).Where(p => p.Amount < 0);
             else if (filter.Category != null && filter.Category.Name == SpecialCategory.Credits.ToString())
                 query = GetNonTransferTransactions(dataContext, categoryTree).Where(p => p.Amount > 0);
-            else if(categoryIds.Length > 0)
+            else if (filter.Category != null && filter.Category.Name == SpecialCategory.Unclassified.ToString())
+                query = GetNonTransferTransactions(dataContext, categoryTree).Where(p => p.CategoryId == null);
+            else if (categoryIds.Length > 0)
                 query = dataContext.TransactionsWithCategories
                     .Where(p => p.CategoryId != null && categoryIds.Contains(p.CategoryId.Value));
             else
                 query = GetNonTransferTransactions(dataContext, categoryTree);
 
-            return query.Where(p=>p.Date >= filter.RangeStart && p.Date <= filter.RangeEnd);
+            string? textFilter = filter.TextFilter;
+            if (string.IsNullOrEmpty(textFilter))
+                textFilter = null;
+
+            return query.Where(p=>p.Date >= filter.RangeStart 
+                                && p.Date <= filter.RangeEnd
+                                && (textFilter == null || p.Description.Contains(textFilter)));
         }
     
     

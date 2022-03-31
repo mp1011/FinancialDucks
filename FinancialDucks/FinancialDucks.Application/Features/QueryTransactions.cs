@@ -6,7 +6,7 @@ namespace FinancialDucks.Application.Features
 {
     public class TransactionsFeature
     {
-        public record TransactionsFilter(DateTime RangeStart, DateTime RangeEnd, ICategoryDetail? Category);
+        public record TransactionsFilter(DateTime RangeStart, DateTime RangeEnd, ICategoryDetail? Category, string? TextFilter=null);
 
    
         public record QueryTransactions(TransactionsFilter Filter, int Page, int ResultsPerPage)

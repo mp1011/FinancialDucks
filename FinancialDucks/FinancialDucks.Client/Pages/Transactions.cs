@@ -12,36 +12,17 @@ namespace FinancialDucks.Client.Pages
 
         public string ImportMessage { get; private set; }
 
-        public ITransaction[] TransactionsList { get; private set; } = new ITransaction[0];
-
-        public int PageSize { get; private set; } = 10;
-
-        public int Page { get; private set; } = 1;
-
-        public int TotalPages { get; private set; }
-
-        public int VisibleNavigationPageRange { get; } = 3;
-
+        public TransactionsFeature.TransactionsFilter CurrentFilter { get; private set; }
+       
         public DateTime RangeStart { get; set; } = DateTime.Now.AddMonths(-6);
 
         public DateTime RangeEnd { get; set; } = DateTime.Now;
 
-        public ICategoryDetail? FilterCategory { get; set; }
+        public string TextFilter { get; set; }
 
-        public int[] VisibleNavigationPages
-        {
-            get
-            {
-                if(TotalPages == 0)
-                    return new int[0];
+        public ICategoryDetail? CategoryFilter { get; set; }
 
-                var start = Math.Max(1, Page - VisibleNavigationPageRange);
-                var end = Math.Min(TotalPages, start + (VisibleNavigationPageRange*2));
-
-                return Enumerable.Range(start, (end - start)+1).ToArray();
-            }
-        }
-
+       
         public async Task RefreshTransactionsFromDisk()
         {
             ImportMessage = $"Reading transactions from disk...";
@@ -58,56 +39,32 @@ namespace FinancialDucks.Client.Pages
             else
                 ImportMessage = $"No new transactions to insert.";
 
-            TransactionsList = await Mediator.Send(new TransactionsFeature.QueryTransactions(
-                new TransactionsFeature.TransactionsFilter(
-                    RangeStart: DateTime.Now.AddMonths(-1),
-                    RangeEnd: DateTime.Now,
-                    Category: null),
-                Page: 0,
-                ResultsPerPage: 50));
-
+            UpdateCurrentFilter();
             StateHasChanged();
         }
 
-        public async Task OnCategorySelected(ICategoryDetail category)
+        public void OnCategorySelected(ICategoryDetail category)
         {
-            FilterCategory = category;
-            Page = 1;
-            await LoadTransactions();
+            CategoryFilter = category;
+            UpdateCurrentFilter();
         }
 
-        protected override async Task OnAfterRenderAsync(bool firstRender)
+        private void UpdateCurrentFilter()
         {
-            if (!firstRender)
-                return;
-
-            await LoadTransactions();
+            if (CurrentFilter == null
+                || CurrentFilter.RangeStart != RangeStart
+                || CurrentFilter.RangeEnd != RangeEnd
+                || CurrentFilter.TextFilter != TextFilter
+                || CurrentFilter.Category != CategoryFilter)
+            {
+                CurrentFilter = new TransactionsFeature.TransactionsFilter(RangeStart, RangeEnd, CategoryFilter, TextFilter);
+                StateHasChanged();
+            }
         }
 
-        public async Task SetPage(int page)
+        protected override void OnAfterRender(bool firstRender)
         {
-            Page = page;
-            await LoadTransactions(recalcPages: false);
-        }
-
-        public async Task LoadTransactions(bool recalcPages=true)
-        {
-            TotalPages = await Mediator.Send(new TransactionsFeature.QueryTotalPages(
-                new TransactionsFeature.TransactionsFilter(
-                    RangeStart: RangeStart,
-                    RangeEnd: RangeEnd,
-                    Category: FilterCategory),
-                ResultsPerPage: PageSize));
-
-            TransactionsList = await Mediator.Send(new TransactionsFeature.QueryTransactions(
-                new TransactionsFeature.TransactionsFilter(
-                    RangeStart: RangeStart,
-                    RangeEnd: RangeEnd,
-                    Category: FilterCategory),
-                Page: Page-1,
-                ResultsPerPage: PageSize));
-
-            StateHasChanged();
+            UpdateCurrentFilter();
         }
     }
 }

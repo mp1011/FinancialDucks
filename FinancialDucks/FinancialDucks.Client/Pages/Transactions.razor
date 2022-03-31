@@ -10,7 +10,7 @@
     </div>
     <div class="input-group mb-3">
         <div class="input-group-text">Filter</div>
-        <input type="text" class="form-control" placeholder="" aria-label="Filter" aria-describedby="btnGroupAddon">    
+        <input @bind="TextFilter" type="text" class="form-control" placeholder="" aria-label="Filter" aria-describedby="btnGroupAddon">    
     </div>
 
     <input type="date"
@@ -24,61 +24,5 @@
 
 <p>@ImportMessage</p>
 
- <table class="table">
-    <thead>
-    <tr>
-      <th scope="col">Date</th>
-      <th scope="col">Credit</th>
-      <th scope="col">Debit</th>
-      <th scope="col">Description</th>
-    </tr>
-  </thead>
-  <tbody>
-        @foreach(var row in TransactionsList.OrderBy(p=>p.Date))
-        {
-            <tr>
-                <td>@row.Date.ToShortDateString()</td>
-                @if(row.Amount > 0)
-                {
-                    <td>@row.Amount.ToString("C")</td>
-                    <td></td>
-                }
-                else
-                {
-                    <td></td>
-                    <td>@row.Amount.ToString("C")</td>                    
-                }
-                <td>@row.Description</td>               
-            </tr>
-        }
-    </tbody>
-</table>
+<TransactionsList Filter="CurrentFilter" />
 
-<nav aria-label="Page navigation">
-    <ul class="pagination">
-        @if(Page > 1)
-        {
-            <li class="page-item">
-                <button type="button" class="page-link" @onclick="()=>SetPage(Page-1)" aria-label="Previous">
-                <span aria-hidden="true">&laquo;</span>
-                </button>
-            </li>
-        }
-
-        @foreach(var pageNum in VisibleNavigationPages)
-        {
-            <li class="page-item  @(pageNum==Page?"active":"")">
-                <button type="button" class="page-link" @onclick="()=>SetPage(pageNum)">@pageNum</button>
-            </li>
-        }
-
-        @if (Page < TotalPages - 1)
-        {
-            <li>
-                <button type="button" class="page-link" @onclick="()=>SetPage(Page+1)" aria-label="Next">
-                    <span aria-hidden="true">&raquo;</span>
-                </button>
-            </li>
-        }
-    </ul>
-</nav>

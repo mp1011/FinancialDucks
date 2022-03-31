@@ -11,6 +11,6 @@ namespace FinancialDucks.Infrastructure.Models
         public decimal Amount { get; set; }
         public int SourceId { get; set; }
         public int? CategoryId { get; set; }
-        public string Category { get; set; }
+        public string? Category { get; set; }
     }
 }
