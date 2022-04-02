@@ -19,6 +19,9 @@ namespace FinancialDucks.Infrastructure.Models
         {
             modelBuilder.Entity<Category>(entity =>
             {
+                entity.HasIndex(e => e.Name, "NonClusteredIndex-20220402-121716")
+                    .IsUnique();
+
                 entity.Property(e => e.HierarchyId).IsRequired();
 
                 entity.Property(e => e.Name)

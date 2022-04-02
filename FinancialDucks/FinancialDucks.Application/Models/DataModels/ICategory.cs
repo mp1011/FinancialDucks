@@ -4,7 +4,7 @@ namespace FinancialDucks.Application.Models
 {
     public interface ICategory : IWithId, IWithName
     {
-
+        bool Starred { get; }
     }
 
     public interface ICategoryDetail : ICategory
@@ -82,6 +82,9 @@ namespace FinancialDucks.Application.Models
         /// <returns></returns>
         public static bool HasLinearRelationTo(this ICategoryDetail category1, ICategoryDetail category2)
         {
+            if(category1 == null || category2 == null)
+                return false;
+
             return (category1.Id == category2.Id)
                 || (category1.IsAncestorOf(category2))
                 || (category2.IsAncestorOf(category1));
@@ -101,5 +104,19 @@ namespace FinancialDucks.Application.Models
             }
         }
 
+        public static IEnumerable<ICategoryDetail> GetPathFromRoot(this ICategoryDetail category)
+        {
+            List<ICategoryDetail> path = new List<ICategoryDetail>();
+            path.Add(category);
+            while(category != null)
+            {
+                category = category.Parent;
+                if(category != null)
+                    path.Add(category);
+            }
+
+            path.Reverse();
+            return path;
+        }
     }
 }

@@ -6,11 +6,14 @@
 
         public string Name { get; }
 
-        public Category(int id, string name, Category? parent)
+        public bool Starred { get; }
+
+        public Category(int id, string name, bool starred, Category? parent)
         {
             Id= id;
             Name= name;
             Parent = parent;
+            Starred= starred;
         }
 
         public Category? Parent { get; }
@@ -27,7 +30,7 @@
 
         ICategoryDetail ICategoryDetail.AddSubcategory(ICategory child)
         {
-            var childCategory = new Category(child.Id, child.Name, this);
+            var childCategory = new Category(child.Id, child.Name, starred:false, parent:this);
             Children.Add(childCategory);
             return childCategory;
         }

@@ -20,7 +20,7 @@ namespace FinancialDucks.Infrastructure.Services
             using var dbContext = _dbContextProvider.CreateDataContext();
             var rootHierarchy = HierarchyId.GetRoot();
             var root = dbContext.Categories.Single(p=>p.HierarchyId == rootHierarchy);
-            return await BuildCategoryTree(dbContext, new AppCategory(root.Id, root.Name, null), rootHierarchy);       
+            return await BuildCategoryTree(dbContext, new AppCategory(root.Id, root.Name, starred:false, null), rootHierarchy);       
         }
 
         private async Task<AppCategory> BuildCategoryTree(FinancialDucksContext dbContext, AppCategory category, HierarchyId hierarchyId)
@@ -34,7 +34,7 @@ namespace FinancialDucks.Infrastructure.Services
 
             foreach(var child in children)
             {
-                var childCategory = new AppCategory(child.Id, child.Name, category);
+                var childCategory = new AppCategory(child.Id, child.Name, child.Starred, category);
                 childCategory.Rules.AddRange(child.CategoryRules);
                 category.Children.Add(childCategory);
                 await BuildCategoryTree(dbContext, childCategory, child.HierarchyId);

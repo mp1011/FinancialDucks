@@ -32,12 +32,16 @@ namespace FinancialDucks.Tests
                    sc.AddSingleton<ITransactionFileSourceIdentifier, TransactionFileSourceIdentifier>();
                    sc.AddSingleton<ITransactionClassifier, TransactionClassifier>();
                    sc.AddSingleton<ITransactionsQueryBuilder, TransactionsQueryBuilder>();
-                   sc.AddSingleton(sp =>
+                   sc.AddSingleton<NotificationDispatcher<CategoryChangeNotification>>();
+
+                   sc.AddSingleton<ICategoryTreeProvider>(sp =>
                    {
+                       var dispatcher = sp.GetRequiredService<NotificationDispatcher<CategoryChangeNotification>>();
                        var mock = new Mock<ICategoryTreeProvider>();
                        mock.Setup(x => x.GetCategoryTree())
                             .Returns(() => Task.FromResult(sp.GetRequiredService<MockDataHelper>().GetMockCategoryTree()));
-                       return mock.Object;
+                       var mockProvider = mock.Object;
+                       return new CachedCategoryTreeProvider(mockProvider, dispatcher);
                    });
 
                    sc.AddSingleton(s =>

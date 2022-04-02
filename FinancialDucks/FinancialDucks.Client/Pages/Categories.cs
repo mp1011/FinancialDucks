@@ -45,9 +45,6 @@ namespace FinancialDucks.Client.Pages
                 StateHasChanged();
                 return;
             }
-            
-            if(SelectedCategory != null)
-                await JSRuntime.InvokeVoidAsync("buildTree", null);
         }
 
         public async void NewCategoryButton_Click(CategoriesFeature.AddCategoryCommand addCategoryCommand)

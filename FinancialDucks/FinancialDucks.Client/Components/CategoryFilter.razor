@@ -1,4 +1,5 @@
-﻿@using FinancialDucks.Application.Models
+﻿@using FinancialDucks.Application.Extensions
+@using FinancialDucks.Application.Models
 @using FinancialDucks.Application.Models.AppModels
 @using FinancialDucks.Application.Services
 @inject ICategoryTreeProvider CategoryTreeProvider
@@ -22,7 +23,15 @@
             @foreach (var subcat in categorySelection.Parent.Children)
             {
                 <li><button type="button" class="dropdown-item" @onclick="()=>SetCategory(categorySelection, subcat)">@subcat.Name</button></li>
-            }      
+            }  
+            @if(StarredCategories.NotNullOrEmpty())
+            {
+                <li class="dropdown-divider"></li>
+                @foreach(var starred in StarredCategories)
+                {
+                    <li><button type="button" class="dropdown-item" @onclick="()=>SetCategory(categorySelection, starred)">@starred.Name</button></li>
+                }
+            }
         </ul>
     </div>
 }
@@ -36,6 +45,11 @@
 
     [Parameter]
     public EventCallback<ICategoryDetail> OnCategorySelected { get; set; }
+
+    [Parameter]
+    public ICategoryDetail SelectedCategory { get; set; }
+
+    public ICategoryDetail[] StarredCategories { get; private set; }
 
     public List<CategorySelection> CategorySelections { get; private set; } = new List<CategorySelection>();    
 
@@ -60,7 +74,44 @@
     {
         Id = $"CategorySelection_{Guid.NewGuid}";
         var tree = await CategoryTreeProvider.GetCategoryTree();
+
         CategorySelections.Clear();
-        CategorySelections.Add(new CategorySelection(tree,null));        
+        CategorySelections.Add(new CategorySelection(tree,null));
+
+        StarredCategories = tree.GetDescendants()
+                                .Where(p => p.Starred)
+                                .ToArray();
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (SelectedCategory == null)
+            return;
+
+        var lastSelection = CategorySelections.LastOrDefault();
+        if(lastSelection != null)
+        {
+            if(SelectedCategory.Id == lastSelection.Parent.Id)
+                return;
+
+            if(lastSelection.SelectedChild != null && SelectedCategory.Id == lastSelection.SelectedChild.Id)
+                return;
+        }
+
+        CategorySelections.Clear();
+        ICategoryDetail lastCategory = null;
+        foreach(var category in SelectedCategory.GetPathFromRoot())
+        {
+            if (lastCategory == null)
+                lastCategory = category;
+            else
+            {          
+                if(category != null)
+                    CategorySelections.Add(new CategorySelection(lastCategory, category));
+
+                lastCategory = category;
+            }
+        }
+
     }
 }

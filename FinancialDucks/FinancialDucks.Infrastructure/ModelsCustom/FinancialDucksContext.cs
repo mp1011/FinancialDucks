@@ -1,4 +1,5 @@
 ﻿#nullable disable
+using FinancialDucks.Application.Extensions;
 using FinancialDucks.Application.Models;
 using FinancialDucks.Application.Services;
 using Microsoft.EntityFrameworkCore;
@@ -58,6 +59,7 @@ namespace FinancialDucks.Infrastructure.Models
             foreach(var newRecord in newRecords)
             {
                 var recordToInsert = _objectMapper.CopyIntoNew<ITransaction,Transaction>(newRecord);
+                recordToInsert.Description = recordToInsert.Description.CleanExtraSpaces();
                 Transactions.Add(recordToInsert);
                 insertedRows.Add(recordToInsert);
             }

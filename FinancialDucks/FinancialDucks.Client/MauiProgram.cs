@@ -34,7 +34,16 @@ namespace FinancialDucks.Client
             builder.Services.AddSingleton<ISettingsService, SettingsService>();
             builder.Services.AddSingleton<ITransactionFileSourceIdentifier, TransactionFileSourceIdentifier>();
             builder.Services.AddSingleton<ITransactionClassifier, TransactionClassifier>();
-            builder.Services.AddSingleton<ICategoryTreeProvider, SqlCategoryTreeProvider>();
+            builder.Services.AddSingleton<SqlCategoryTreeProvider>();
+            builder.Services.AddSingleton((sp) =>
+            {
+
+                var dispatcher = sp.GetRequiredService<NotificationDispatcher<CategoryChangeNotification>>();
+                var realProvider = sp.GetRequiredService<SqlCategoryTreeProvider>();
+                ICategoryTreeProvider p = new CachedCategoryTreeProvider(realProvider, dispatcher);
+                return p;
+            });
+
             builder.Services.AddSingleton<NotificationDispatcher<CategoryChangeNotification>>();
             builder.Services.AddSingleton<ITransactionsQueryBuilder, TransactionsQueryBuilder>();
             var path = AppContext.BaseDirectory;

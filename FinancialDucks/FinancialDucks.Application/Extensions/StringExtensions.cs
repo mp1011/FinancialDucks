@@ -13,5 +13,24 @@ namespace FinancialDucks.Application.Extensions
 
             return str;
         }
+
+        public static string AutoCapitalize(this string str)
+        {
+            str = $" {str.CleanExtraSpaces()} "
+                     .ToLower();
+
+            str = Regex.Replace(str, @"(\s)(\w)", m => $" {m.Groups[2].Value.ToUpper()}");
+            return str.Trim();
+        }
+
+        public static string CleanExtraSpaces(this string str)
+        {
+            return Regex.Replace(str, @"\s+", " ").Trim();
+        }
+
+        public static bool IsNonEmpty(this string str)
+        {
+            return !string.IsNullOrEmpty(str);
+        }
     }
 }

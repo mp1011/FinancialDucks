@@ -1,12 +1,21 @@
 ﻿using FinancialDucks.Application.Features;
 using FinancialDucks.Application.Models;
+using FinancialDucks.Client.Components;
+using FinancialDucks.Client.Helpers;
+using FinancialDucks.Client.Models;
 using MediatR;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
+using Microsoft.JSInterop;
 
 namespace FinancialDucks.Client.Pages
 {
     public partial class Transactions 
     {
+
+        [Inject]
+        public IJSRuntime JSRuntime { get; set; }
+
         [Inject]
         public IMediator Mediator { get; set; }
 
@@ -22,7 +31,10 @@ namespace FinancialDucks.Client.Pages
 
         public ICategoryDetail? CategoryFilter { get; set; }
 
-       
+        public string SelectedText { get; set; }
+        public ITransactionDetail SelectedTransaction { get; set; }
+
+
         public async Task RefreshTransactionsFromDisk()
         {
             ImportMessage = $"Reading transactions from disk...";
@@ -63,6 +75,22 @@ namespace FinancialDucks.Client.Pages
         }
 
         protected override void OnAfterRender(bool firstRender)
+        {
+            UpdateCurrentFilter();
+        }
+
+        public async Task OnTransactionMouseUp(TransactionMouseUpEventArgs args)
+        {
+            if (args.MouseArgs.Button != (int)MouseButton.Right)
+                return;
+
+            SelectedText = await JSRuntime.InvokeAsync<string>("getSelectedText");
+            SelectedText = SelectedText.Trim();
+            SelectedTransaction = args.Transaction;
+            await JSRuntime.ShowModal(nameof(CategoryQuickAdd));            
+        }
+
+        public void AfterCategoryQuickAdd(ICategoryDetail category)
         {
             UpdateCurrentFilter();
         }

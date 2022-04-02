@@ -10,6 +10,8 @@ namespace FinancialDucks.Tests.TestModels
 
         public string Name { get; }
 
+        public bool Starred { get; set; }
+
         public TestCategory(int id, string name, TestCategory? parent)
         {
             Id = id;
@@ -41,12 +43,12 @@ namespace FinancialDucks.Tests.TestModels
 
         public TestCategory AddChild(int id, string name)
         {
-            return AddSubcategory(new Category(id, name,null));
+            return AddSubcategory(new Category(id, name, starred:false, parent:null));
         }
 
         public TestCategory AddChildReturnThis(int id, string name)
         {
-            AddSubcategory(new Category(id, name, null));
+            AddSubcategory(new Category(id, name, false, parent:null));
             return this;
         }
     }

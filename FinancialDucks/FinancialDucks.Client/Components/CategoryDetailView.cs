@@ -24,6 +24,8 @@ namespace FinancialDucks.Client.Components
 
         int IWithId.Id => Category.Id;
 
+        public bool Starred { get; set; }
+
         public string Name
         {
             get => _newCategoryName ?? Category.Name;

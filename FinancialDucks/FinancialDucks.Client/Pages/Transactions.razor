@@ -2,7 +2,7 @@
 @using FinancialDucks.Client.Components
 
 <h3>Transactions</h3>
-<CategoryFilter OnCategorySelected="OnCategorySelected" />
+<CategoryFilter OnCategorySelected="OnCategorySelected" SelectedCategory="@CategoryFilter" />
 
 <div class="btn-toolbar mb-3" role="toolbar" aria-label="Toolbar">
     <div class="btn-group me-2" role="group" aria-label="First group">
@@ -24,5 +24,6 @@
 
 <p>@ImportMessage</p>
 
-<TransactionsList Filter="CurrentFilter" />
+<TransactionsList Filter="CurrentFilter" OnTransactionMouseUp="OnTransactionMouseUp" />
 
+<CategoryQuickAdd Text="@SelectedText" Transaction="@SelectedTransaction" AfterCreate="AfterCategoryQuickAdd" />

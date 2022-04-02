@@ -1,5 +1,7 @@
 ﻿using FinancialDucks.Application.Features;
 using FinancialDucks.Application.Models;
+using FinancialDucks.Application.Models.AppModels;
+using FinancialDucks.Client.Models;
 using MediatR;
 using Microsoft.AspNetCore.Components;
 
@@ -10,12 +12,21 @@ namespace FinancialDucks.Client.Components
         [Inject]
         public IMediator Mediator { get; set; }
 
+        private ChangeTracked<TransactionsFeature.TransactionsFilter> _filter = new ChangeTracked<TransactionsFeature.TransactionsFilter>();
+
         [Parameter]
-        public TransactionsFeature.TransactionsFilter Filter { get; set; }
+        public TransactionsFeature.TransactionsFilter Filter
+        {
+            get => _filter;
+            set => _filter.Value = value;
+        }
+
+        [Parameter]
+        public EventCallback<TransactionMouseUpEventArgs> OnTransactionMouseUp { get; set; }
 
         public bool Loading { get; private set; }
 
-        public ITransaction[] Transactions { get; private set; } = new ITransaction[0];
+        public ITransactionDetail[] Transactions { get; private set; } = new ITransactionDetail[0];
 
         public int PageSize { get; private set; } = 10;
 
@@ -42,7 +53,11 @@ namespace FinancialDucks.Client.Components
         protected override async Task OnParametersSetAsync()
         {
             Page = 1;
-            await LoadTransactions(recalcPages: true);
+            if (_filter.HasChanges)
+            {
+                await LoadTransactions(recalcPages: true);
+                _filter.AcceptChanges();
+            }
         }
 
         public async Task SetPage(int page)
@@ -69,5 +84,6 @@ namespace FinancialDucks.Client.Components
             Loading = false;
             StateHasChanged();
         }
+
     }
 }
