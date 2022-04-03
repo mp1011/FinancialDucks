@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using FinancialDucks.Application.Models.AppModels;
 
 namespace FinancialDucks.Client.Models
 {
-    internal class ChartSection
+    public record PieChartSection(ChildCategoryStats Stats, double ChartPercentFrom, double ChartPercentTo, int cssColor)
     {
+        public string CSSColor => $"#{cssColor.ToString("X6")}";
+        public string ConicGradientCSS=> $"#{cssColor.ToString("X6")} {ChartPercentFrom.ToString("P2")} {ChartPercentTo.ToString("P2")}";
     }
 }

@@ -74,12 +74,13 @@ namespace FinancialDucks.Application.Features
                 var parentStats = result.Single(p => p.Category.Id == request.Category.Id);
                 var childStats = result
                     .Where(p => p.Category.Id != request.Category.Id)
+                    .OrderByDescending(p => Math.Abs(p.Total))
                     .ToList();
 
                 decimal miscAmount = parentStats.Total - childStats.Sum(p => p.Total);
 
                 if (miscAmount != 0)
-                    childStats.Add(new CategoryStats(null, 0, miscAmount, null));
+                    childStats.Add(new CategoryStats(new Category(0,"Other",false,null), 0, miscAmount, null));
 
                 return new CategoryStatsWithChildren(
                     parentStats,

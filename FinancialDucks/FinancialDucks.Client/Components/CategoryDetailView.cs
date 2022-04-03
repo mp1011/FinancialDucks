@@ -78,5 +78,12 @@ namespace FinancialDucks.Client.Components
             if(confirm)
                 await Mediator.Send(new CategoriesFeature.DeleteCommand(Category));
         }
+
+        public void ChangeCategory(ICategory newCategory)
+        {
+            var newCategoryDetail = Category.Root().GetDescendant(newCategory.Id);
+            if(newCategoryDetail.Children.Any())
+                Category = newCategoryDetail;
+        }
     }
 }

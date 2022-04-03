@@ -3,11 +3,10 @@ using FinancialDucks.Application.Models;
 using FinancialDucks.Application.Models.AppModels;
 using MediatR;
 using Microsoft.AspNetCore.Components;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Components.Web;
+using FinancialDucks.Application.Extensions;
+using Point = System.Drawing.Point;
+using FinancialDucks.Client.Models;
 
 namespace FinancialDucks.Client.Components
 {
@@ -19,29 +18,144 @@ namespace FinancialDucks.Client.Components
         [Parameter]
         public ICategoryDetail Category { get; set; }
 
+        [Parameter]
+        public EventCallback<ICategory> CategoryClicked { get; set; }
+
+
+        private CategoryStatsWithChildren _stats;
+
+        public Selection<PieChartSection>[] Sections { get; set; }
+
+        public ChildCategoryStats MouseoverStats { get; set; }
+
+        public Point MouseoverPosition { get; set; }
+
         public string PieChartGradientConicGradientCSS { get; set; }
+
+        public readonly int[] CSSColors = new int[] { 0xfd7f6f, 0x7eb0d5, 0xb2e061, 0xbd7ebe, 0xffb55a, 0xffee65, 0xbeb9db, 0xfdcce5, 0x8bd3c7 };
+
+        public void ToggleSelection(Selection<PieChartSection> section)
+        {
+            section.Selected = !section.Selected;
+            AdjustChartBasedOnSelection();
+        }
+
+        private void AdjustChartBasedOnSelection()
+        {
+            var adjustedTotal = Sections
+                .Where(p => p.Selected)
+                .Sum(p => p.Data.Stats.Total);
+
+            var adjustedStats = new CategoryStatsWithChildren(_stats.Main,
+                Sections.Where(p => p.Selected)
+                        .Select(p => p.Data.Stats.AdjustPercent((double)adjustedTotal))
+                        .ToArray());
+
+            var adjustedSections = adjustedStats.Children
+                .Select((childStats, index) => CreateChartSection(childStats, adjustedStats, index))
+                .ToArray();
+
+            var newGradientCSS = String.Join(",", adjustedSections.Select(s => s.ConicGradientCSS).ToArray());
+            if (newGradientCSS == PieChartGradientConicGradientCSS)
+                return;
+
+            PieChartGradientConicGradientCSS = newGradientCSS;
+
+            foreach (int index in Enumerable.Range(0, Sections.Length))
+            {
+                if (!Sections[index].Selected)
+                    continue;
+
+                var changedSection = adjustedSections
+                    .Single(p => p.Stats.Category.Id == Sections[index].Data.Stats.Category.Id);
+
+                Sections[index] = new Selection<PieChartSection>(changedSection, true);
+            }
+        }
 
         protected override async Task OnParametersSetAsync()
         {
             if (Category == null || Category.Name == SpecialCategory.All.ToString())
                 return;
 
-            var stats = await Mediator.Send(new CategoryStatsFeature.QueryWithChildren(Category));
-            PieChartGradientConicGradientCSS = String.Join(",", stats.Children.Select((c, i) => GetPieChartSegmentCSS(stats, c, i)).ToArray());
+            _stats = await Mediator.Send(new CategoryStatsFeature.QueryWithChildren(Category));
+            Sections = _stats.Children
+                .Select((childStats,index) => CreateChartSection(childStats, _stats, index))
+                .Select(p=> new Selection<PieChartSection>(p,true))
+                .ToArray();
+
+            PieChartGradientConicGradientCSS = String.Join(",", Sections.Select(s => s.Data.ConicGradientCSS).ToArray());
         }
 
-        private string GetPieChartSegmentCSS(CategoryStatsWithChildren totalStats, ChildCategoryStats stats, int index)
+        private PieChartSection CreateChartSection(ChildCategoryStats childStats, CategoryStatsWithChildren parentStats, int index)
         {
-            var color = index * (0xFFFFFF / totalStats.Children.Count());
-            var hexColor = color.ToString("X6");
-
+            int color;
+            if(parentStats.Children.Length <= CSSColors.Length)
+                color=CSSColors[index];
+            else            
+                color = index * (0xFFFFFF / parentStats.Children.Count());
+        
             double startPercent = 0;
             if (index > 0)
-                startPercent = totalStats.Children.Take(index).Sum(c => c.Percent);
+                startPercent = parentStats.Children.Take(index).Sum(c => c.Percent);
 
-            double endPercent = startPercent + stats.Percent;
+            double endPercent = startPercent + childStats.Percent;
 
-            return $"#{hexColor} {startPercent.ToString("P2")} {endPercent.ToString("P2")}";
+            return new PieChartSection(childStats, startPercent, endPercent, color);
+        }
+
+        public void MouseOut(MouseEventArgs args)
+        {
+            var mousePoint = new Point((int)args.OffsetX, (int)args.OffsetY);
+            var centerPoint = new Point(100, 100);
+
+            if (centerPoint.DistanceTo(mousePoint) > 100)
+            {
+                MouseoverStats = null;
+                return;
+            }
+        }
+
+        public void MouseMove(MouseEventArgs args)
+        {
+            var mousePoint = new Point((int)args.OffsetX, (int)args.OffsetY);
+            var centerPoint = new Point(100, 100);
+
+            if (mousePoint.DistanceTo(MouseoverPosition) < 5)
+                return;
+
+            var angle = centerPoint.GetAngleTo(mousePoint);
+
+            var adjustedAngle = (360 - (angle+180)).ModPositive(360);
+
+            var percent = adjustedAngle / 360.0;
+            var match = Sections
+                .FirstOrDefault(p=> p.Selected 
+                    && percent >= p.Data.ChartPercentFrom 
+                    && percent <= p.Data.ChartPercentTo);
+
+            if (match != null)
+            {
+                MouseoverStats = match.Data.Stats;
+                MouseoverPosition = mousePoint;
+            }
+            else
+            {
+                MouseoverStats = null;
+            }
+        }
+
+        public async Task ChartClicked(MouseEventArgs args)
+        {
+            if(args.Button == (int)MouseButton.Right)
+            {
+                await CategoryClicked.InvokeAsync(_stats.Main.Category.Parent);
+                return;
+            }
+
+            MouseMove(args);
+            if (MouseoverStats != null)
+                await CategoryClicked.InvokeAsync(MouseoverStats.Category);
         }
     }
 }
