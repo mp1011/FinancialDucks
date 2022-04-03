@@ -32,7 +32,7 @@ namespace FinancialDucks.Application.Features
             {
                 using var dataContext = _dataContextProvider.CreateDataContext();
 
-                var query = _transactionsQueryBuilder.GetTransactionCategoriesQuery(dataContext, category.Root(),
+                var query = _transactionsQueryBuilder.GetTransactionsQuery(dataContext, category.Root(),
                     new TransactionsFeature.TransactionsFilter(
                         RangeStart: new DateTime(1900, 1, 1),
                         RangeEnd: DateTime.Now,
@@ -42,15 +42,7 @@ namespace FinancialDucks.Application.Features
                      .DebugWatchCommandText(dataContext)
                      .ToArrayAsync(dataContext);
 
-                var descriptionCounts = result
-                    .Where(p => p.CategoryId == null)
-                    .Select(p => p.Description.CleanNumbersAndSpecialCharacters())
-                    .GroupBy(g => g)
-                    .Select(g => new DescriptionWithCount(g.Key, g.Count()))
-                    .OrderByDescending(p => p.Count)
-                    .ToArray();
-
-                return new CategoryStats(category, result.Count(), result.Sum(p => p.Amount), descriptionCounts);
+                return new CategoryStats(category, result.Count(), result.Sum(p => p.Amount));
             }
 
             public async Task<CategoryStats> Handle(Query request, CancellationToken cancellationToken)
@@ -80,7 +72,7 @@ namespace FinancialDucks.Application.Features
                 decimal miscAmount = parentStats.Total - childStats.Sum(p => p.Total);
 
                 if (miscAmount != 0)
-                    childStats.Add(new CategoryStats(new Category(0,"Other",false,null), 0, miscAmount, null));
+                    childStats.Add(new CategoryStats(new Category(0,"Other",false,null), 0, miscAmount));
 
                 return new CategoryStatsWithChildren(
                     parentStats,

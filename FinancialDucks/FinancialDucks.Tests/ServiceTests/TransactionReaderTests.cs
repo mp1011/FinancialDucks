@@ -36,6 +36,8 @@ namespace FinancialDucks.Tests.ServiceTests
             Assert.Equal(expectedDescription, results[0].Description);
 
             Assert.Equal(expectedSourceId, results[0].SourceId);
+
+            Assert.Empty(results.Where(p => p.Amount == 0));
         }
     }
 }

@@ -50,6 +50,7 @@ namespace FinancialDucks.Application.Services
             }
 
             return transactions
+                    .Where(t=>t.Amount != 0)
                     .ToArray();
         }
 

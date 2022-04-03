@@ -11,34 +11,32 @@ namespace FinancialDucks.Client.Components
         [Parameter]
         public ICategoryDetail Category { get; set; }
 
-        [Parameter]
-        public DescriptionWithCount[] DescriptionCounts { get; set; }
-
         [Inject]
         public IMediator Mediator { get; set; }
+
+        private ChangeTracked<bool> _starred = new ChangeTracked<bool>();
+
+        public bool Starred
+        {
+            get => _starred;
+            set => _starred.Value = value;
+        }
 
         public bool ShowUncategorizedOnly { get; set; }
         public bool AddingRule { get; set; }
 
-        private string _newCategoryName;
 
         int IWithId.Id => Category.Id;
 
-        public bool Starred { get; set; }
+        private ChangeTracked<string> _name = new ChangeTracked<string>();
 
         public string Name
         {
-            get => _newCategoryName ?? Category.Name;
-            set
-            {
-                if (value == Category.Name)
-                    _newCategoryName = null;
-                else
-                    _newCategoryName = value;
-            }
+            get => _name;
+            set => _name.Value = value;
         }
 
-        public bool IsChangingName => _newCategoryName != null;
+        public bool HasChanges => _name.HasChanges || _starred.HasChanges;
 
         protected override void OnInitialized()
         {
@@ -61,16 +59,17 @@ namespace FinancialDucks.Client.Components
 
         }
 
-        public async void UpdateCategoryName()
+        public async void UpdateCategory()
         {
             await Mediator.Send(new CategoriesFeature.UpdateCategoryCommand(this));
-            _newCategoryName = null;
+            _name.AcceptChanges();
+            _starred.AcceptChanges();
             StateHasChanged();
         }
 
         public void CancelCategoryName()
         {
-            _newCategoryName = null;
+            _name.RejectChanges();
         }
 
         public async void OnPromptDeleteDialog(bool confirm)
@@ -85,5 +84,15 @@ namespace FinancialDucks.Client.Components
             if(newCategoryDetail.Children.Any())
                 Category = newCategoryDetail;
         }
+
+        protected override void OnParametersSet()
+        {
+            if(Category != null)
+            {
+                _starred.SetAndAccept(Category.Starred);
+                _name.SetAndAccept(Category.Name);
+            }                
+        }
     }
+
 }

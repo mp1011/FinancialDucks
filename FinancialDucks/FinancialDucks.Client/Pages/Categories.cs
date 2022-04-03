@@ -24,8 +24,6 @@ namespace FinancialDucks.Client.Pages
 
         public ICategoryDetail SelectedCategory { get; private set; }
 
-        public DescriptionWithCount[] SelectedCategoryDescriptions { get; private set; }
-
         protected override void OnInitialized()
         {
             CategoryChangeDispatcher.Register(this);
@@ -56,10 +54,9 @@ namespace FinancialDucks.Client.Pages
             StateHasChanged();
         }
 
-        public void OnCategorySelected(CategorySelectedEventArgs args)
+        public void OnCategorySelected(ICategoryDetail category)
         {
-            SelectedCategory = args.Category;
-            SelectedCategoryDescriptions = args.Descriptions;
+            SelectedCategory = category;
             StateHasChanged();
         }
 

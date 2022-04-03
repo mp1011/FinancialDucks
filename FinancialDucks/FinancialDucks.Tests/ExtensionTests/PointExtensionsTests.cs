@@ -8,10 +8,10 @@ namespace FinancialDucks.Tests.ExtensionTests
     public class PointExtensionsTests
     {
         [Theory]
-        [InlineData("100,100", "100,0", 120.0)]
-        [InlineData("100,100", "0,100", 120.0)]
-        [InlineData("100,100", "200,100", 120.0)]
-        [InlineData("100,100", "100,200", 120.0)]
+        [InlineData("100,100", "100,0", 180.0)]
+        [InlineData("100,100", "0,100", 270.0)]
+        [InlineData("100,100", "200,100", 90)]
+        [InlineData("100,100", "100,200", 0)]
 
         public void TestAngleTo(string pt1, string pt2, double expectedAngle)
         {

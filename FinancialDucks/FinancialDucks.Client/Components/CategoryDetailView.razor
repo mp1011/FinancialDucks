@@ -16,12 +16,17 @@ else
         <li><button type="button" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#ConfirmDeletePrompt">Delete</button></li>
       </ul>
     </div>
+
+    <div class="form-check form-switch">
+      <input class="form-check-input" type="checkbox" id="categoryStarred" @bind="Starred">
+      <label class="form-check-label" for="categoryStarred">Starred</label>
+    </div>
 }
 
-@if(IsChangingName)
+@if(HasChanges)
 {
     <div class="btn-group" role="group" aria-label="Save or Cancel">
-        <button type="button" class="btn btn-primary" @onclick="UpdateCategoryName">Save</button>
+        <button type="button" class="btn btn-primary" @onclick="UpdateCategory">Save</button>
         <button type="button" class="btn btn-primary" @onclick="CancelCategoryName">Cancel</button>
     </div>
 }
@@ -50,24 +55,3 @@ else
 </ul>
 
 <CategoryChart Category=@Category CategoryClicked="ChangeCategory" />
-
-@if(Category.IsSpecialCategory())
-{
-    <h4>Uncategorized Transactions</h4>
-}
-else
-{
-    <h4>Transactions</h4>
-}
-<ul>
-    @if (DescriptionCounts != null)
-    {
-        @foreach (var description in DescriptionCounts)
-        {
-            <li>@description.Description
-                <span class="badge bg-info">@description.Count</span> 
-            </li>
-        }
-
-    }
-</ul>

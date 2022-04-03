@@ -17,8 +17,6 @@ namespace FinancialDucks.Client.Components
 
         public int Id => Category==null ? 0 : Category.Id;
 
-        public DescriptionWithCount[] CategoryDescriptions { get; private set; }
-
         [Parameter]
         public ICategoryDetail Category { get; set; }
 
@@ -26,7 +24,7 @@ namespace FinancialDucks.Client.Components
         public EventCallback<CategoriesFeature.AddCategoryCommand> NewButtonClick { get; set; }
 
         [Parameter]
-        public EventCallback<CategorySelectedEventArgs> CategorySelected { get; set; }
+        public EventCallback<ICategoryDetail> CategorySelected { get; set; }
 
         [Inject]
         public IMediator Mediator { get; set; }
@@ -43,7 +41,6 @@ namespace FinancialDucks.Client.Components
             var stats = await Mediator.Send(new CategoryStatsFeature.Query(Category));
             NumTransactions = stats.TransactionCount;
             DollarTotal = stats.Total;
-            CategoryDescriptions = stats.Descriptions;
             StateHasChanged();
         }
 
@@ -60,7 +57,7 @@ namespace FinancialDucks.Client.Components
 
         public async Task Category_Clicked()
         {
-            await CategorySelected.InvokeAsync(new CategorySelectedEventArgs(Category, CategoryDescriptions));
+            await CategorySelected.InvokeAsync(Category);
         }
 
         public async Task Handle(CategoryChangeNotification notification, CancellationToken cancellationToken)
@@ -72,7 +69,6 @@ namespace FinancialDucks.Client.Components
                 var stats = await Mediator.Send(new CategoryStatsFeature.Query(Category));
                 NumTransactions = stats.TransactionCount;
                 DollarTotal = stats.Total;
-                CategoryDescriptions = stats.Descriptions;
                 StateHasChanged();
             }
         }

@@ -111,25 +111,5 @@ namespace FinancialDucks.Tests.FeatureTests
             Assert.Equal(expectedDebits, debitsStats.Total);
             Assert.Equal(expectedCredits, creditsStats.Total);
         }
-
-        [Fact]
-        public async Task DebitsDescriptionsIncludesOnlyUncategorized()
-        {
-            var serviceProvider = CreateServiceProvider();
-            var mockDataHelper = serviceProvider.GetRequiredService<MockDataHelper>();
-            var mediator = serviceProvider.GetService<IMediator>()!;
-
-            mockDataHelper.AddKrustyBurgerTransactions();
-            mockDataHelper.AddUnclassifiedTransactions();
-
-            var categoryTree = mockDataHelper.GetMockCategoryTree();
-
-
-            var debitsStats = await mediator.Send(
-              new CategoryStatsFeature.Query(categoryTree.GetDescendant("Debits")!));
-
-            Assert.NotEmpty(debitsStats.Descriptions);
-            Assert.Empty(debitsStats.Descriptions.Where(p => p.Description.Contains("Krusty"))); 
-        }
     }
 }
