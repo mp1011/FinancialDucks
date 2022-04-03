@@ -10,8 +10,12 @@ namespace FinancialDucks.Application.Features
     public class CategoryStatsFeature
     {
         public record Query(ICategory Category) : IRequest<CategoryStats> { }
+        public record QueryWithChildren(ICategory Category) : IRequest<CategoryStatsWithChildren> { }
 
-        public class Handler : IRequestHandler<Query, CategoryStats>
+        public class Handler 
+            :   IRequestHandler<Query, CategoryStats>,
+                IRequestHandler<QueryWithChildren, CategoryStatsWithChildren>
+
         {
             private readonly IDataContextProvider _dataContextProvider;
             private readonly ICategoryTreeProvider _categoryTreeProvider;
@@ -24,14 +28,11 @@ namespace FinancialDucks.Application.Features
                 _transactionsQueryBuilder = transactionsQueryBuilder;
             }
 
-            public async Task<CategoryStats> Handle(Query request, CancellationToken cancellationToken)
+            private async Task<CategoryStats> GetStats(ICategoryDetail category)
             {
-                var categories = await _categoryTreeProvider.GetCategoryTree();
                 using var dataContext = _dataContextProvider.CreateDataContext();
 
-                var category = categories.GetDescendant(request.Category.Id);
-
-                var query = _transactionsQueryBuilder.GetTransactionCategoriesQuery(dataContext, categories,
+                var query = _transactionsQueryBuilder.GetTransactionCategoriesQuery(dataContext, category.Root(),
                     new TransactionsFeature.TransactionsFilter(
                         RangeStart: new DateTime(1900, 1, 1),
                         RangeEnd: DateTime.Now,
@@ -42,16 +43,52 @@ namespace FinancialDucks.Application.Features
                      .ToArrayAsync(dataContext);
 
                 var descriptionCounts = result
-                    .Where(p=>p.CategoryId == null)
+                    .Where(p => p.CategoryId == null)
                     .Select(p => p.Description.CleanNumbersAndSpecialCharacters())
                     .GroupBy(g => g)
                     .Select(g => new DescriptionWithCount(g.Key, g.Count()))
                     .OrderByDescending(p => p.Count)
                     .ToArray();
 
-                return new CategoryStats(result.Count(), result.Sum(p => p.Amount), descriptionCounts);
+                return new CategoryStats(category, result.Count(), result.Sum(p => p.Amount), descriptionCounts);
             }
-        
+
+            public async Task<CategoryStats> Handle(Query request, CancellationToken cancellationToken)
+            {
+                var categories = await _categoryTreeProvider.GetCategoryTree();
+                var category = categories.GetDescendant(request.Category.Id);
+                return await GetStats(category);                
+            }
+
+            public async Task<CategoryStatsWithChildren> Handle(QueryWithChildren request, CancellationToken cancellationToken)
+            {
+                var categories = await _categoryTreeProvider.GetCategoryTree();
+
+                var tasks = categories.GetDescendant(request.Category.Id)!
+                    .GetThisAndChildren()
+                    .Select(c=> GetStats(c))
+                    .ToArray();
+
+                var result = await Task.WhenAll(tasks);
+
+                var parentStats = result.Single(p => p.Category.Id == request.Category.Id);
+                var childStats = result
+                    .Where(p => p.Category.Id != request.Category.Id)
+                    .ToList();
+
+                decimal miscAmount = parentStats.Total - childStats.Sum(p => p.Total);
+
+                if (miscAmount != 0)
+                    childStats.Add(new CategoryStats(null, 0, miscAmount, null));
+
+                return new CategoryStatsWithChildren(
+                    parentStats,
+                    childStats.Select(c => new ChildCategoryStats(
+                        Category: c.Category,
+                        TransactionCount: c.TransactionCount,
+                        Total: c.Total,
+                        Percent: (double)c.Total / (double)parentStats.Total)).ToArray());                
+            }
         }
     }
 }

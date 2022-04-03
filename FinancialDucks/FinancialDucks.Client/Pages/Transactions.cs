@@ -61,9 +61,10 @@ namespace FinancialDucks.Client.Pages
             UpdateCurrentFilter();
         }
 
-        private void UpdateCurrentFilter()
+        private void UpdateCurrentFilter(bool forceUpdate=false)
         {
-            if (CurrentFilter == null
+            if (forceUpdate
+                || CurrentFilter == null
                 || CurrentFilter.RangeStart != RangeStart
                 || CurrentFilter.RangeEnd != RangeEnd
                 || CurrentFilter.TextFilter != TextFilter
@@ -92,7 +93,7 @@ namespace FinancialDucks.Client.Pages
 
         public void AfterCategoryQuickAdd(ICategoryDetail category)
         {
-            UpdateCurrentFilter();
+            UpdateCurrentFilter(forceUpdate:true);
         }
     }
 }

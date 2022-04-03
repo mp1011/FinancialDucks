@@ -32,6 +32,30 @@ namespace FinancialDucks.Tests.FeatureTests
         }
 
         [Fact]
+        public async Task CanGetPercentageStats()
+        {
+            var serviceProvider = CreateServiceProvider();
+            var mockDataHelper = serviceProvider.GetRequiredService<MockDataHelper>();
+
+            mockDataHelper.AddMcDonaldsTransations();
+            mockDataHelper.AddKrustyBurgerTransactions();
+            mockDataHelper.AddUnclassifiedFastFoodTransactions();
+
+            var fastFoodCategory = mockDataHelper.GetMockCategoryTree()
+                                        .GetDescendant("Fast-Food")!;
+
+            var mediator = serviceProvider.GetService<IMediator>()!;
+
+            var result = await mediator.Send(new CategoryStatsFeature.QueryWithChildren(fastFoodCategory));
+
+            Assert.Equal(3, result.Children.Length);
+
+            Assert.Equal(0.57, result.Children[0].Percent,2);
+            Assert.Equal(0.23, result.Children[1].Percent,2);
+            Assert.Equal(0.21, result.Children[2].Percent, 2);
+        }
+
+        [Fact]
         public async Task DebitsCategoryContainsUncategorized()
         {
             var serviceProvider = CreateServiceProvider();

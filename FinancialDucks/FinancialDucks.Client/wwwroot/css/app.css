@@ -67,3 +67,10 @@ li
 {
 	list-style-type:none;
 }
+
+.pie-chart 
+{
+	width: 200px;
+	height: 200px;
+	border-radius: 50%;
+}

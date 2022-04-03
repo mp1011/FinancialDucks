@@ -113,6 +113,8 @@ namespace FinancialDucks.Tests
             yield return new CategoryRule(id++, Priority: 0, categories.GetDescendant("McDonalds")!,
               SubstringMatch: "McDonalds");
 
+            yield return new CategoryRule(id++, Priority: 0, categories.GetDescendant("Fast-Food")!,
+                SubstringMatch: "Fast-Food");
 
             yield return new CategoryRule(id++, Priority: 0, categories.GetDescendant("$20 or Less")!,
                AmountMax: 0M,
@@ -203,6 +205,20 @@ namespace FinancialDucks.Tests
             {
                 transactionDetails.Add(AddMockTransaction(date, -3.99M, "Unknown Transaction"));
                 date = date.AddDays(5);
+            }
+
+            return transactionDetails;
+        }
+
+        public IEnumerable<ITransactionDetail> AddUnclassifiedFastFoodTransactions()
+        {
+            List<ITransactionDetail> transactionDetails = new List<ITransactionDetail>();
+            DateTime date = new DateTime(2022, 1, 1);
+
+            while (date.Month < 3)
+            {
+                transactionDetails.Add(AddMockTransaction(date, -5.49M, "Fast-Food"));
+                date = date.AddDays(8);
             }
 
             return transactionDetails;

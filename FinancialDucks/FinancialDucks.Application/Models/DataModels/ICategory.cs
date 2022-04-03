@@ -50,6 +50,13 @@ namespace FinancialDucks.Application.Models
                 yield return d;
         }
 
+        public static IEnumerable<ICategoryDetail> GetThisAndChildren(this ICategoryDetail category)
+        {
+            yield return category;
+            foreach (var d in category.Children)
+                yield return d;
+        }
+
         public static IEnumerable<ICategoryDetail> GetDescendants(this ICategoryDetail category)
         {
             foreach(var child in category.Children)

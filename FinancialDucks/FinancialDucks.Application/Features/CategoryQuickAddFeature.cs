@@ -14,11 +14,13 @@ namespace FinancialDucks.Application.Features
         {
             private readonly IDataContextProvider _dataContextProvider;
             private readonly ICategoryTreeProvider _categoryTreeProvider;
+            private readonly IMediator _mediator;
 
-            public Handler(IDataContextProvider dataContextProvider, ICategoryTreeProvider categoryTreeProvider)
+            public Handler(IDataContextProvider dataContextProvider, ICategoryTreeProvider categoryTreeProvider, IMediator mediator)
             {
                 _dataContextProvider = dataContextProvider;
                 _categoryTreeProvider = categoryTreeProvider;
+                _mediator = mediator;
             }
 
             public async Task<ICategoryDetail> Handle(Command request, CancellationToken cancellationToken)
@@ -41,6 +43,8 @@ namespace FinancialDucks.Application.Features
                 await dataContext.AddCategoryRule(category, new CategoryRule(0, 0,
                     Category: category,
                     SubstringMatch: request.TextMatch));
+
+                await _mediator.Publish(new CategoryChangeNotification(category));
 
                 return category;
             }
