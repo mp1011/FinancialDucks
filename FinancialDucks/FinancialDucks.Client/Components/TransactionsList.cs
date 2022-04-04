@@ -24,6 +24,28 @@ namespace FinancialDucks.Client.Components
         [Parameter]
         public EventCallback<TransactionMouseUpEventArgs> OnTransactionMouseUp { get; set; }
 
+        public SortDirection? DateSortDirection
+        {
+            get
+            {
+                if (Filter != null && Filter.SortColumn == TransactionSortColumn.Date)
+                    return Filter.SortDirection;
+                else
+                    return null;
+            }
+        }
+
+        public SortDirection? AmountSortDirection
+        {
+            get
+            {
+                if (Filter != null && Filter.SortColumn == TransactionSortColumn.Amount)
+                    return Filter.SortDirection;
+                else
+                    return null;
+            }
+        }
+
         public bool Loading { get; private set; }
 
         public ITransactionDetail[] Transactions { get; private set; } = new ITransactionDetail[0];
@@ -50,6 +72,18 @@ namespace FinancialDucks.Client.Components
             }
         }
 
+        public async Task ToggleSortDate()
+        {
+            Filter = Filter.ToggleSortDate();
+            await LoadTransactions(recalcPages:false);
+        }
+
+        public async Task ToggleSortAmount()
+        {
+            Filter = Filter.ToggleSortAmount();
+            await LoadTransactions(recalcPages: false);
+        }
+
         protected override async Task OnParametersSetAsync()
         {
             Page = 1;
@@ -72,9 +106,12 @@ namespace FinancialDucks.Client.Components
                 return;
             
             Loading = true;
-            TotalPages = await Mediator.Send(new TransactionsFeature.QueryTotalPages(
-                Filter,
-                ResultsPerPage: PageSize));
+            if (recalcPages)
+            {
+                TotalPages = await Mediator.Send(new TransactionsFeature.QueryTotalPages(
+                    Filter,
+                    ResultsPerPage: PageSize));
+            }
 
             Transactions = await Mediator.Send(new TransactionsFeature.QueryTransactions(
                 Filter,

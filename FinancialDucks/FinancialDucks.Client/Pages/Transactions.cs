@@ -1,5 +1,6 @@
 ﻿using FinancialDucks.Application.Features;
 using FinancialDucks.Application.Models;
+using FinancialDucks.Application.Models.AppModels;
 using FinancialDucks.Client.Components;
 using FinancialDucks.Client.Helpers;
 using FinancialDucks.Client.Models;
@@ -30,6 +31,10 @@ namespace FinancialDucks.Client.Pages
         public string TextFilter { get; set; }
 
         public ICategoryDetail? CategoryFilter { get; set; }
+
+        public TransactionSortColumn SortColumn { get; set; }
+
+        public SortDirection SortDirection { get; set; }    
 
         public string SelectedText { get; set; }
         public ITransactionDetail SelectedTransaction { get; set; }
@@ -68,9 +73,12 @@ namespace FinancialDucks.Client.Pages
                 || CurrentFilter.RangeStart != RangeStart
                 || CurrentFilter.RangeEnd != RangeEnd
                 || CurrentFilter.TextFilter != TextFilter
-                || CurrentFilter.Category != CategoryFilter)
+                || CurrentFilter.Category != CategoryFilter
+                || CurrentFilter.SortDirection != SortDirection
+                || CurrentFilter.SortColumn != SortColumn)
             {
-                CurrentFilter = new TransactionsFeature.TransactionsFilter(RangeStart, RangeEnd, CategoryFilter, TextFilter);
+                CurrentFilter = new TransactionsFeature.TransactionsFilter(
+                    RangeStart, RangeEnd, CategoryFilter, TextFilter, SortColumn,SortDirection);
                 StateHasChanged();
             }
         }

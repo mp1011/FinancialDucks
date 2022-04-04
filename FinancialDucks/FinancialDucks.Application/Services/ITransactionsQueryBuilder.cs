@@ -67,14 +67,30 @@ namespace FinancialDucks.Application.Services
                                 && (textFilter == null || p.Description.Contains(textFilter)));
         }
     
-    
+        public IQueryable<ITransactionDetail> ApplySorting(IQueryable<ITransactionDetail> query, 
+            TransactionsFeature.TransactionsFilter filter)
+        {
+            if (filter.SortColumn == TransactionSortColumn.Amount && filter.SortDirection == SortDirection.Ascending)
+                return query.OrderBy(p => p.Amount);
+            if (filter.SortColumn == TransactionSortColumn.Amount && filter.SortDirection == SortDirection.Descending)
+                return query.OrderByDescending(p => p.Amount);
+            if (filter.SortColumn == TransactionSortColumn.Date && filter.SortDirection == SortDirection.Ascending)
+                return query.OrderBy(p => p.Date);
+            if (filter.SortColumn == TransactionSortColumn.Date && filter.SortDirection == SortDirection.Descending)
+                return query.OrderByDescending(p => p.Date);
+
+            return query;
+        }
+
         public IQueryable<ITransactionDetail> GetTransactionsQuery(IDataContext dataContext,
                 ICategoryDetail categoryTree,
                 TransactionsFeature.TransactionsFilter filter)
         {
-            return (from tc in GetTransactionCategoriesQuery(dataContext, categoryTree, filter)
+            var query = (from tc in GetTransactionCategoriesQuery(dataContext, categoryTree, filter)
                     join t in dataContext.TransactionsDetail on tc.Id equals t.Id
                     select t).Distinct();
+
+            return ApplySorting(query, filter);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using FinancialDucks.Application.Models;
+using FinancialDucks.Application.Models.AppModels;
 using FinancialDucks.Application.Services;
 using MediatR;
 
@@ -6,9 +7,38 @@ namespace FinancialDucks.Application.Features
 {
     public class TransactionsFeature
     {
-        public record TransactionsFilter(DateTime RangeStart, DateTime RangeEnd, ICategoryDetail? Category, string? TextFilter=null);
+        public record TransactionsFilter(
+            DateTime RangeStart,
+            DateTime RangeEnd,
+            ICategoryDetail? Category,
+            string? TextFilter,
+            TransactionSortColumn SortColumn,
+            SortDirection SortDirection
+            )
+        {
+            public TransactionsFilter ToggleSortAmount() =>
+                new TransactionsFilter
+                (
+                    RangeStart,
+                    RangeEnd,
+                    Category,
+                    TextFilter,
+                    TransactionSortColumn.Amount,
+                    SortDirection.Toggle()
+                );
 
-   
+            public TransactionsFilter ToggleSortDate() =>
+               new TransactionsFilter
+               (
+                   RangeStart,
+                   RangeEnd,
+                   Category,
+                   TextFilter,
+                   TransactionSortColumn.Date,
+                   SortDirection.Toggle()
+               );
+        }
+
         public record QueryTransactions(TransactionsFilter Filter, int Page, int ResultsPerPage)
             : IRequest<ITransactionDetail[]> { }
 
@@ -40,13 +70,11 @@ namespace FinancialDucks.Application.Features
                 var query = _transactionQueryBuilder.GetTransactionsQuery(dataContext, categoryTree, request.Filter);
 
                 query = query
-                    .OrderBy(p => p.Date)
                     .Skip(start)
-                    .Take(request.ResultsPerPage);
+                    .Take(request.ResultsPerPage)
+                    .DebugWatchCommandText(dataContext);
 
-                return (from q in query
-                        join t in dataContext.TransactionsDetail on q.Id equals t.Id
-                        select t).ToArray();
+                return await query.ToArrayAsync(dataContext);
             }
         }
 

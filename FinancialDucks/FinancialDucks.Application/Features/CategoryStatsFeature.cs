@@ -36,7 +36,10 @@ namespace FinancialDucks.Application.Features
                     new TransactionsFeature.TransactionsFilter(
                         RangeStart: new DateTime(1900, 1, 1),
                         RangeEnd: DateTime.Now,
-                        Category: category));
+                        Category: category,
+                        TextFilter:null,
+                        SortColumn: TransactionSortColumn.Amount,
+                        SortDirection: SortDirection.Descending));
 
                 var result = await query
                      .DebugWatchCommandText(dataContext)

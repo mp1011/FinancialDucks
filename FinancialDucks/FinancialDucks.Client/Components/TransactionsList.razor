@@ -4,8 +4,14 @@
  <table class="table">
     <thead>
     <tr>
-      <th scope="col">Date</th>
-      <th scope="col">Amount</th>
+      <th scope="col" @onclick="ToggleSortDate">
+        <span>Date</span>
+        <SortIndicator Direction=@DateSortDirection />
+      </th>
+      <th scope="col" @onclick="ToggleSortAmount">
+          <span>Amount</span>
+          <SortIndicator Direction=@AmountSortDirection />
+      </th>
       <th scope="col">Description</th>
     </tr>
   </thead>
@@ -22,7 +28,7 @@
         }
         else 
         {
-            @foreach(var row in Transactions.OrderBy(p=>p.Date))
+            @foreach(var row in Transactions)
             {
                 <tr>
                     <td>@row.Date.ToShortDateString()</td>

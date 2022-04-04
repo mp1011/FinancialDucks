@@ -39,7 +39,10 @@ namespace FinancialDucks.Tests.FeatureTests
                 new TransactionsFeature.TransactionsFilter(
                     RangeStart: new DateTime(2022,1,1),
                     RangeEnd: new DateTime(2022,4,1),
-                    Category: category),
+                    Category: category,
+                    TextFilter:null,
+                    SortColumn: TransactionSortColumn.Date,
+                    SortDirection: SortDirection.Ascending),
                 0,
                 100))!;
 
@@ -97,7 +100,10 @@ namespace FinancialDucks.Tests.FeatureTests
                 new TransactionsFeature.TransactionsFilter(
                     dateStart,
                     dateEnd,
-                    null),
+                    Category:null,
+                    TextFilter:null,
+                    SortColumn: TransactionSortColumn.Date,
+                    SortDirection:SortDirection.Ascending),
                 page,
                 resultsPerPage))!;
 
@@ -113,7 +119,46 @@ namespace FinancialDucks.Tests.FeatureTests
 
 
         }
-    
+
+        [Theory]
+        [InlineData(TransactionSortColumn.Amount, SortDirection.Ascending)]
+        [InlineData(TransactionSortColumn.Amount, SortDirection.Descending )]
+        [InlineData(TransactionSortColumn.Date, SortDirection.Ascending)]
+        [InlineData(TransactionSortColumn.Date, SortDirection.Descending)]
+
+        public async Task TransactionsCanBeSorted(TransactionSortColumn column, SortDirection sortDirection)
+        {
+            var serviceProvider = CreateServiceProvider();
+            var mockDataHelper = serviceProvider.GetRequiredService<MockDataHelper>();
+
+            mockDataHelper.AddKrustyBurgerTransactions();
+            mockDataHelper.AddMcDonaldsTransations();
+
+            var dateStart = new DateTime(2022, 1, 1);
+            var dateEnd = new DateTime(2022, 4, 1);
+
+            var mediator = serviceProvider.GetService<IMediator>();
+            var results = await mediator!.Send(new TransactionsFeature.QueryTransactions(
+                new TransactionsFeature.TransactionsFilter(
+                    dateStart,
+                    dateEnd,
+                    null,
+                    null,
+                    column,
+                    sortDirection),
+                0,
+                100))!;
+
+            if(column == TransactionSortColumn.Date && sortDirection == SortDirection.Ascending)
+                Assert.True(results[0].Date < results.Last().Date);
+            else if (column == TransactionSortColumn.Date && sortDirection == SortDirection.Descending)
+                Assert.True(results[0].Date > results.Last().Date);
+            else if (column == TransactionSortColumn.Amount && sortDirection == SortDirection.Ascending)
+                Assert.True(results[0].Amount < results.Last().Amount);
+            else if (column == TransactionSortColumn.Amount && sortDirection == SortDirection.Descending)
+                Assert.True(results[0].Amount > results.Last().Amount);
+        }
+
         [Fact]
         public async Task MultipleRulesDoesNotGiveDuplicateQueryResults()
         {
@@ -132,7 +177,10 @@ namespace FinancialDucks.Tests.FeatureTests
                 new TransactionsFeature.TransactionsFilter(
                     dateStart,
                     dateEnd,
-                    category),
+                    category,
+                    null,
+                    TransactionSortColumn.Date,
+                    SortDirection.Ascending),
                 1,
                 100))!;
 
@@ -143,7 +191,10 @@ namespace FinancialDucks.Tests.FeatureTests
                 new TransactionsFeature.TransactionsFilter(
                     dateStart,
                     dateEnd,
-                    category),
+                    category,
+                    null,
+                    TransactionSortColumn.Date,
+                    SortDirection.Ascending),
                 1,
                 100))!;
 

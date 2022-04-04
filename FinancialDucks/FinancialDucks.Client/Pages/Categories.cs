@@ -1,8 +1,6 @@
 ﻿using FinancialDucks.Application.Features;
 using FinancialDucks.Application.Models;
-using FinancialDucks.Application.Models.AppModels;
 using FinancialDucks.Application.Services;
-using FinancialDucks.Client.Models;
 using MediatR;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;

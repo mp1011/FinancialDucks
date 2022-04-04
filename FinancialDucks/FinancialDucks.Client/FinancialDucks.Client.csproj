@@ -98,4 +98,8 @@
 	  <ProjectReference Include="..\FinancialDucks.Application\FinancialDucks.Application.csproj" />
 	  <ProjectReference Include="..\FinancialDucks.Infrastructure\FinancialDucks.Infrastructure.csproj" />
 	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="wwwroot\icons\" />
+	</ItemGroup>
 	</Project>
