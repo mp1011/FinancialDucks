@@ -26,8 +26,12 @@ namespace FinancialDucks.Application.Services
 
         private IQueryable<ITransactionWithCategory> GetNonTransferTransactions(IDataContext dataContext, ICategoryDetail root)
         {
+            var transactionQueryIds = GetTransferTransactions(dataContext, root)
+                .Select(p => p.Id)
+                .Distinct();
+
             return dataContext.TransactionsWithCategories
-                    .Except(GetTransferTransactions(dataContext, root));
+                    .Where(p=> !transactionQueryIds.Contains(p.Id));
         }
 
         public IQueryable<ITransactionWithCategory> GetTransactionCategoriesQuery(IDataContext dataContext,

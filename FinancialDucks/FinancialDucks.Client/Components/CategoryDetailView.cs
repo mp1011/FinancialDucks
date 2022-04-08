@@ -81,8 +81,12 @@ namespace FinancialDucks.Client.Components
         public void ChangeCategory(ICategory newCategory)
         {
             var newCategoryDetail = Category.Root().GetDescendant(newCategory.Id);
-            if(newCategoryDetail.Children.Any())
+            if (newCategoryDetail != null && newCategoryDetail.Children.Any())
+            {
                 Category = newCategoryDetail;
+                _starred.SetAndAccept(Category.Starred);
+                _name.SetAndAccept(Category.Name);
+            }
         }
 
         protected override void OnParametersSet()

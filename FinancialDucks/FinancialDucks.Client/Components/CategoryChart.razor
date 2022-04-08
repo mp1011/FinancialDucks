@@ -41,7 +41,8 @@
                                     <span style="background-color: white" class="badge badge-primary">&nbsp;</span>
                                 }
                                 <a class="link-primary" 
-                                    href="#" 
+                                    href="#"
+                                    @onclick:preventDefault="true"
                                     @onclick="async ()=> await CategoryClicked.InvokeAsync(chartSection.Data.Stats.Category)">
                                     @chartSection.Data.Stats.Category.Name
                                 </a>
