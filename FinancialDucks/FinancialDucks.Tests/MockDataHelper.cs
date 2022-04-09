@@ -165,6 +165,34 @@ namespace FinancialDucks.Tests
             return transactionDetails;
         }
 
+        public IEnumerable<ITransactionDetail> AddTransactionsForLongTerm()
+        {
+            List<ITransactionDetail> transactionDetails = new List<ITransactionDetail>();
+            DateTime date = new DateTime(2022, 1, 1);
+
+            var rng = new Random(3333);
+            decimal price = -9.99M;
+
+
+
+            while (date.Year < 2032)
+            {
+                transactionDetails.Add(AddMockTransaction(date, price, "Krusty Burger"));
+                date = date.AddHours(rng.Next(5,99));
+
+                transactionDetails.Add(AddMockTransaction(date, price, "Krusty Burger"));
+                date = date.AddHours(rng.Next(5, 99));
+
+                transactionDetails.Add(AddMockTransaction(date, price, "McDonalds"));
+                date = date.AddHours(rng.Next(5, 99));
+
+                price -= (decimal)(rng.NextDouble() * 1.99);
+                price = Math.Round(price, 2);
+            }
+
+            return transactionDetails;
+        }
+
         public IEnumerable<ITransactionDetail> AddTransferTransactions()
         {
             List<ITransactionDetail> transactionDetails = new List<ITransactionDetail>();

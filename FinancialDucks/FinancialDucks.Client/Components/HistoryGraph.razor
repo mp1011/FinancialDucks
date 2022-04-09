@@ -1,5 +1,19 @@
-﻿<h3>HistoryGraph</h3>
+﻿<TimeIntervalSelector 
+    Interval="@TimeInterval"
+    OnIntervalSelected="UpdateTimeInterval" />
+ 
+<RadzenChart>
+    <RadzenColumnSeries 
+        Data="@TimeSlices" 
+        CategoryProperty="Label" 
+        Title="Test" 
+        LineType="LineType.Dashed" 
+        ValueProperty="AmountAbs" />
+    
+    <RadzenColumnOptions Radius="5" />
+    <RadzenValueAxis Formatter="@Format">
+        <RadzenGridLines Visible="true" />
+        <RadzenAxisTitle Text="Floop the Pig" />
+    </RadzenValueAxis>
+</RadzenChart>
 
-@code {
-
-}

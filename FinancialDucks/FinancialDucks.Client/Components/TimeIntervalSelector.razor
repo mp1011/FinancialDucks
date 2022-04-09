@@ -1,0 +1,31 @@
+﻿@using FinancialDucks.Application.Models.AppModels
+<div class="dropdown">
+  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+    @Interval
+  </button>
+  <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+    <li>
+        <button type="button" class="dropdown-item" @onclick="()=>Set(TimeInterval.Daily)">Daily</button>
+        <button type="button" class="dropdown-item" @onclick="()=>Set(TimeInterval.Weekly)">Weekly</button>
+        <button type="button" class="dropdown-item" @onclick="()=>Set(TimeInterval.Monthly)">Monthly</button>
+        <button type="button" class="dropdown-item" @onclick="()=>Set(TimeInterval.Quarterly)">Quarterly</button>
+        <button type="button" class="dropdown-item" @onclick="()=>Set(TimeInterval.Annual)">Annual</button>
+    </li>
+  </ul>
+</div>
+
+@code
+{
+    [Parameter]
+    public TimeInterval Interval { get; set; } = TimeInterval.Quarterly;
+
+    [Parameter]
+    public EventCallback<TimeInterval> OnIntervalSelected { get; set; }
+
+
+    public async Task Set(TimeInterval interval)
+    {
+        Interval = interval;
+        await OnIntervalSelected.InvokeAsync(interval);
+    }
+}

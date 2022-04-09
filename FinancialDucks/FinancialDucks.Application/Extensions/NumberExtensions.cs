@@ -17,5 +17,10 @@
 
             return Number % Mod;
         }
+
+        public static decimal Round(this decimal d) => Math.Round(d, 2);
+
+        public static decimal RoundDown(this decimal d) => Math.Round(d, 2, MidpointRounding.ToZero);
+
     }
 }

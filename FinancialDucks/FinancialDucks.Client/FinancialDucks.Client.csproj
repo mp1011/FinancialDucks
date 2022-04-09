@@ -92,6 +92,7 @@
 	  <PackageReference Include="MediatR" Version="10.0.1" />
 	  <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="10.0.1" />
 	  <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
+	  <PackageReference Include="Radzen.Blazor" Version="3.18.0" />
 	</ItemGroup>
 
 	<ItemGroup>
