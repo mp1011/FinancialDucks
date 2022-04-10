@@ -42,7 +42,7 @@ namespace FinancialDucks.Application.Features
                             .Sum(p => p.Amount)
                             .Round();
 
-                        return new CategoryTimeSlice(amount, t.SliceStart, t.SliceEnd);
+                        return new CategoryTimeSlice(amount, request.TimeInterval, t.SliceStart, t.SliceEnd);
                     })
                     .ToArray();
 

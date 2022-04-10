@@ -6,6 +6,15 @@
 
         public T? Value { get; set; }
 
+        public ChangeTracked()
+        {
+        }
+
+        public ChangeTracked(T initialValue)
+        {
+            Value = initialValue;
+            AcceptChanges();
+        }
 
         public void AcceptChanges()
         {

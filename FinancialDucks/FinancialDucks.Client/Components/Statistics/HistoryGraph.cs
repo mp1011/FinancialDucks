@@ -4,7 +4,7 @@ using FinancialDucks.Application.Models.AppModels;
 using MediatR;
 using Microsoft.AspNetCore.Components;
 
-namespace FinancialDucks.Client.Components
+namespace FinancialDucks.Client.Components.Statistics
 {
     public partial class HistoryGraph
     {       
@@ -13,12 +13,14 @@ namespace FinancialDucks.Client.Components
 
         [Parameter]
         public ICategory Category { get; set; }
-
-        public TimeInterval TimeInterval { get; set; } = TimeInterval.Monthly;
-
+     
+        [Parameter]
         public DateTime RangeStart { get; set; } = DateTime.Now.AddYears(-3);
 
+        [Parameter]
         public DateTime RangeEnd { get; set; } = DateTime.Now;
+
+        public TimeInterval TimeInterval { get; set; } = TimeInterval.Monthly;
 
         public CategoryTimeSlice[] TimeSlices { get; set; }
 

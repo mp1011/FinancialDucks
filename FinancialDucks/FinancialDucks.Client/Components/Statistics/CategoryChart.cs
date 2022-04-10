@@ -8,7 +8,7 @@ using FinancialDucks.Application.Extensions;
 using Point = System.Drawing.Point;
 using FinancialDucks.Client.Models;
 
-namespace FinancialDucks.Client.Components
+namespace FinancialDucks.Client.Components.Statistics
 {
     public partial class CategoryChart
     {
@@ -17,6 +17,13 @@ namespace FinancialDucks.Client.Components
 
         [Parameter]
         public ICategoryDetail Category { get; set; }
+
+        [Parameter]
+        public DateTime RangeStart { get; set; }
+
+        [Parameter]
+        public DateTime RangeEnd { get; set; }
+
 
         [Parameter]
         public EventCallback<ICategory> CategoryClicked { get; set; }
@@ -78,7 +85,7 @@ namespace FinancialDucks.Client.Components
             if (Category == null || Category.Name == SpecialCategory.All.ToString())
                 return;
 
-            _stats = await Mediator.Send(new CategoryStatsFeature.QueryWithChildren(Category));
+            _stats = await Mediator.Send(new CategoryStatsFeature.QueryWithChildren(Category, RangeStart, RangeEnd));
             Sections = _stats.Children
                 .Select((childStats,index) => CreateChartSection(childStats, _stats, index))
                 .Select(p=> new Selection<PieChartSection>(p,true))
@@ -118,6 +125,9 @@ namespace FinancialDucks.Client.Components
 
         public void MouseMove(MouseEventArgs args)
         {
+            if (Sections == null)
+                return;
+
             var mousePoint = new Point((int)args.OffsetX, (int)args.OffsetY);
             var centerPoint = new Point(100, 100);
 

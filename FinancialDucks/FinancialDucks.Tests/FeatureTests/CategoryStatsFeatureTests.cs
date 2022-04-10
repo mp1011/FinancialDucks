@@ -2,6 +2,7 @@
 using FinancialDucks.Application.Models;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
@@ -27,7 +28,10 @@ namespace FinancialDucks.Tests.FeatureTests
             var category = mockDataHelper.GetMockCategoryTree()
                                          .GetDescendant(categoryName)!;
 
-            var result = await mediator.Send(new CategoryStatsFeature.Query(category));
+            var result = await mediator.Send(new CategoryStatsFeature.Query(category, 
+                new DateTime(2022, 1, 1) ,
+                new DateTime(2022, 12, 1)));
+
             Assert.Equal(expectedSum, result.Total);
         }
 
@@ -46,7 +50,9 @@ namespace FinancialDucks.Tests.FeatureTests
 
             var mediator = serviceProvider.GetService<IMediator>()!;
 
-            var result = await mediator.Send(new CategoryStatsFeature.QueryWithChildren(fastFoodCategory));
+            var result = await mediator.Send(new CategoryStatsFeature.QueryWithChildren(fastFoodCategory,
+                new DateTime(2022, 1, 1),
+                new DateTime(2022, 12, 1)));
 
             Assert.Equal(3, result.Children.Length);
 
@@ -72,7 +78,9 @@ namespace FinancialDucks.Tests.FeatureTests
             var category = mockDataHelper.GetMockCategoryTree()
                                          .GetDescendant("Debits");
 
-            var result = await mediator.Send(new CategoryStatsFeature.Query(category));
+            var result = await mediator.Send(new CategoryStatsFeature.Query(category,
+                new DateTime(2022, 1, 1),
+                new DateTime(2022, 12, 1)));
             Assert.Equal(fullTotal, result.Total);
 
         }
@@ -95,9 +103,9 @@ namespace FinancialDucks.Tests.FeatureTests
 
 
             var debitsStats = await mediator.Send(
-                new CategoryStatsFeature.Query(categoryTree.GetDescendant("Debits")!));
+                new CategoryStatsFeature.Query(categoryTree.GetDescendant("Debits")!, new DateTime(2022,1,1), new DateTime(2022, 12, 1)));
             var creditsStats = await mediator.Send(
-                new CategoryStatsFeature.Query(categoryTree.GetDescendant("Credits")!));
+                new CategoryStatsFeature.Query(categoryTree.GetDescendant("Credits")!, new DateTime(2022, 1, 1), new DateTime(2022, 12, 1)));
 
 
             var expectedDebits = allTransactions

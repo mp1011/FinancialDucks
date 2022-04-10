@@ -1,0 +1,24 @@
+﻿@page "/statistics"
+@using FinancialDucks.Application.Models
+@using FinancialDucks.Application.Models.AppModels
+@using FinancialDucks.Client.Components
+@using FinancialDucks.Client.Components.Statistics
+
+@if (Category != null)
+{
+    <h3>Statistics: @Category.Name</h3>
+}
+else
+{
+    <h3>Statistics</h3>
+}
+<CategoryFilter OnCategorySelected="ChangeCategory" SelectedCategory="@Category" />
+
+<input type="date"
+    @bind="RangeStart" />
+
+<input type="date" 
+    @bind ="RangeEnd" />
+
+<HistoryGraph Category=@Category RangeStart=@RangeStart RangeEnd=@RangeEnd />
+<CategoryChart Category=@Category RangeStart=@RangeStart RangeEnd=@RangeEnd CategoryClicked=@ChangeCategory />

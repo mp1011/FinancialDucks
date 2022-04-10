@@ -9,8 +9,13 @@ namespace FinancialDucks.Application.Features
 {
     public class CategoryStatsFeature
     {
-        public record Query(ICategory Category) : IRequest<CategoryStats> { }
-        public record QueryWithChildren(ICategory Category) : IRequest<CategoryStatsWithChildren> { }
+        public record Query(ICategory Category, DateTime RangeStart, DateTime RangeEnd) 
+            : IRequest<CategoryStats> 
+        { 
+        }
+
+        public record QueryWithChildren(ICategory Category, DateTime RangeStart, DateTime RangeEnd) : 
+            IRequest<CategoryStatsWithChildren> { }
 
         public class Handler 
             :   IRequestHandler<Query, CategoryStats>,
@@ -28,14 +33,14 @@ namespace FinancialDucks.Application.Features
                 _transactionsQueryBuilder = transactionsQueryBuilder;
             }
 
-            private async Task<CategoryStats> GetStats(ICategoryDetail category)
+            private async Task<CategoryStats> GetStats(ICategoryDetail category, DateTime rangeStart, DateTime rangeEnd)
             {
                 using var dataContext = _dataContextProvider.CreateDataContext();
 
                 var query = _transactionsQueryBuilder.GetTransactionsQuery(dataContext, category.Root(),
                     new TransactionsFeature.TransactionsFilter(
-                        RangeStart: new DateTime(1900, 1, 1),
-                        RangeEnd: DateTime.Now,
+                        RangeStart: rangeStart,
+                        RangeEnd: rangeEnd,
                         Category: category,
                         TextFilter:null,
                         SortColumn: TransactionSortColumn.Amount,
@@ -52,7 +57,7 @@ namespace FinancialDucks.Application.Features
             {
                 var categories = await _categoryTreeProvider.GetCategoryTree();
                 var category = categories.GetDescendant(request.Category.Id);
-                return await GetStats(category);                
+                return await GetStats(category, DateTime.Now.AddYears(-1), DateTime.Now);                
             }
 
             public async Task<CategoryStatsWithChildren> Handle(QueryWithChildren request, CancellationToken cancellationToken)
@@ -61,7 +66,7 @@ namespace FinancialDucks.Application.Features
 
                 var tasks = categories.GetDescendant(request.Category.Id)!
                     .GetThisAndChildren()
-                    .Select(c=> GetStats(c))
+                    .Select(c=> GetStats(c, request.RangeStart, request.RangeEnd))
                     .ToArray();
 
                 var result = await Task.WhenAll(tasks);

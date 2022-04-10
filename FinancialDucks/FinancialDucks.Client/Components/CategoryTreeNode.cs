@@ -38,7 +38,9 @@ namespace FinancialDucks.Client.Components
                 return;
 
             CategoryChangeDispatcher.Register(this);
-            var stats = await Mediator.Send(new CategoryStatsFeature.Query(Category));
+            var stats = await Mediator.Send(new CategoryStatsFeature.Query(Category,
+                new DateTime(2022, 1, 1),
+                new DateTime(2022, 12, 1)));
             NumTransactions = stats.TransactionCount;
             DollarTotal = stats.Total;
             StateHasChanged();
@@ -66,7 +68,9 @@ namespace FinancialDucks.Client.Components
 
             if (changedNode.HasLinearRelationTo(Category))
             {
-                var stats = await Mediator.Send(new CategoryStatsFeature.Query(Category));
+                var stats = await Mediator.Send(new CategoryStatsFeature.Query(Category,
+                    DateTime.Now.AddYears(-1),
+                    DateTime.Now));
                 NumTransactions = stats.TransactionCount;
                 DollarTotal = stats.Total;
                 StateHasChanged();
