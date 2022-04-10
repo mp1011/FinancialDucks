@@ -22,9 +22,9 @@
                         var year = SliceStart.ToString("yy");
                         if (SliceStart.Month <= 3)
                             return $"{year}Q1";
-                        else if (SliceStart.Month <= 3)
+                        else if (SliceStart.Month <= 6)
                             return $"{year}Q2";
-                        else if(SliceStart.Month <= 3)
+                        else if(SliceStart.Month <= 9)
                             return $"{year}Q3";
                         else
                             return $"{year}Q4";

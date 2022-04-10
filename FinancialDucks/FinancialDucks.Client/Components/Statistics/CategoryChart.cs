@@ -88,11 +88,23 @@ namespace FinancialDucks.Client.Components.Statistics
             _stats = await Mediator.Send(new CategoryStatsFeature.QueryWithChildren(Category, RangeStart, RangeEnd));
             Sections = _stats.Children
                 .Select((childStats,index) => CreateChartSection(childStats, _stats, index))
-                .Select(p=> new Selection<PieChartSection>(p,true))
+                .Where(p=>p.Stats.Total != 0)
+                .Select(p=> new Selection<PieChartSection>(p, ShouldBeSelectedAtStart(p.Stats)))
                 .ToArray();
 
-            PieChartGradientConicGradientCSS = String.Join(",", Sections.Select(s => s.Data.ConicGradientCSS).ToArray());
+            foreach(var excess in Sections
+                                .Where(p=>p.Selected)
+                                .Skip(CSSColors.Length))
+            {
+                excess.Selected = false;
+            }
+
+            AdjustChartBasedOnSelection();
         }
+
+        private bool ShouldBeSelectedAtStart(ChildCategoryStats stats)
+            => stats.Percent >= 0.01;
+        
 
         private PieChartSection CreateChartSection(ChildCategoryStats childStats, CategoryStatsWithChildren parentStats, int index)
         {

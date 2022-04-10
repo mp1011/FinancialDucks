@@ -97,6 +97,20 @@ namespace FinancialDucks.Application.Models
                 || (category2.IsAncestorOf(category1));
         }
 
+        public static bool IsDescendantOf(this ICategoryDetail category, string ancestorName)
+        {
+            var parent = category.Parent;
+            while(parent != null)
+            {
+                if (parent.Name == ancestorName)
+                    return true;
+                else
+                    parent = parent.Parent;
+            }
+
+            return false;
+        }
+
         public static bool IsAncestorOf(this ICategoryDetail category1, ICategoryDetail category2)
         {
             var parent = category2.Parent;

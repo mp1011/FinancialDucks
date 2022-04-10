@@ -39,13 +39,19 @@ namespace FinancialDucks.Application.Services
                 TransactionsFeature.TransactionsFilter filter)
         {
             int[] categoryIds = new int[0];
+            bool isCredit=false, isDebit = false;
+
             if (filter.Category != null)
             {
                 categoryIds = filter.Category
                     .GetThisAndAllDescendants()
                     .Select(c => c.Id)
                     .ToArray();
+
+                isCredit = filter.Category.IsDescendantOf(SpecialCategory.Credits.ToString());
+                isDebit = filter.Category.IsDescendantOf(SpecialCategory.Debits.ToString());
             }
+
 
             var unclassifiedCategory = categoryTree.GetDescendant(SpecialCategory.Unclassified.ToString())!;
             IQueryable<ITransactionWithCategory> query;
@@ -65,6 +71,12 @@ namespace FinancialDucks.Application.Services
             string? textFilter = filter.TextFilter;
             if (string.IsNullOrEmpty(textFilter))
                 textFilter = null;
+
+            if (isCredit)
+                query = query.Where(p => p.Amount > 0);
+
+            else if(isDebit)
+                query = query.Where(p => p.Amount <= 0);
 
             return query.Where(p=>p.Date >= filter.RangeStart 
                                 && p.Date <= filter.RangeEnd

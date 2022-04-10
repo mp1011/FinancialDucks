@@ -27,6 +27,9 @@ namespace FinancialDucks.Application.Features
 
             public async Task<CategoryTimeSlice[]> Handle(Query request, CancellationToken cancellationToken)
             {
+                if (request.RangeStart.IsInvalid() || request.RangeEnd.IsInvalid())
+                    return new CategoryTimeSlice[] { };
+
                 var snapshots = await GetSnapshots(request);
 
                 var totalSum = snapshots.Sum(p => p.Amount);

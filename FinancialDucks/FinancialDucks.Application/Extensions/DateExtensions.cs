@@ -15,6 +15,11 @@ namespace FinancialDucks.Application.Extensions
             }
         }
 
+        public static bool IsInvalid(this DateTime date)
+        {
+            return date.Year <= 1900;
+        }
+
         public static DateTime GetClosestInterval(this DateTime date, TimeInterval interval)
         {
             switch(interval)

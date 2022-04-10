@@ -1,5 +1,6 @@
 ﻿using FinancialDucks.Application.Models;
 using FinancialDucks.Application.Models.AppModels;
+using FinancialDucks.Application.Services;
 using MediatR;
 using Microsoft.AspNetCore.Components;
 
@@ -9,6 +10,9 @@ namespace FinancialDucks.Client.Pages
     {
         [Inject]
         public IMediator Mediator { get; set; }
+
+        [Inject]
+        public ICategoryTreeProvider CategoryTreeProvider { get; set; }
 
         public ICategoryDetail Category { get; set; }
 
@@ -28,19 +32,6 @@ namespace FinancialDucks.Client.Pages
             set => _rangeEnd.Value = value;
         }
 
-        protected override Task OnInitializedAsync()
-        {
-            return base.OnInitializedAsync();
-        }
-
-        //protected override Task OnAfterRenderAsync(bool firstRender)
-        //{
-        //    if (_rangeStart.HasChanges || _rangeEnd.HasChanges)
-        //    {
-
-        //    }
-        //}
-
         public void ChangeCategory(ICategoryDetail newCategory)
         {
             Category = newCategory;
@@ -51,5 +42,10 @@ namespace FinancialDucks.Client.Pages
             Category = Category.Root().GetDescendant(newCategory.Id);
         }
 
+        protected override async Task OnInitializedAsync()
+        {
+            var categoryTree = await CategoryTreeProvider.GetCategoryTree();
+            Category = categoryTree.GetDescendant(SpecialCategory.Debits.ToString());
+        }
     }
 }
