@@ -30,7 +30,7 @@ namespace FinancialDucks.Application.Features
                 var snapshots = await GetSnapshots(request);
 
                 var totalSum = snapshots.Sum(p => p.Amount);
-                var timeSlices = request.RangeStart
+                var timeSlices = request.RangeStart.GetClosestInterval(request.TimeInterval)
                     .SliceTime(request.TimeInterval, request.RangeEnd)
                     .ToArray();
 

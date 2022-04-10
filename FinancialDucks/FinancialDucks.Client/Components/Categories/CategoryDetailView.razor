@@ -35,12 +35,12 @@ else
     OnDialogClosed="OnPromptDeleteDialog" />
 
 <h4>Rules</h4>
-<ul>
+<ul class="list-group">
     @foreach(var rule in Category.Rules)
     {
-        <li><CategoryRuleRow CategoryRule=@rule/></li> 
+        <li class="list-group-item"><CategoryRuleRow CategoryRule=@rule/></li> 
     }
-    <li>
+    <li class="list-group-item">
         @if(!AddingRule)
         {
              <button type="button" class="btn btn-primary" lab
@@ -50,7 +50,6 @@ else
         {
            <AddCategoryRuleView Category=@Category OnCategoryRuleCreated="OnCategoryRuleCreated" />
         }
-
     </li>
 </ul>
 

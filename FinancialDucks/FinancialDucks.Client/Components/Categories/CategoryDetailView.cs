@@ -4,7 +4,7 @@ using FinancialDucks.Application.Models.AppModels;
 using MediatR;
 using Microsoft.AspNetCore.Components;
 
-namespace FinancialDucks.Client.Components
+namespace FinancialDucks.Client.Components.Categories
 {
     public partial class CategoryDetailView : ICategory
     {

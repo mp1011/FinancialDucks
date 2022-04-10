@@ -6,7 +6,7 @@ using FinancialDucks.Client.Models;
 using MediatR;
 using Microsoft.AspNetCore.Components;
 
-namespace FinancialDucks.Client.Components
+namespace FinancialDucks.Client.Components.Categories
 {
     public partial class CategoryTreeNode : INotificationHandler<CategoryChangeNotification>, IDisposable
     {

@@ -1,26 +1,44 @@
 ﻿@page "/transactions"
 @using FinancialDucks.Client.Components
 
-<h3>Transactions</h3>
-<CategoryFilter OnCategorySelected="OnCategorySelected" SelectedCategory="@CategoryFilter" />
-
-<div class="btn-toolbar mb-3" role="toolbar" aria-label="Toolbar">
-    <div class="btn-group me-2" role="group" aria-label="First group">
-        <button type="button" class="btn btn-outline-secondary" @onclick="()=>RefreshTransactionsFromDisk()">Refresh from Disk</button>
+<div class="container">
+    <div class="row">
+        <div class="col-md-auto">
+            <h3>Transactions</h3>
+        </div>
+        <div class="col">
+           <div class="dropdown">
+              <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+              </button>
+              <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+                <li>
+                    <button type="button" class="dropdown-item" @onclick="()=>RefreshTransactionsFromDisk()">Load from Disk</button>
+                </li>
+              </ul>
+            </div>   
+        </div>
     </div>
-    <div class="input-group mb-3">
+</div>
+
+<div class="btn-toolbar" role="toolbar" aria-label="Toolbar">
+    <div class="input-group pe-3">
         <div class="input-group-text">Filter</div>
         <input @bind="TextFilter" type="text" class="form-control" placeholder="" aria-label="Filter" aria-describedby="btnGroupAddon">    
     </div>
 
-    <input type="date"
-        @bind="RangeStart" />
+    <div class="input-group pe-3">
+        <div class="input-group-text">From</div>        
+        <input type="date" @bind="RangeStart" />
+    </div>
 
-    <input type="date" 
-        @bind ="RangeEnd" />
+    <div class="input-group">
+        <div class="input-group-text">To</div>        
+        <input type="date" @bind ="RangeEnd" />
+    </div>
 
 </div>
 
+<CategoryFilter OnCategorySelected="OnCategorySelected" SelectedCategory="@CategoryFilter" />
 
 <p>@ImportMessage</p>
 

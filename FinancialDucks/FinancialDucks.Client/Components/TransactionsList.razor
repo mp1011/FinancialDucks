@@ -1,5 +1,5 @@
-﻿@using FinancialDucks.Client.Models
-<h3>TransactionsList</h3>
+﻿@using FinancialDucks.Client.Components.SimpleControls
+@using FinancialDucks.Client.Models
 
  <table class="table">
     <thead>
@@ -32,7 +32,9 @@
             {
                 <tr>
                     <td>@row.Date.ToShortDateString()</td>
-                    <td>@row.Amount.ToString("C")</td>
+                    <td>
+                        <CurrencyLabel Amount=@row.Amount />
+                    </td>
                     <td>
                         <p @onmouseup="(e)=>OnTransactionMouseUp.InvokeAsync(new TransactionMouseUpEventArgs(e,row))">@row.Description</p>
                     </td>               

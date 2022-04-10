@@ -1,5 +1,7 @@
 ﻿@page "/categories"
+@using FinancialDucks.Application.Models.AppModels
 @using FinancialDucks.Client.Components
+@using FinancialDucks.Client.Components.Categories
 
 <h1>Categories</h1>
 
@@ -12,16 +14,14 @@
         }
         else 
         {
-            <ul>
-                @foreach(var child in Root.Children)
+            <div class="list-group">
+                @foreach(var child in Root.Children.Where(p=>p.Name != SpecialCategory.Unclassified.ToString()))
                 {
-                    <li>
-                        <CategoryTreeNode   Category=child 
-                                            NewButtonClick=NewCategoryButton_Click
-                                            CategorySelected=OnCategorySelected />
-                    </li>                    
+                    <CategoryTreeNode   Category=child 
+                                        NewButtonClick=NewCategoryButton_Click
+                                        CategorySelected=OnCategorySelected />                                       
                 }
-            </ul>
+            </div>
         }
     </div>
     <div class="col-sm">

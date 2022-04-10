@@ -6,7 +6,6 @@ using FinancialDucks.Client.Helpers;
 using FinancialDucks.Client.Models;
 using MediatR;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 
 namespace FinancialDucks.Client.Pages
