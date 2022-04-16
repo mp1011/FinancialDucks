@@ -139,7 +139,7 @@ namespace FinancialDucks.Application.Features
                 var category = categories.GetDescendant(request.Category.Id);
 
                 var query = _transactionsQueryBuilder.GetTransactionsQuery(dataContext, categories,
-                    new TransactionsFeature.TransactionsFilter(request.RangeStart, request.RangeEnd, category, null, TransactionSortColumn.Date, SortDirection.Ascending));
+                    new TransactionsFeature.TransactionsFilter(request.RangeStart, request.RangeEnd, category, null, Sources: new ITransactionSource[] { }, TransactionSortColumn.Date, SortDirection.Ascending));
 
                 var resultsByDate = query
                     .Select(x => new { Date = x.Date, Amount = x.Amount })

@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace FinancialDucks.Client.Models
+﻿namespace FinancialDucks.Client.Models
 {
-    public class Selection<T>
+    public interface ISelection
+    {
+        bool Selected { get; set; }
+    }
+
+    public class Selection<T> :ISelection
     {
         public T Data { get; }
         public bool Selected { get; set; }
@@ -15,6 +14,17 @@ namespace FinancialDucks.Client.Models
         {
             Data = data;
             Selected = selected;
+        }
+    }
+
+    public static class SelectionExtensions
+    {
+        public static T[] GetSelectedData<T>(this IEnumerable<Selection<T>> selection)
+        {
+            return selection
+                .Where(p => p.Selected)
+                .Select(p => p.Data)
+                .ToArray();
         }
     }
 }

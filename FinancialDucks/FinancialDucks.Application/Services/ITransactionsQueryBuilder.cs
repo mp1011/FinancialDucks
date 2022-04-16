@@ -1,4 +1,5 @@
-﻿using FinancialDucks.Application.Features;
+﻿using FinancialDucks.Application.Extensions;
+using FinancialDucks.Application.Features;
 using FinancialDucks.Application.Models;
 using FinancialDucks.Application.Models.AppModels;
 
@@ -78,8 +79,13 @@ namespace FinancialDucks.Application.Services
             else if(isDebit)
                 query = query.Where(p => p.Amount <= 0);
 
+            int[] sourceIds = null;
+            if (filter.Sources.NotNullOrEmpty())
+                sourceIds = filter.Sources.Select(p => p.Id).ToArray();
+
             return query.Where(p=>p.Date >= filter.RangeStart 
                                 && p.Date <= filter.RangeEnd
+                                && (sourceIds==null || sourceIds.Contains(p.SourceId))
                                 && (textFilter == null || p.Description.Contains(textFilter)));
         }
     

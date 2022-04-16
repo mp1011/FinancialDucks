@@ -139,6 +139,22 @@ namespace FinancialDucks.Tests
         }
 
         public List<ITransactionDetail> MockTransations { get; } = new List<ITransactionDetail>();
+
+        public IEnumerable<ITransactionDetail> AddTransactionsWithSource(ITransactionSourceDetail source, int count)
+        {
+            List<ITransactionDetail> transactionDetails = new List<ITransactionDetail>();
+            DateTime date = new DateTime(2022, 1, 1);
+
+            int index = 0;
+            while(index++ < count)
+            {
+                transactionDetails.Add(AddMockTransaction(date, -9.99M, "Krusty Burger", source));
+                date = date.AddDays(5);
+            }
+
+            return transactionDetails;
+        }
+
         public IEnumerable<ITransactionDetail> AddKrustyBurgerTransactions()
         {
             List<ITransactionDetail> transactionDetails = new List<ITransactionDetail>();
@@ -254,7 +270,8 @@ namespace FinancialDucks.Tests
             return transactionDetails;
         }
 
-        private ITransactionDetail AddMockTransaction(DateTime date, decimal amount, string description)
+        private ITransactionDetail AddMockTransaction(DateTime date, decimal amount, string description, 
+            ITransactionSourceDetail? source=null)
         {
             var t = new TestTransaction
             {
@@ -262,6 +279,7 @@ namespace FinancialDucks.Tests
                 Amount=amount,
                 Description=description,
                 Date=date,
+                SourceId = (source?.Id).GetValueOrDefault()
             };
             MockTransations.Add(t);
             return t;

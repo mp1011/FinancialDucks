@@ -21,6 +21,7 @@ namespace FinancialDucks.Client
                 });
 
             builder.Services.AddMauiBlazorWebView();
+            builder.Services.AddBlazorWebViewDeveloperTools();
 
             builder.Services.AddDbContext<FinancialDucksContext>();
             builder.Services.AddMediatR(typeof(ReadLocalTransactions));

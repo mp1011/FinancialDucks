@@ -3,19 +3,20 @@
 @using FinancialDucks.Application.Models
 @using FinancialDucks.Client.Models
 @using MediatR
+
 <div class="dropdown">
-  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-    @SelectionText
+  <button class="btn btn-secondary dropdown-toggle" type="button" id="sourceDropdownButton" 
+    data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+     @SelectionText
   </button>
-  <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+  <ul class="dropdown-menu" aria-labelledby="sourceDropdownButton">
         @foreach(var source in Sources.NullToEmpty())
         {
             <li>
-                <input @bind="source.Selected" type="checkbox" class="btn-check" id="btncheck1" autocomplete="off">
-                <label class="btn btn-outline-primary" for="btncheck1">@source.Data.Name</label>
+                @{var buttonClass = source.Selected ? "dropdown-item active" : "dropdown-item"; }
+                <button class="@buttonClass" type="button" @onclick="()=>ToggleSelection(source)">@source.Data.Name</button>
             </li>
         }
-        
   </ul>
 </div>
 
@@ -24,7 +25,12 @@
     [Inject]
     public IMediator Mediator { get; set; }
 
+    [Parameter]
+    public EventCallback<ITransactionSourceDetail[]> OnSelectionChanged { get; set; }
+
+
     public Selection<ITransactionSourceDetail>[] Sources { get; private set; } 
+
 
     public string SelectionText { get; private set; }
 
@@ -35,7 +41,14 @@
             .Select(s => new Selection<ITransactionSourceDetail>(s, true))
             .ToArray();
 
-            UpdateSelectionText();
+        UpdateSelectionText();
+    }
+
+    public async Task ToggleSelection(ISelection selection)
+    {
+        selection.Selected = !selection.Selected;
+        UpdateSelectionText();
+        await OnSelectionChanged.InvokeAsync(Sources.GetSelectedData());        
     }
 
     private void UpdateSelectionText()

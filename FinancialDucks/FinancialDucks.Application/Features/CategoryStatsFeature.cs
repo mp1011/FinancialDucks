@@ -43,6 +43,7 @@ namespace FinancialDucks.Application.Features
                         RangeEnd: rangeEnd,
                         Category: category,
                         TextFilter:null,
+                        Sources: new ITransactionSource[] { },
                         SortColumn: TransactionSortColumn.Amount,
                         SortDirection: SortDirection.Descending));
 

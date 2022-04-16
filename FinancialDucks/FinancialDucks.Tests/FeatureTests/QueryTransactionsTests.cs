@@ -15,6 +15,50 @@ namespace FinancialDucks.Tests.FeatureTests
     public class QueryTransactionsTests : TestBase
     {
         [Theory]
+        [InlineData("Citibank Card")]
+        [InlineData("Capital One Card")]
+        [InlineData("Citibank Card,Capital One Card")]
+        public async Task CanQueryTransactionsBySource(string sourcesCSV)
+        {
+            var serviceProvider = CreateServiceProvider();
+            var mockDataHelper = serviceProvider.GetRequiredService<MockDataHelper>();
+
+            var tree = await serviceProvider.GetRequiredService<ICategoryTreeProvider>().GetCategoryTree();
+          
+            List<ITransactionSource> selectedSources = new List<ITransactionSource>();
+            var sourceNames = sourcesCSV.Split(',');
+            int expectedCount = 0;
+
+            foreach(var src in mockDataHelper.GetMockTransactionSources())
+            {
+                int count = src.Id + 10;
+                if(sourceNames.Contains(src.Name))
+                {
+                    expectedCount += count;
+                    selectedSources.Add(src);
+                }
+                mockDataHelper.AddTransactionsWithSource(src, src.Id+10);
+            }
+
+            Assert.NotEmpty(selectedSources);
+            Assert.NotEqual(0, expectedCount);
+
+            var mediator = serviceProvider.GetRequiredService<IMediator>();
+            var result = await mediator.Send(new TransactionsFeature.QueryTransactions(
+                new TransactionsFeature.TransactionsFilter(
+                   RangeStart: new DateTime(2022, 1, 1),
+                   RangeEnd: new DateTime(2024, 1, 1),
+                   Category: tree,
+                   TextFilter: null,
+                   Sources: selectedSources.ToArray(),
+                   SortColumn: TransactionSortColumn.Amount,
+                   SortDirection: SortDirection.Ascending), 0,1000));
+
+            Assert.Equal(expectedCount, result.Count());
+        }
+
+
+        [Theory]
         [InlineData("All")]
         [InlineData("Krusty Burger")]
         [InlineData("Fast-Food")]
@@ -41,6 +85,7 @@ namespace FinancialDucks.Tests.FeatureTests
                     RangeEnd: new DateTime(2022,4,1),
                     Category: category,
                     TextFilter:null,
+                    Sources: new ITransactionSource[] { },
                     SortColumn: TransactionSortColumn.Date,
                     SortDirection: SortDirection.Ascending),
                 0,
@@ -102,6 +147,7 @@ namespace FinancialDucks.Tests.FeatureTests
                     dateEnd,
                     Category:null,
                     TextFilter:null,
+                    Sources: new ITransactionSource[] { },
                     SortColumn: TransactionSortColumn.Date,
                     SortDirection:SortDirection.Ascending),
                 page,
@@ -122,7 +168,7 @@ namespace FinancialDucks.Tests.FeatureTests
 
         [Theory]
         [InlineData(TransactionSortColumn.Amount, SortDirection.Ascending)]
-        [InlineData(TransactionSortColumn.Amount, SortDirection.Descending )]
+        [InlineData(TransactionSortColumn.Amount, SortDirection.Descending)]
         [InlineData(TransactionSortColumn.Date, SortDirection.Ascending)]
         [InlineData(TransactionSortColumn.Date, SortDirection.Descending)]
 
@@ -144,6 +190,7 @@ namespace FinancialDucks.Tests.FeatureTests
                     dateEnd,
                     null,
                     null,
+                    new ITransactionSource[] { },
                     column,
                     sortDirection),
                 0,
@@ -179,6 +226,7 @@ namespace FinancialDucks.Tests.FeatureTests
                     dateEnd,
                     category,
                     null,
+                    new ITransactionSource[] { },
                     TransactionSortColumn.Date,
                     SortDirection.Ascending),
                 1,
@@ -193,6 +241,7 @@ namespace FinancialDucks.Tests.FeatureTests
                     dateEnd,
                     category,
                     null,
+                    new ITransactionSource[] { },
                     TransactionSortColumn.Date,
                     SortDirection.Ascending),
                 1,

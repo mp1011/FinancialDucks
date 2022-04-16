@@ -27,6 +27,8 @@ namespace FinancialDucks.Client.Pages
 
         public DateTime RangeEnd { get; set; } = DateTime.Now;
 
+        public ITransactionSource[] Sources { get; set; }
+
         public string TextFilter { get; set; }
 
         public ICategoryDetail? CategoryFilter { get; set; }
@@ -59,7 +61,7 @@ namespace FinancialDucks.Client.Pages
                 || CurrentFilter.SortColumn != SortColumn)
             {
                 CurrentFilter = new TransactionsFeature.TransactionsFilter(
-                    RangeStart, RangeEnd, CategoryFilter, TextFilter, SortColumn,SortDirection);
+                    RangeStart, RangeEnd, CategoryFilter, TextFilter, Sources, SortColumn,SortDirection);
                 StateHasChanged();
             }
         }
@@ -67,6 +69,12 @@ namespace FinancialDucks.Client.Pages
         protected override void OnAfterRender(bool firstRender)
         {
             UpdateCurrentFilter();
+        }
+
+        public async Task OnSourcesChanged(ITransactionSourceDetail[] selectedSources)
+        {
+            Sources = selectedSources;
+            UpdateCurrentFilter(forceUpdate: true);
         }
 
         public async Task OnTransactionMouseUp(TransactionMouseUpEventArgs args)

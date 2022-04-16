@@ -12,6 +12,7 @@ namespace FinancialDucks.Application.Features
             DateTime RangeEnd,
             ICategoryDetail? Category,
             string? TextFilter,
+            ITransactionSource[] Sources,
             TransactionSortColumn SortColumn,
             SortDirection SortDirection
             )
@@ -23,6 +24,7 @@ namespace FinancialDucks.Application.Features
                     RangeEnd,
                     Category,
                     TextFilter,
+                    Sources,
                     TransactionSortColumn.Amount,
                     SortDirection.Toggle()
                 );
@@ -34,6 +36,7 @@ namespace FinancialDucks.Application.Features
                    RangeEnd,
                    Category,
                    TextFilter,
+                   Sources,
                    TransactionSortColumn.Date,
                    SortDirection.Toggle()
                );
