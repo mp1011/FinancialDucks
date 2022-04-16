@@ -4,7 +4,6 @@ using FinancialDucks.Application.Services;
 using FinancialDucks.Infrastructure.Models;
 using FinancialDucks.Infrastructure.Services;
 using MediatR;
-using Microsoft.AspNetCore.Components.WebView.Maui;
 using Microsoft.Extensions.Configuration;
 
 namespace FinancialDucks.Client
@@ -15,14 +14,13 @@ namespace FinancialDucks.Client
         {
             var builder = MauiApp.CreateBuilder();
             builder
-                .RegisterBlazorMauiWebView()
                 .UseMauiApp<App>()
                 .ConfigureFonts(fonts =>
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                 });
 
-            builder.Services.AddBlazorWebView();
+            builder.Services.AddMauiBlazorWebView();
 
             builder.Services.AddDbContext<FinancialDucksContext>();
             builder.Services.AddMediatR(typeof(ReadLocalTransactions));
@@ -50,7 +48,6 @@ namespace FinancialDucks.Client
             var configBuilder = new ConfigurationBuilder()
                 .AddJsonFile($@"{path}\appsettings.json");
             builder.Configuration.AddConfiguration(configBuilder.Build());
-
 
             return builder.Build();
         }

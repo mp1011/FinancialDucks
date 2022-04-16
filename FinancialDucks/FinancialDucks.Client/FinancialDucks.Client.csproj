@@ -8,7 +8,6 @@
 		<UseMaui>true</UseMaui>
 		<SingleProject>true</SingleProject>
 		<ImplicitUsings>enable</ImplicitUsings>
-		<EnablePreviewMsixTooling>true</EnablePreviewMsixTooling>
 		<EnableDefaultCssItems>false</EnableDefaultCssItems>
 
 		<!-- Display name -->
@@ -16,12 +15,11 @@
 
 		<!-- App Identifier -->
 		<ApplicationId>com.companyname.financialducks.client</ApplicationId>
+		<ApplicationId Condition="$(TargetFramework.Contains('-windows'))">779BA0CE-B23F-4A02-8CEE-D8A2A8B8C8B7</ApplicationId>
 
 		<!-- Versions -->
+		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
 		<ApplicationVersion>1</ApplicationVersion>
-
-		<!-- Required for C# Hot Reload -->
-		<UseInterpreter Condition="'$(Configuration)' == 'Debug'">True</UseInterpreter>
 
 		<SupportedOSPlatformVersion Condition="'$(TargetFramework)' == 'net6.0-ios'">14.2</SupportedOSPlatformVersion>
 		<SupportedOSPlatformVersion Condition="'$(TargetFramework)' == 'net6.0-maccatalyst'">14.0</SupportedOSPlatformVersion>
@@ -35,10 +33,11 @@
 		<MauiIcon Include="Resources\appicon.svg" ForegroundFile="Resources\appiconfg.svg" Color="#512BD4" />
 
 		<!-- Splash Screen -->
-		<MauiSplashScreen Include="Resources\appiconfg.svg" Color="#512BD4" />
+		<MauiSplashScreen Include="Resources\appiconfg.svg" Color="#512BD4" BaseSize="128,128" />
 
 		<!-- Images -->
 		<MauiImage Include="Resources\Images\*" />
+		<MauiImage Update="Resources\Images\dotnet_bot.svg" BaseSize="168,208" />
 
 		<!-- Custom Fonts -->
 		<MauiFont Include="Resources\Fonts\*" />
@@ -47,52 +46,9 @@
 		<MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
 	</ItemGroup>
 
-	<ItemGroup Condition="$(TargetFramework.Contains('-windows'))">
-		<!-- Required - WinUI does not yet have buildTransitive for everything -->
-		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.0.0" />
-		<PackageReference Include="Microsoft.Graphics.Win2D" Version="1.0.0.30" />
-	</ItemGroup>
-
-	<PropertyGroup Condition="$(TargetFramework.Contains('-windows'))">
-		<OutputType>WinExe</OutputType>
-		<RuntimeIdentifier>win10-x64</RuntimeIdentifier>
-	</PropertyGroup>
-
-	<ItemGroup>
-	  <AndroidResource Remove="npm\**" />
-	  <AndroidResource Remove="wwwroot\css\jstree\**" />
-	  <AndroidResource Remove="wwwroot\js\jstree\**" />
-	  <Compile Remove="npm\**" />
-	  <Compile Remove="wwwroot\css\jstree\**" />
-	  <Compile Remove="wwwroot\js\jstree\**" />
-	  <Content Remove="npm\**" />
-	  <Content Remove="wwwroot\css\jstree\**" />
-	  <Content Remove="wwwroot\js\jstree\**" />
-	  <EmbeddedResource Remove="npm\**" />
-	  <EmbeddedResource Remove="wwwroot\css\jstree\**" />
-	  <EmbeddedResource Remove="wwwroot\js\jstree\**" />
-	  <MauiXaml Remove="npm\**" />
-	  <None Remove="npm\**" />
-	  <None Remove="wwwroot\css\jstree\**" />
-	  <None Remove="wwwroot\js\jstree\**" />
-	</ItemGroup>
-
-	<ItemGroup>
-		<Content Remove="appsettings.json" />
-		<Content Remove="Properties\launchSettings.json" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <None Include="appsettings.json">
-	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-	  </None>
-	</ItemGroup>
-
 	<ItemGroup>
 	  <PackageReference Include="MediatR" Version="10.0.1" />
 	  <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="10.0.1" />
-	  <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
-	  <PackageReference Include="Radzen.Blazor" Version="3.18.0" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -100,7 +56,4 @@
 	  <ProjectReference Include="..\FinancialDucks.Infrastructure\FinancialDucks.Infrastructure.csproj" />
 	</ItemGroup>
 
-	<ItemGroup>
-	  <Folder Include="wwwroot\icons\" />
-	</ItemGroup>
-	</Project>
+</Project>

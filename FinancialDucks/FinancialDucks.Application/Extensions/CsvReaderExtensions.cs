@@ -40,12 +40,8 @@ namespace FinancialDucks.Application.Extensions
             var field = csv.TryRead(possibleColumns);
             if (field == null)
                 return 0;
-          
-            decimal value;
-            if (decimal.TryParse(field, out value))
-                return value;
-       
-            return 0;
+
+            return field.ParseCurrency();
         }
     }
 }

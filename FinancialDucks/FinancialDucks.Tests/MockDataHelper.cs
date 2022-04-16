@@ -24,7 +24,9 @@ namespace FinancialDucks.Tests
                 CreateMockTransactionSource(2, "Citibank Savings", "sav"),
                 CreateMockTransactionSource(3, "Citibank Card", "citi 9536", "citi 6204","citi_9536","citi_6204","citi1","citi2"),
                 CreateMockTransactionSource(4, "Capital One Card","cap"),
-                CreateMockTransactionSource(5, "TFCU","tfcu")
+                CreateMockTransactionSource(5, "TFCU","tfcu"),
+                CreateMockTransactionSource(6, "HSA","hsa"),
+                CreateMockTransactionSource(7, "IRA","ira")
             };
         }
 

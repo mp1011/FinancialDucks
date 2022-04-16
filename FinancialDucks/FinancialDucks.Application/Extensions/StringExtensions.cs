@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace FinancialDucks.Application.Extensions
 {
@@ -12,6 +13,11 @@ namespace FinancialDucks.Application.Extensions
             str = str.Replace("#", "");
 
             return str;
+        }
+
+        public static string RemoveNonAlphanumeric(this string str)
+        {
+            return Regex.Replace(str, @"\W", "");            
         }
 
         public static string AutoCapitalize(this string str)
@@ -31,6 +37,18 @@ namespace FinancialDucks.Application.Extensions
         public static bool IsNonEmpty(this string str)
         {
             return !string.IsNullOrEmpty(str);
+        }
+
+        public static decimal ParseCurrency(this string str)
+        {
+            decimal d;
+            if (decimal.TryParse(str, out d))
+                return d;
+
+            if (decimal.TryParse(str, NumberStyles.Currency, null,  out d))
+                return d;
+
+            return 0;
         }
     }
 }

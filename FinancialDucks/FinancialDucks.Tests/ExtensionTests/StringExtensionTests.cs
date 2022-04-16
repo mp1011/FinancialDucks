@@ -21,5 +21,16 @@ namespace FinancialDucks.Tests.ExtensionTests
         {
             Assert.Equal(expected, text.AutoCapitalize());
         }
+
+        [Theory]
+        [InlineData("12.45", 12.45)]
+        [InlineData("(12.45)", -12.45)]
+        [InlineData("$12.45", 12.45)]
+        [InlineData("($214.24)", -214.24)]
+
+        public void TestParseCurrency(string str, decimal expected)
+        {
+            Assert.Equal(expected, str.ParseCurrency());
+        }
     }
 }

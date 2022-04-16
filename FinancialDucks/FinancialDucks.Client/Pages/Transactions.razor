@@ -1,5 +1,6 @@
 ﻿@page "/transactions"
 @using FinancialDucks.Client.Components
+@using FinancialDucks.Client.Components.SimpleControls
 
 <div class="container">
     <div class="row">
@@ -12,7 +13,7 @@
               </button>
               <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
                 <li>
-                    <button type="button" class="dropdown-item" @onclick="()=>RefreshTransactionsFromDisk()">Load from Disk</button>
+                    <button type="button" class="dropdown-item" @onclick="ShowTransactionImportDialog">Load from Disk</button>
                 </li>
               </ul>
             </div>   
@@ -24,6 +25,11 @@
     <div class="input-group pe-3">
         <div class="input-group-text">Filter</div>
         <input @bind="TextFilter" type="text" class="form-control" placeholder="" aria-label="Filter" aria-describedby="btnGroupAddon">    
+    </div>
+
+    <div class="input-group pe-3">
+        <div class="input-group-text">Sources</div>
+        <SourceSelector />
     </div>
 
     <div class="input-group pe-3">
@@ -40,8 +46,8 @@
 
 <CategoryFilter OnCategorySelected="OnCategorySelected" SelectedCategory="@CategoryFilter" />
 
-<p>@ImportMessage</p>
-
 <TransactionsList Filter="CurrentFilter" OnTransactionMouseUp="OnTransactionMouseUp" />
 
 <CategoryQuickAdd Text="@SelectedText" Transaction="@SelectedTransaction" AfterCreate="AfterCategoryQuickAdd" />
+
+<TransactionImportDialog ImportRequestTime=@ImportRequestTime />

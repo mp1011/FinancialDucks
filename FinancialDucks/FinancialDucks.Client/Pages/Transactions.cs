@@ -19,7 +19,7 @@ namespace FinancialDucks.Client.Pages
         [Inject]
         public IMediator Mediator { get; set; }
 
-        public string ImportMessage { get; private set; }
+        public DateTime? ImportRequestTime { get; set; } = null;
 
         public TransactionsFeature.TransactionsFilter CurrentFilter { get; private set; }
        
@@ -39,25 +39,7 @@ namespace FinancialDucks.Client.Pages
         public ITransactionDetail SelectedTransaction { get; set; }
 
 
-        public async Task RefreshTransactionsFromDisk()
-        {
-            ImportMessage = $"Reading transactions from disk...";
-            StateHasChanged();
-
-            var localTransactions = await Mediator.Send(new ReadLocalTransactions.Request());
-
-            ImportMessage = $"Read {localTransactions.Count()} transactions from disk. Syncing with database...";
-            StateHasChanged();
-
-            var newRecords = await Mediator.Send(new UploadTransactions.Command(localTransactions));
-            if (newRecords.Any())
-                ImportMessage = $"Inserted {newRecords.Count()} transactions into database.";
-            else
-                ImportMessage = $"No new transactions to insert.";
-
-            UpdateCurrentFilter();
-            StateHasChanged();
-        }
+       
 
         public void OnCategorySelected(ICategoryDetail category)
         {
@@ -101,6 +83,12 @@ namespace FinancialDucks.Client.Pages
         public void AfterCategoryQuickAdd(ICategoryDetail category)
         {
             UpdateCurrentFilter(forceUpdate:true);
+        }
+
+        public async Task ShowTransactionImportDialog()
+        {
+            ImportRequestTime = DateTime.Now;
+            await JSRuntime.ShowModal(nameof(TransactionImportDialog));
         }
     }
 }

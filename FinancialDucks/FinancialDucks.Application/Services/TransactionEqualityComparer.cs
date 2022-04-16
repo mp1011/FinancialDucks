@@ -1,4 +1,5 @@
-﻿using FinancialDucks.Application.Models;
+﻿using FinancialDucks.Application.Extensions;
+using FinancialDucks.Application.Models;
 using System.Diagnostics.CodeAnalysis;
 
 namespace FinancialDucks.Application.Services
@@ -10,9 +11,12 @@ namespace FinancialDucks.Application.Services
             if(x == null || y ==null)
                 return x == null && y == null;
 
+            var xAdjusted = x.Description.RemoveNonAlphanumeric();
+            var yAdjusted = y.Description.RemoveNonAlphanumeric();
+
             return x.Amount == y.Amount
                 && x.Date == y.Date
-                && x.Description == y.Description;
+                && xAdjusted.Equals(yAdjusted, StringComparison.CurrentCultureIgnoreCase);
         }
 
         public int GetHashCode([DisallowNull] ITransaction obj)

@@ -20,6 +20,10 @@ namespace FinancialDucks.Tests.ServiceTests
         [InlineData($"\\Jan2021\\citi 9536.csv", 102.32, "1/10/2021", "PAYMENT THANK YOU",3)]
         [InlineData($"\\Jan2021\\sav_5539_current_view.csv", -11405.16, "1/5/2021", "Interest Payment",2)]
         [InlineData($"\\Jan2021\\tfcu.csv", -2364.59, "1/4/2021", "Electronic Withdrawal: Nationstar dba - Mr Cooper",5)]
+        [InlineData($"\\April2022\\hsa_optum.csv", 811.35, "3/31/2022", "Interest Payment", 6)]
+        [InlineData($"\\April2022\\hsabank.csv", 95.25, "4/7/2022", "Payroll Deduction", 6)]
+        [InlineData($"\\April2022\\ira_roth.csv", 47365.19, "4/1/2022", "Vanguard Value Index Fund (Automatic Purchase)", 7)]
+        [InlineData($"\\April2022\\ira_trad.csv", 92166.14, "3/31/2022", "VANGUARD HIGH-YIELD CORPORATE ADM (Accrual Dividend Reinvest)", 7)]
         public async Task CanParseFile(string source, decimal expectedTotal, string expectedDate, string expectedDescription, int expectedSourceId)
         {
             var serviceProvider = CreateServiceProvider();

@@ -1,0 +1,56 @@
+﻿@using FinancialDucks.Application.Extensions
+@using FinancialDucks.Application.Features
+@using FinancialDucks.Application.Models
+@using FinancialDucks.Client.Models
+@using MediatR
+<div class="dropdown">
+  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
+    @SelectionText
+  </button>
+  <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+        @foreach(var source in Sources.NullToEmpty())
+        {
+            <li>
+                <input @bind="source.Selected" type="checkbox" class="btn-check" id="btncheck1" autocomplete="off">
+                <label class="btn btn-outline-primary" for="btncheck1">@source.Data.Name</label>
+            </li>
+        }
+        
+  </ul>
+</div>
+
+@code 
+{
+    [Inject]
+    public IMediator Mediator { get; set; }
+
+    public Selection<ITransactionSourceDetail>[] Sources { get; private set; } 
+
+    public string SelectionText { get; private set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var sources = await Mediator.Send(new TransactionSourcesFeature.Query());
+        Sources = sources
+            .Select(s => new Selection<ITransactionSourceDetail>(s, true))
+            .ToArray();
+
+            UpdateSelectionText();
+    }
+
+    private void UpdateSelectionText()
+    {
+        var selected = Sources.Where(p=>p.Selected).ToArray();
+
+        if (selected.Length == Sources.Length)
+            SelectionText = "All";
+        else if (selected.Length == 1)
+            SelectionText = selected[0].Data.Name;
+        else
+            SelectionText = $"{selected.Length} Selected";
+
+        StateHasChanged();
+
+
+    }
+}

@@ -43,7 +43,7 @@ namespace FinancialDucks.Application.Services
                             SourceFile: file,
                             Amount: ReadAmount(csv),
                             Date: date.Value,
-                            Description: ReadDescription(csv),
+                            Description: ReadDescription(csv).CleanExtraSpaces(),
                             SourceId: _transactionFileSourceIdentifier.DetectTransactionSource(file).Id));
                     }
                 }
@@ -56,6 +56,10 @@ namespace FinancialDucks.Application.Services
 
         private decimal ReadAmount(CsvReader csv)
         {
+            decimal amount = csv.TryReadDecimal("Trade Amount","Amount");
+            if (amount != 0)
+                return amount;
+
             decimal credit = csv.TryReadDecimal("Credit","Amount Credit");
             decimal debit = csv.TryReadDecimal("Debit","Amount Debit");
 
@@ -64,7 +68,7 @@ namespace FinancialDucks.Application.Services
 
         private DateTime? ReadDate(CsvReader csv)
         {
-            var date = csv.TryReadDate("Date", "Transaction Date");
+            var date = csv.TryReadDate("Date", "Transaction Date", "Requested Date");
             return date;
         }
 
@@ -73,6 +77,12 @@ namespace FinancialDucks.Application.Services
             var description = csv.TryRead("Description")?.Trim();
             var category = csv.TryRead("Category")?.Trim();
             var memo = csv.TryRead("Memo")?.Trim();
+
+            //Transaction Type,Shares/Unit
+            var transactionType = csv.TryRead("Transaction Type");
+            var fundName = csv.TryRead("Fund Name");
+            if (fundName != null && transactionType != null)
+                return $"{fundName} ({transactionType})";
 
             if (category != null && description != null)
                 return $"{category}: {description}";

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.2.32210.308
+VisualStudioVersion = 17.2.32408.312
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FinancialDucks.Application", "FinancialDucks.Application\FinancialDucks.Application.csproj", "{5F3D5A56-1BC3-41E5-86F4-00372CE9C130}"
 EndProject
@@ -9,9 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FinancialDucks.Tests", "Fin
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FinancialDucks.Infrastructure", "FinancialDucks.Infrastructure\FinancialDucks.Infrastructure.csproj", "{E8DD9943-59FB-4258-93D1-0ED29FA50840}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FinancialDucks.Client", "FinancialDucks.Client\FinancialDucks.Client.csproj", "{9528D9C4-0446-4293-B6F7-E5CF7A196931}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Scratchpad", "Scratchpad\Scratchpad.csproj", "{5212D71B-8BF9-41EE-8BDA-82B421723662}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FinancialDucks.Client", "FinancialDucks.Client\FinancialDucks.Client.csproj", "{2E38FD8A-967A-4E3E-BF4E-41E596ED1763}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,16 +31,16 @@ Global
 		{E8DD9943-59FB-4258-93D1-0ED29FA50840}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E8DD9943-59FB-4258-93D1-0ED29FA50840}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E8DD9943-59FB-4258-93D1-0ED29FA50840}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9528D9C4-0446-4293-B6F7-E5CF7A196931}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9528D9C4-0446-4293-B6F7-E5CF7A196931}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9528D9C4-0446-4293-B6F7-E5CF7A196931}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
-		{9528D9C4-0446-4293-B6F7-E5CF7A196931}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9528D9C4-0446-4293-B6F7-E5CF7A196931}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9528D9C4-0446-4293-B6F7-E5CF7A196931}.Release|Any CPU.Deploy.0 = Release|Any CPU
 		{5212D71B-8BF9-41EE-8BDA-82B421723662}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5212D71B-8BF9-41EE-8BDA-82B421723662}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5212D71B-8BF9-41EE-8BDA-82B421723662}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5212D71B-8BF9-41EE-8BDA-82B421723662}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2E38FD8A-967A-4E3E-BF4E-41E596ED1763}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E38FD8A-967A-4E3E-BF4E-41E596ED1763}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E38FD8A-967A-4E3E-BF4E-41E596ED1763}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{2E38FD8A-967A-4E3E-BF4E-41E596ED1763}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E38FD8A-967A-4E3E-BF4E-41E596ED1763}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2E38FD8A-967A-4E3E-BF4E-41E596ED1763}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
