@@ -23,6 +23,10 @@ namespace FinancialDucks.Tests.CustomMocks
 
         public IQueryable<ITransactionDetail> TransactionsDetail => _mockDataHelper.MockTransations.AsQueryable();
 
+        public IQueryable<ITransaction> Transactions => _mockDataHelper.MockTransations.AsQueryable();
+
+        public IQueryable<ISourceSnapshot> SourceSnapshots => _mockDataHelper.MockSourceSnapshots.AsQueryable();
+
         public IQueryable<ICategoryRuleDetail> CategoryRulesDetail => _mockDataHelper.MockCategoryRules.AsQueryable();
 
         public IQueryable<ITransactionWithCategory> TransactionsWithCategories
@@ -44,6 +48,7 @@ namespace FinancialDucks.Tests.CustomMocks
             }
         }
 
+       
         public Task<ICategoryRuleDetail> AddCategoryRule(ICategory category, ICategoryRule rule)
         {
             throw new NotImplementedException();

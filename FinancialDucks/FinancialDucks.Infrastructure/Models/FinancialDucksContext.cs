@@ -7,8 +7,10 @@ namespace FinancialDucks.Infrastructure.Models
 {
     public partial class FinancialDucksContext : DbContext
     {
+       
         public virtual DbSet<Category> Categories { get; set; }
         public virtual DbSet<CategoryRule> CategoryRules { get; set; }
+        public virtual DbSet<SourceSnapshot> SourceSnapshots { get; set; }
         public virtual DbSet<Transaction> Transactions { get; set; }
         public virtual DbSet<TransactionCategory> TransactionCategories { get; set; }
         public virtual DbSet<TransactionSource> TransactionSources { get; set; }
@@ -49,6 +51,19 @@ namespace FinancialDucks.Infrastructure.Models
                     .HasForeignKey(d => d.CategoryId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_CategoryRules_Categories");
+            });
+
+            modelBuilder.Entity<SourceSnapshot>(entity =>
+            {
+                entity.Property(e => e.Amount).HasColumnType("money");
+
+                entity.Property(e => e.Date).HasColumnType("datetime");
+
+                entity.HasOne(d => d.Source)
+                    .WithMany(p => p.SourceSnapshots)
+                    .HasForeignKey(d => d.SourceId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_SourceSnapshots_TransactionSources");
             });
 
             modelBuilder.Entity<Transaction>(entity =>

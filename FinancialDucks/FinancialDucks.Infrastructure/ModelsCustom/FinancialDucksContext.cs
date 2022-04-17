@@ -30,12 +30,18 @@ namespace FinancialDucks.Infrastructure.Models
             Transactions.AsNoTracking()
                 .Include(x => x.Source);
 
+        IQueryable<ITransaction> IDataContext.Transactions =>
+            Transactions.AsNoTracking();
+
         IQueryable<ICategoryRuleDetail> IDataContext.CategoryRulesDetail =>
             CategoryRules.AsNoTracking()
                 .Include(x => x.Category);
 
         IQueryable<ITransactionWithCategory> IDataContext.TransactionsWithCategories => 
             TransactionCategories.AsNoTracking();
+
+        IQueryable<ISourceSnapshot> IDataContext.SourceSnapshots =>
+            SourceSnapshots.AsNoTracking();
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

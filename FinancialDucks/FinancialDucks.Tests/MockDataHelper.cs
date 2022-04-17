@@ -26,7 +26,9 @@ namespace FinancialDucks.Tests
                 CreateMockTransactionSource(4, "Capital One Card","cap"),
                 CreateMockTransactionSource(5, "TFCU","tfcu"),
                 CreateMockTransactionSource(6, "HSA","hsa"),
-                CreateMockTransactionSource(7, "IRA","ira")
+                CreateMockTransactionSource(7, "IRA","ira"),
+                CreateMockTransactionSource(8, "Bank A","banka"),
+                CreateMockTransactionSource(9, "Bank B","bankb")
             };
         }
 
@@ -40,6 +42,17 @@ namespace FinancialDucks.Tests
 
             return mock.Object;
         }
+
+        public ISourceSnapshot CreateMockSourceSnapshot(ITransactionSource source, DateTime date, decimal amount)
+        {
+            var mock = new Mock<ISourceSnapshot>();
+            mock.Setup(x=>x.SourceId).Returns(source.Id);
+            mock.Setup(x => x.Date).Returns(date);
+            mock.Setup(x => x.Amount).Returns(amount);
+
+            return mock.Object;
+        }
+
 
         private IEnumerable<ITransactionSourceFileMappingDetail> CreateMockTransactionSourceMapping(ITransactionSourceDetail source, 
             string[] fileMappings)
@@ -139,6 +152,29 @@ namespace FinancialDucks.Tests
         }
 
         public List<ITransactionDetail> MockTransations { get; } = new List<ITransactionDetail>();
+
+        public List<ISourceSnapshot> MockSourceSnapshots { get; } = new List<ISourceSnapshot>();
+
+        public IEnumerable<ITransactionDetail> AddDebitAndCreditTransactions(ITransactionSourceDetail source)
+        {
+            DateTime lastPaymentDate = new DateTime(2022, 1, 1);
+
+            List<ITransactionDetail> transactionDetails = new List<ITransactionDetail>();
+            DateTime date = new DateTime(2022, 1, 1);
+            while(date.Year < 2024)
+            {
+                transactionDetails.Add(AddMockTransaction(date, -100M, "Purchase", source));
+                if(date >= lastPaymentDate.AddMonths(1))
+                {
+                    lastPaymentDate = date;
+                    transactionDetails.Add(AddMockTransaction(date, 1000M, "Paycheck", source));
+
+                }
+                date = date.AddDays(10);
+            }
+
+            return transactionDetails;
+        }
 
         public IEnumerable<ITransactionDetail> AddTransactionsWithSource(ITransactionSourceDetail source, int count)
         {
