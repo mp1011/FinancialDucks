@@ -20,7 +20,7 @@ namespace FinancialDucks.Client.Components.Statistics
 
 
         [Parameter]
-        public EventCallback<ICategory> CategoryClicked { get; set; }
+        public EventCallback<ICategoryDetail> CategoryClicked { get; set; }
 
 
         private CategoryStatsWithChildren _stats;

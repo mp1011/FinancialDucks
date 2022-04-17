@@ -17,11 +17,16 @@ else
 <TransactionsFilterToolbar OnFilterChanged="(f) => CurrentFilter = f" />
 
 <HistoryGraph Filter=@CurrentFilter  />
-<CategoryChart Filter=@CurrentFilter  />
+<CategoryChart Filter=@CurrentFilter CategoryClicked="OnCategoryChanged" />
 
 @code 
 {
     public TransactionsFilter CurrentFilter { get; set; }
 
     public ICategory Category =>CurrentFilter?.Category;
+
+    public void OnCategoryChanged(ICategoryDetail category)
+    {
+        CurrentFilter = CurrentFilter.ChangeCategory(category);
+    }
 }

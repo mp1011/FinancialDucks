@@ -2,7 +2,7 @@
 {
     public record CategoryStats(ICategoryDetail Category, int TransactionCount, decimal Total);
 
-    public record ChildCategoryStats(ICategory Category, int TransactionCount, decimal Total, double Percent)
+    public record ChildCategoryStats(ICategoryDetail Category, int TransactionCount, decimal Total, double Percent)
     {
         public ChildCategoryStats AdjustPercent(double newTotal)
         {
