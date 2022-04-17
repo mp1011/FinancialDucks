@@ -8,7 +8,7 @@ namespace FinancialDucks.Application.Features
 {
     public class HistoryGraphFeature
     {
-        public record Query(ICategory Category, TimeInterval TimeInterval, DateTime RangeStart, DateTime RangeEnd)
+        public record Query(TransactionsFilter Filter, TimeInterval TimeInterval)
             : IRequest<CategoryTimeSlice[]>
         { }
 
@@ -27,14 +27,14 @@ namespace FinancialDucks.Application.Features
 
             public async Task<CategoryTimeSlice[]> Handle(Query request, CancellationToken cancellationToken)
             {
-                if (request.RangeStart.IsInvalid() || request.RangeEnd.IsInvalid())
+                if (!request.Filter.IsValid)
                     return new CategoryTimeSlice[] { };
 
                 var snapshots = await GetSnapshots(request);
 
                 var totalSum = snapshots.Sum(p => p.Amount);
-                var timeSlices = request.RangeStart.GetClosestInterval(request.TimeInterval)
-                    .SliceTime(request.TimeInterval, request.RangeEnd)
+                var timeSlices = request.Filter.RangeStart.GetClosestInterval(request.TimeInterval)
+                    .SliceTime(request.TimeInterval, request.Filter.RangeEnd)
                     .ToArray();
 
                 var directDistribution = timeSlices
@@ -133,13 +133,15 @@ namespace FinancialDucks.Application.Features
 
             private async Task<CategorySnapshot[]> GetSnapshots(Query request)
             {
+                if (!request.Filter.IsValid)
+                    return Array.Empty<CategorySnapshot>();
+
                 using var dataContext = _dataContextProvider.CreateDataContext();
 
                 var categories = await _categoryTreeProvider.GetCategoryTree();
-                var category = categories.GetDescendant(request.Category.Id);
+                var category = categories.GetDescendant(request.Filter.Category.Id);
 
-                var query = _transactionsQueryBuilder.GetTransactionsQuery(dataContext, categories,
-                    new TransactionsFeature.TransactionsFilter(request.RangeStart, request.RangeEnd, category, null, Sources: new ITransactionSource[] { }, TransactionSortColumn.Date, SortDirection.Ascending));
+                var query = _transactionsQueryBuilder.GetTransactionsQuery(dataContext, categories, request.Filter);
 
                 var resultsByDate = query
                     .Select(x => new { Date = x.Date, Amount = x.Amount })

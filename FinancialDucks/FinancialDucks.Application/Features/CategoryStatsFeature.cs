@@ -9,13 +9,25 @@ namespace FinancialDucks.Application.Features
 {
     public class CategoryStatsFeature
     {
-        public record Query(ICategory Category, DateTime RangeStart, DateTime RangeEnd) 
+        public record Query(TransactionsFilter Filter) 
             : IRequest<CategoryStats> 
         { 
+            public Query(ICategoryDetail Category, DateTime RangeStart, DateTime RangeEnd) 
+                : this(new TransactionsFilter(RangeStart,RangeEnd,Category))
+            {
+
+            }
         }
 
-        public record QueryWithChildren(ICategory Category, DateTime RangeStart, DateTime RangeEnd) : 
-            IRequest<CategoryStatsWithChildren> { }
+        public record QueryWithChildren(TransactionsFilter Filter) : 
+            IRequest<CategoryStatsWithChildren> 
+        {
+            public QueryWithChildren(ICategoryDetail Category, DateTime RangeStart, DateTime RangeEnd)
+                   : this(new TransactionsFilter(RangeStart, RangeEnd, Category))
+            {
+
+            }
+        }
 
         public class Handler 
             :   IRequestHandler<Query, CategoryStats>,
@@ -33,48 +45,38 @@ namespace FinancialDucks.Application.Features
                 _transactionsQueryBuilder = transactionsQueryBuilder;
             }
 
-            private async Task<CategoryStats> GetStats(ICategoryDetail category, DateTime rangeStart, DateTime rangeEnd)
+            private async Task<CategoryStats> GetStats(TransactionsFilter filter)
             {
                 using var dataContext = _dataContextProvider.CreateDataContext();
 
-                var query = _transactionsQueryBuilder.GetTransactionsQuery(dataContext, category.Root(),
-                    new TransactionsFeature.TransactionsFilter(
-                        RangeStart: rangeStart,
-                        RangeEnd: rangeEnd,
-                        Category: category,
-                        TextFilter:null,
-                        Sources: new ITransactionSource[] { },
-                        SortColumn: TransactionSortColumn.Amount,
-                        SortDirection: SortDirection.Descending));
+                var query = _transactionsQueryBuilder.GetTransactionsQuery(dataContext, filter.Category.Root(), filter);
 
                 var result = await query
                      .DebugWatchCommandText(dataContext)
                      .ToArrayAsync(dataContext);
 
-                return new CategoryStats(category, result.Count(), result.Sum(p => p.Amount));
+                return new CategoryStats(filter.Category, result.Count(), result.Sum(p => p.Amount));
             }
 
             public async Task<CategoryStats> Handle(Query request, CancellationToken cancellationToken)
             {
-                var categories = await _categoryTreeProvider.GetCategoryTree();
-                var category = categories.GetDescendant(request.Category.Id);
-                return await GetStats(category, DateTime.Now.AddYears(-1), DateTime.Now);                
+                return await GetStats(request.Filter);
             }
 
             public async Task<CategoryStatsWithChildren> Handle(QueryWithChildren request, CancellationToken cancellationToken)
             {
                 var categories = await _categoryTreeProvider.GetCategoryTree();
 
-                var tasks = categories.GetDescendant(request.Category.Id)!
+                var tasks = categories.GetDescendant(request.Filter.Category.Id)!
                     .GetThisAndChildren()
-                    .Select(c=> GetStats(c, request.RangeStart, request.RangeEnd))
+                    .Select(c=> GetStats(request.Filter.ChangeCategory(c)))
                     .ToArray();
 
                 var result = await Task.WhenAll(tasks);
 
-                var parentStats = result.Single(p => p.Category.Id == request.Category.Id);
+                var parentStats = result.Single(p => p.Category.Id == request.Filter.Category.Id);
                 var childStats = result
-                    .Where(p => p.Category.Id != request.Category.Id)
+                    .Where(p => p.Category.Id != request.Filter.Category.Id)
                     .OrderByDescending(p => Math.Abs(p.Total))
                     .ToList();
 

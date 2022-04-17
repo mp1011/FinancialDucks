@@ -1,4 +1,5 @@
 ﻿@page "/statistics"
+@using FinancialDucks.Application.Features
 @using FinancialDucks.Application.Models
 @using FinancialDucks.Application.Models.AppModels
 @using FinancialDucks.Client.Components
@@ -12,13 +13,15 @@ else
 {
     <h3>Statistics</h3>
 }
-<CategoryFilter OnCategorySelected="ChangeCategory" SelectedCategory="@Category" />
 
-<input type="date"
-    @bind="RangeStart" />
+<TransactionsFilterToolbar OnFilterChanged="(f) => CurrentFilter = f" />
 
-<input type="date" 
-    @bind ="RangeEnd" />
+<HistoryGraph Filter=@CurrentFilter  />
+<CategoryChart Filter=@CurrentFilter  />
 
-<HistoryGraph Category=@Category RangeStart=@RangeStart RangeEnd=@RangeEnd />
-<CategoryChart Category=@Category RangeStart=@RangeStart RangeEnd=@RangeEnd CategoryClicked=@ChangeCategory />
+@code 
+{
+    public TransactionsFilter CurrentFilter { get; set; }
+
+    public ICategory Category =>CurrentFilter?.Category;
+}

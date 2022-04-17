@@ -45,14 +45,15 @@ namespace FinancialDucks.Tests.FeatureTests
 
             var mediator = serviceProvider.GetRequiredService<IMediator>();
             var result = await mediator.Send(new TransactionsFeature.QueryTransactions(
-                new TransactionsFeature.TransactionsFilter(
+                new TransactionsFilter(
                    RangeStart: new DateTime(2022, 1, 1),
                    RangeEnd: new DateTime(2024, 1, 1),
                    Category: tree,
-                   TextFilter: null,
-                   Sources: selectedSources.ToArray(),
-                   SortColumn: TransactionSortColumn.Amount,
-                   SortDirection: SortDirection.Ascending), 0,1000));
+                   Sources: selectedSources.ToArray()),
+                TransactionSortColumn.Amount,
+                SortDirection.Ascending,
+                0,
+                1000));
 
             Assert.Equal(expectedCount, result.Count());
         }
@@ -76,18 +77,16 @@ namespace FinancialDucks.Tests.FeatureTests
             var transferTransactions = mockDataHelper.AddTransferTransactions();
 
             var tree = await serviceProvider.GetRequiredService<ICategoryTreeProvider>().GetCategoryTree();
-            var category = tree.GetDescendant(categoryName);
+            var category = tree.GetDescendant(categoryName)!;
           
             var mediator = serviceProvider.GetService<IMediator>();
             var results = await mediator!.Send(new TransactionsFeature.QueryTransactions(
-                new TransactionsFeature.TransactionsFilter(
+                new TransactionsFilter(
                     RangeStart: new DateTime(2022,1,1),
                     RangeEnd: new DateTime(2022,4,1),
-                    Category: category,
-                    TextFilter:null,
-                    Sources: new ITransactionSource[] { },
-                    SortColumn: TransactionSortColumn.Date,
-                    SortDirection: SortDirection.Ascending),
+                    Category: category),
+                 SortColumn: TransactionSortColumn.Date,
+                SortDirection: SortDirection.Ascending,
                 0,
                 100))!;
 
@@ -136,22 +135,22 @@ namespace FinancialDucks.Tests.FeatureTests
             var serviceProvider = CreateServiceProvider();
             var mockDataHelper = serviceProvider.GetRequiredService<MockDataHelper>();
 
+            var category = mockDataHelper.GetMockCategoryTree();
+
             mockDataHelper.AddKrustyBurgerTransactions();
             var dateStart = DateTime.Parse(dateStartStr);
             var dateEnd = DateTime.Parse(dateEndStr);
 
             var mediator = serviceProvider.GetService<IMediator>();
             var results = await mediator!.Send(new TransactionsFeature.QueryTransactions(
-                new TransactionsFeature.TransactionsFilter(
+                new TransactionsFilter(
                     dateStart,
                     dateEnd,
-                    Category:null,
-                    TextFilter:null,
-                    Sources: new ITransactionSource[] { },
-                    SortColumn: TransactionSortColumn.Date,
-                    SortDirection:SortDirection.Ascending),
+                    Category: category),
+                SortColumn: TransactionSortColumn.Date,
+                SortDirection: SortDirection.Ascending,
                 page,
-                resultsPerPage))!;
+                resultsPerPage));
 
             if (expectedResults > 0)
             {
@@ -185,14 +184,12 @@ namespace FinancialDucks.Tests.FeatureTests
 
             var mediator = serviceProvider.GetService<IMediator>();
             var results = await mediator!.Send(new TransactionsFeature.QueryTransactions(
-                new TransactionsFeature.TransactionsFilter(
+                new TransactionsFilter(
                     dateStart,
                     dateEnd,
-                    null,
-                    null,
-                    new ITransactionSource[] { },
-                    column,
-                    sortDirection),
+                    mockDataHelper.GetMockCategoryTree()),
+                column,
+                sortDirection,
                 0,
                 100))!;
 
@@ -218,34 +215,30 @@ namespace FinancialDucks.Tests.FeatureTests
 
             var tree = await serviceProvider.GetRequiredService<ICategoryTreeProvider>().GetCategoryTree();
 
-            var category = tree.GetDescendant("Krusty Burger");
+            var category = tree.GetDescendant("Krusty Burger")!;
             var mediator = serviceProvider.GetService<IMediator>();
             var results = await mediator!.Send(new TransactionsFeature.QueryTransactions(
-                new TransactionsFeature.TransactionsFilter(
+                new TransactionsFilter(
                     dateStart,
                     dateEnd,
-                    category,
-                    null,
-                    new ITransactionSource[] { },
+                    category),
                     TransactionSortColumn.Date,
-                    SortDirection.Ascending),
-                1,
-                100))!;
+                    SortDirection.Ascending,
+                    0,
+                    1000));
 
             mockDataHelper.MockCategoryRules.Add(
                 new CategoryRule(999, Category: category, SubstringMatch: "Krusty", Priority:0));
 
             var results2 = await mediator!.Send(new TransactionsFeature.QueryTransactions(
-                new TransactionsFeature.TransactionsFilter(
+                new TransactionsFilter(
                     dateStart,
                     dateEnd,
-                    category,
-                    null,
-                    new ITransactionSource[] { },
-                    TransactionSortColumn.Date,
-                    SortDirection.Ascending),
-                1,
-                100))!;
+                    category),                    
+                TransactionSortColumn.Date,
+                SortDirection.Ascending,
+                0,
+                100));
 
             Assert.Equal(results.Sum(p => p.Amount), results2.Sum(p => p.Amount));
 

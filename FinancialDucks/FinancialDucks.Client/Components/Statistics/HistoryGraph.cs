@@ -12,14 +12,8 @@ namespace FinancialDucks.Client.Components.Statistics
         public IMediator Mediator { get; set; }
 
         [Parameter]
-        public ICategory Category { get; set; }
+        public TransactionsFilter Filter { get; set; }
      
-        [Parameter]
-        public DateTime RangeStart { get; set; } = DateTime.Now.AddYears(-3);
-
-        [Parameter]
-        public DateTime RangeEnd { get; set; } = DateTime.Now;
-
         public TimeInterval TimeInterval { get; set; } = TimeInterval.Monthly;
 
         public CategoryTimeSlice[] TimeSlices { get; set; }
@@ -28,10 +22,10 @@ namespace FinancialDucks.Client.Components.Statistics
 
         protected override async Task OnParametersSetAsync()
         { 
-            if(Category == null) return;
+            if(Filter == null) return;
 
             TimeSlices = await Mediator.Send(
-                new HistoryGraphFeature.Query(Category, TimeInterval, RangeStart, RangeEnd));
+                new HistoryGraphFeature.Query(Filter, TimeInterval));
         }
 
         public async Task UpdateTimeInterval(TimeInterval newInterval)

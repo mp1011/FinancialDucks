@@ -1,5 +1,6 @@
 ﻿using FinancialDucks.Application.Features;
 using FinancialDucks.Application.Models;
+using FinancialDucks.Application.Models.AppModels;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using System;
@@ -28,10 +29,12 @@ namespace FinancialDucks.Tests.FeatureTests
             var category = mockDataHelper.GetMockCategoryTree()
                                          .GetDescendant(categoryName)!;
 
-            var result = await mediator.Send(new CategoryStatsFeature.Query(category, 
-                new DateTime(2022, 1, 1) ,
-                new DateTime(2022, 12, 1)));
-
+            var result = await mediator.Send(new CategoryStatsFeature.Query(
+                new TransactionsFilter(
+                    Category: category,
+                    RangeStart: new DateTime(2022, 1, 1),
+                    RangeEnd: new DateTime(2022, 12, 1))));
+                
             Assert.Equal(expectedSum, result.Total);
         }
 
@@ -78,9 +81,12 @@ namespace FinancialDucks.Tests.FeatureTests
             var category = mockDataHelper.GetMockCategoryTree()
                                          .GetDescendant("Debits");
 
-            var result = await mediator.Send(new CategoryStatsFeature.Query(category,
-                new DateTime(2022, 1, 1),
-                new DateTime(2022, 12, 1)));
+            var result = await mediator.Send(new CategoryStatsFeature.Query(
+                new TransactionsFilter(
+                    RangeStart: new DateTime(2022, 1, 1),
+                    RangeEnd: new DateTime(2022, 12, 1),
+                    Category: category)));
+
             Assert.Equal(fullTotal, result.Total);
 
         }
@@ -104,6 +110,7 @@ namespace FinancialDucks.Tests.FeatureTests
 
             var debitsStats = await mediator.Send(
                 new CategoryStatsFeature.Query(categoryTree.GetDescendant("Debits")!, new DateTime(2022,1,1), new DateTime(2022, 12, 1)));
+            
             var creditsStats = await mediator.Send(
                 new CategoryStatsFeature.Query(categoryTree.GetDescendant("Credits")!, new DateTime(2022, 1, 1), new DateTime(2022, 12, 1)));
 

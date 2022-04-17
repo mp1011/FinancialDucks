@@ -36,7 +36,10 @@ namespace FinancialDucks.Tests.FeatureTests
             var category = categoryTree.GetDescendant(categoryName)!;
             var mediator = serviceProvider.GetRequiredService<IMediator>();
 
-            var result = await mediator.Send(new HistoryGraphFeature.Query(category, interval, DateTime.Parse(dateFrom), DateTime.Parse(dateTo)));
+            var result = await mediator.Send(new HistoryGraphFeature.Query(
+                new TransactionsFilter(DateTime.Parse(dateFrom), DateTime.Parse(dateTo), category),
+                interval));
+
             var firstResult = result.First();
             var lastResult = result.TakeWhile(x => x.Amount != 0).Last();
 

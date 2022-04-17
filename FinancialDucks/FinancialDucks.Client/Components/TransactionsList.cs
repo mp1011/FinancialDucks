@@ -12,10 +12,10 @@ namespace FinancialDucks.Client.Components
         [Inject]
         public IMediator Mediator { get; set; }
 
-        private ChangeTracked<TransactionsFeature.TransactionsFilter> _filter = new ChangeTracked<TransactionsFeature.TransactionsFilter>();
+        private readonly ChangeTracked<TransactionsFilter> _filter = new ChangeTracked<TransactionsFilter>();
 
         [Parameter]
-        public TransactionsFeature.TransactionsFilter Filter
+        public TransactionsFilter Filter
         {
             get => _filter;
             set => _filter.Value = value;
@@ -24,12 +24,15 @@ namespace FinancialDucks.Client.Components
         [Parameter]
         public EventCallback<TransactionMouseUpEventArgs> OnTransactionMouseUp { get; set; }
 
+        public TransactionSortColumn SortColumn { get; set; } = TransactionSortColumn.Date;
+        public SortDirection SortDirection { get; set; } = SortDirection.Ascending;
+
         public SortDirection? DateSortDirection
         {
             get
             {
-                if (Filter != null && Filter.SortColumn == TransactionSortColumn.Date)
-                    return Filter.SortDirection;
+                if (Filter != null && SortColumn == TransactionSortColumn.Date)
+                    return SortDirection;
                 else
                     return null;
             }
@@ -39,8 +42,8 @@ namespace FinancialDucks.Client.Components
         {
             get
             {
-                if (Filter != null && Filter.SortColumn == TransactionSortColumn.Amount)
-                    return Filter.SortDirection;
+                if (Filter != null && SortColumn == TransactionSortColumn.Amount)
+                    return SortDirection;
                 else
                     return null;
             }
@@ -48,7 +51,7 @@ namespace FinancialDucks.Client.Components
 
         public bool Loading { get; private set; }
 
-        public ITransactionDetail[] Transactions { get; private set; } = new ITransactionDetail[0];
+        public ITransactionDetail[] Transactions { get; private set; } = Array.Empty<ITransactionDetail>();
 
         public int PageSize { get; private set; } = 10;
 
@@ -63,7 +66,7 @@ namespace FinancialDucks.Client.Components
             get
             {
                 if (TotalPages == 0)
-                    return new int[0];
+                    return Array.Empty<int>();
 
                 var start = Math.Max(1, Page - VisibleNavigationPageRange);
                 var end = Math.Min(TotalPages, start + (VisibleNavigationPageRange * 2));
@@ -74,13 +77,15 @@ namespace FinancialDucks.Client.Components
 
         public async Task ToggleSortDate()
         {
-            Filter = Filter.ToggleSortDate();
+            SortColumn = TransactionSortColumn.Date;
+            SortDirection = SortDirection.Toggle();
             await LoadTransactions(recalcPages:false);
         }
 
         public async Task ToggleSortAmount()
         {
-            Filter = Filter.ToggleSortAmount();
+            SortColumn = TransactionSortColumn.Amount;
+            SortDirection = SortDirection.Toggle();
             await LoadTransactions(recalcPages: false);
         }
 
@@ -115,6 +120,8 @@ namespace FinancialDucks.Client.Components
 
             Transactions = await Mediator.Send(new TransactionsFeature.QueryTransactions(
                 Filter,
+                SortColumn,
+                SortDirection,
                 Page: Page - 1,
                 ResultsPerPage: PageSize));
 

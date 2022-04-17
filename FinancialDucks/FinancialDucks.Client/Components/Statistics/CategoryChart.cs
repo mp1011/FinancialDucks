@@ -16,13 +16,7 @@ namespace FinancialDucks.Client.Components.Statistics
         public IMediator Mediator { get; set; }
 
         [Parameter]
-        public ICategoryDetail Category { get; set; }
-
-        [Parameter]
-        public DateTime RangeStart { get; set; }
-
-        [Parameter]
-        public DateTime RangeEnd { get; set; }
+        public TransactionsFilter Filter { get; set; }
 
 
         [Parameter]
@@ -82,10 +76,10 @@ namespace FinancialDucks.Client.Components.Statistics
 
         protected override async Task OnParametersSetAsync()
         {
-            if (Category == null || Category.Name == SpecialCategory.All.ToString())
+            if (Filter == null || !Filter.IsValid || Filter.Category.Name == SpecialCategory.All.ToString())
                 return;
 
-            _stats = await Mediator.Send(new CategoryStatsFeature.QueryWithChildren(Category, RangeStart, RangeEnd));
+            _stats = await Mediator.Send(new CategoryStatsFeature.QueryWithChildren(Filter));
             Sections = _stats.Children
                 .Select((childStats,index) => CreateChartSection(childStats, _stats, index))
                 .Where(p=>p.Stats.Total != 0)

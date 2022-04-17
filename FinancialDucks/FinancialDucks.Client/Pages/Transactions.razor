@@ -21,33 +21,10 @@
     </div>
 </div>
 
-<div class="btn-toolbar" role="toolbar" aria-label="Toolbar">
-    <div class="input-group pe-3">
-        <div class="input-group-text">Filter</div>
-        <input @bind="TextFilter" type="text" class="form-control" placeholder="" aria-label="Filter" aria-describedby="btnGroupAddon">    
-    </div>
-
-    <div class="input-group pe-3">
-        <div class="input-group-text">Sources</div>
-        <SourceSelector OnSelectionChanged="OnSourcesChanged" />
-    </div>
-
-    <div class="input-group pe-3">
-        <div class="input-group-text">From</div>        
-        <input type="date" @bind="RangeStart" />
-    </div>
-
-    <div class="input-group">
-        <div class="input-group-text">To</div>        
-        <input type="date" @bind ="RangeEnd" />
-    </div>
-
-</div>
-
-<CategoryFilter OnCategorySelected="OnCategorySelected" SelectedCategory="@CategoryFilter" />
+<TransactionsFilterToolbar OnFilterChanged="(t) => CurrentFilter=t" />
 
 <TransactionsList Filter="CurrentFilter" OnTransactionMouseUp="OnTransactionMouseUp" />
 
-<CategoryQuickAdd Text="@SelectedText" Transaction="@SelectedTransaction" AfterCreate="AfterCategoryQuickAdd" />
+<CategoryQuickAdd Text="@SelectedText" Transaction="@SelectedTransaction" />
 
 <TransactionImportDialog ImportRequestTime=@ImportRequestTime />

@@ -7,42 +7,12 @@ namespace FinancialDucks.Application.Features
 {
     public class TransactionsFeature
     {
-        public record TransactionsFilter(
-            DateTime RangeStart,
-            DateTime RangeEnd,
-            ICategoryDetail? Category,
-            string? TextFilter,
-            ITransactionSource[] Sources,
-            TransactionSortColumn SortColumn,
-            SortDirection SortDirection
-            )
-        {
-            public TransactionsFilter ToggleSortAmount() =>
-                new TransactionsFilter
-                (
-                    RangeStart,
-                    RangeEnd,
-                    Category,
-                    TextFilter,
-                    Sources,
-                    TransactionSortColumn.Amount,
-                    SortDirection.Toggle()
-                );
-
-            public TransactionsFilter ToggleSortDate() =>
-               new TransactionsFilter
-               (
-                   RangeStart,
-                   RangeEnd,
-                   Category,
-                   TextFilter,
-                   Sources,
-                   TransactionSortColumn.Date,
-                   SortDirection.Toggle()
-               );
-        }
-
-        public record QueryTransactions(TransactionsFilter Filter, int Page, int ResultsPerPage)
+        public record QueryTransactions(
+            TransactionsFilter Filter, 
+            TransactionSortColumn SortColumn,      
+            SortDirection SortDirection,
+            int Page, 
+            int ResultsPerPage)
             : IRequest<ITransactionDetail[]> { }
 
         public record QueryTotalPages(TransactionsFilter Filter, int ResultsPerPage)
@@ -70,7 +40,8 @@ namespace FinancialDucks.Application.Features
                 int start = request.Page * request.ResultsPerPage;
 
                 var categoryTree = await _categoryTreeProvider.GetCategoryTree();
-                var query = _transactionQueryBuilder.GetTransactionsQuery(dataContext, categoryTree, request.Filter);
+                var query = _transactionQueryBuilder.GetTransactionsQuery(dataContext, categoryTree, request.Filter,
+                    request.SortColumn, request.SortDirection);
 
                 query = query
                     .Skip(start)

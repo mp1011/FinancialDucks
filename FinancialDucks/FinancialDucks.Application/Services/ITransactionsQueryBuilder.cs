@@ -7,8 +7,13 @@ namespace FinancialDucks.Application.Services
 {
     public interface ITransactionsQueryBuilder
     {
-        IQueryable<ITransactionWithCategory> GetTransactionCategoriesQuery(IDataContext dataContext, ICategoryDetail categoryTree, TransactionsFeature.TransactionsFilter filter);
-        IQueryable<ITransactionDetail> GetTransactionsQuery(IDataContext dataContext, ICategoryDetail categoryTree, TransactionsFeature.TransactionsFilter filter);
+        IQueryable<ITransactionWithCategory> GetTransactionCategoriesQuery(IDataContext dataContext, ICategoryDetail categoryTree, TransactionsFilter filter);
+        IQueryable<ITransactionDetail> GetTransactionsQuery(
+            IDataContext dataContext, 
+            ICategoryDetail categoryTree, 
+            TransactionsFilter filter,
+            TransactionSortColumn sortColumn = TransactionSortColumn.Date,
+            SortDirection sortDirection =    SortDirection.Ascending);
     }
 
     public class TransactionsQueryBuilder : ITransactionsQueryBuilder
@@ -37,7 +42,7 @@ namespace FinancialDucks.Application.Services
 
         public IQueryable<ITransactionWithCategory> GetTransactionCategoriesQuery(IDataContext dataContext,
                 ICategoryDetail categoryTree,
-                TransactionsFeature.TransactionsFilter filter)
+                TransactionsFilter filter)
         {
             int[] categoryIds = new int[0];
             bool isCredit=false, isDebit = false;
@@ -89,16 +94,16 @@ namespace FinancialDucks.Application.Services
                                 && (textFilter == null || p.Description.Contains(textFilter)));
         }
     
-        public IQueryable<ITransactionDetail> ApplySorting(IQueryable<ITransactionDetail> query, 
-            TransactionsFeature.TransactionsFilter filter)
+        private IQueryable<ITransactionDetail> ApplySorting(IQueryable<ITransactionDetail> query, 
+            TransactionSortColumn sortColumn, SortDirection sortDirection)
         {
-            if (filter.SortColumn == TransactionSortColumn.Amount && filter.SortDirection == SortDirection.Ascending)
+            if (sortColumn == TransactionSortColumn.Amount && sortDirection == SortDirection.Ascending)
                 return query.OrderBy(p => p.Amount);
-            if (filter.SortColumn == TransactionSortColumn.Amount && filter.SortDirection == SortDirection.Descending)
+            if (sortColumn == TransactionSortColumn.Amount && sortDirection == SortDirection.Descending)
                 return query.OrderByDescending(p => p.Amount);
-            if (filter.SortColumn == TransactionSortColumn.Date && filter.SortDirection == SortDirection.Ascending)
+            if (sortColumn == TransactionSortColumn.Date && sortDirection == SortDirection.Ascending)
                 return query.OrderBy(p => p.Date);
-            if (filter.SortColumn == TransactionSortColumn.Date && filter.SortDirection == SortDirection.Descending)
+            if (sortColumn == TransactionSortColumn.Date && sortDirection == SortDirection.Descending)
                 return query.OrderByDescending(p => p.Date);
 
             return query;
@@ -106,13 +111,15 @@ namespace FinancialDucks.Application.Services
 
         public IQueryable<ITransactionDetail> GetTransactionsQuery(IDataContext dataContext,
                 ICategoryDetail categoryTree,
-                TransactionsFeature.TransactionsFilter filter)
+                TransactionsFilter filter,
+                TransactionSortColumn sortColumn, 
+                SortDirection sortDirection)
         {
             var query = (from tc in GetTransactionCategoriesQuery(dataContext, categoryTree, filter)
                     join t in dataContext.TransactionsDetail on tc.Id equals t.Id
                     select t).Distinct();
 
-            return ApplySorting(query, filter);
+            return ApplySorting(query, sortColumn,sortDirection);
         }
     }
 }
