@@ -45,18 +45,31 @@ namespace FinancialDucks.Application.Features
                     date = date.Add(request.Interval);
                 }
             }
+            private SourceSnapshot ComputeSnapshot(DateTime date, ITransaction[] transactions, ISourceSnapshot[] snapshots)
+            {
+                decimal sum = 0;
 
-            private SourceSnapshot? ComputeSnapshot(DateTime date, ITransaction[] transactions, ISourceSnapshot[] snapshots)
+                foreach(var sourceGroup in transactions.GroupBy(p=>p.SourceId))
+                {
+                    var sourceSnapshot = ComputeSnapshotForSingleSource(date,
+                        sourceGroup.ToArray(),
+                        snapshots.Where(p => p.SourceId == sourceGroup.Key).ToArray());
+
+                    sum += sourceSnapshot.Amount;
+                }
+
+                return new SourceSnapshot(date, sum);
+            }
+            
+            private SourceSnapshot ComputeSnapshotForSingleSource(DateTime date, ITransaction[] transactions, ISourceSnapshot[] snapshots)
             {
                 var thisSnapshot = snapshots.FirstOrDefault(s => s.Date == date);
                 if (thisSnapshot != null)
                     return new SourceSnapshot(thisSnapshot.Date, thisSnapshot.Amount);
 
-                var anchorSnapshot = snapshots.LastOrDefault(s => s.Date < date)
-                    ?? snapshots.FirstOrDefault(s => s.Date > date);
-            
-                if (anchorSnapshot == null)
-                    return null;
+                var anchorSnapshot = new SourceSnapshot(snapshots.LastOrDefault(s => s.Date < date)
+                    ?? snapshots.FirstOrDefault(s => s.Date > date));
+
 
                 DateTime filterFrom, filterTo;
                 if(anchorSnapshot.Date < date)
@@ -82,12 +95,25 @@ namespace FinancialDucks.Application.Features
 
             private async Task<(ITransaction[], ISourceSnapshot[])> GetTransactionsAndSnapshots(Query request)
             {
-                int[] sources = request
-                    .Sources
-                    .Select(p => p.Id)
-                    .ToArray();
 
                 using var context = _dataContextProvider.CreateDataContext();
+
+                int[] sources;
+                if (request.Sources != null)
+                {
+                    sources = request
+                       .Sources
+                       .Select(p => p.Id)
+                       .ToArray();
+                }
+                else
+                {
+                    sources = await context
+                        .TransactionSources
+                        .Select(p => p.Id)
+                        .ToArrayAsync(context);
+                }
+
 
                 var transactions = await context.Transactions
                     .Where(t => sources.Contains(t.SourceId)

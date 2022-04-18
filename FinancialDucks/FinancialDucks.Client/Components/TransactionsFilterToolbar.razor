@@ -15,11 +15,24 @@
         <input type="date" @bind="RangeStart" />
     </div>
 
-    <div class="input-group">
+    <div class="input-group pe-3">
         <div class="input-group-text">To</div>        
         <input type="date" @bind ="RangeEnd" />
     </div>
 
+    @if (IncludeIntervalSelector)
+    {
+        <div class="input-group">
+            <div class="input-group-text">Interval</div>        
+            <TimeIntervalSelector 
+                OnIntervalSelected="OnTimeIntervalChanged" />
+        </div>
+    }
+
+
 </div>
 
-<CategoryFilter OnCategorySelected="OnCategorySelected" SelectedCategory="@CategoryFilter" />
+@if (IncludeCategorySelector)
+{
+    <CategoryFilter OnCategorySelected="OnCategorySelected" SelectedCategory="@CategoryFilter" />
+}

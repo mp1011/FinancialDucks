@@ -27,7 +27,7 @@ namespace FinancialDucks.Application.Features
 
             public async Task<CategoryTimeSlice[]> Handle(Query request, CancellationToken cancellationToken)
             {
-                if (!request.Filter.IsValid)
+                if (!request.Filter.IsValid(requireCategory:true))
                     return new CategoryTimeSlice[] { };
 
                 var snapshots = await GetSnapshots(request);
@@ -133,7 +133,7 @@ namespace FinancialDucks.Application.Features
 
             private async Task<CategorySnapshot[]> GetSnapshots(Query request)
             {
-                if (!request.Filter.IsValid)
+                if (!request.Filter.IsValid(requireCategory: true))
                     return Array.Empty<CategorySnapshot>();
 
                 using var dataContext = _dataContextProvider.CreateDataContext();

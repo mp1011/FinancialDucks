@@ -1,0 +1,19 @@
+﻿@page "/accounts"
+@using FinancialDucks.Application.Models.AppModels
+@using FinancialDucks.Client.Components
+@using FinancialDucks.Client.Components.Statistics
+
+<TransactionsFilterToolbar 
+    IncludeIntervalSelector="true" 
+    IncludeCategorySelector="false"     
+    OnFilterChanged="(f)=> Filter = f"
+    OnTimeIntervalChanged="(t)=>TimeInterval = t"   />
+
+<AccountTimeline Filter=Filter TimeInterval=TimeInterval />
+
+@code 
+{
+    public TimeInterval TimeInterval { get; set; }
+
+    public TransactionsFilter Filter { get; set; }
+}

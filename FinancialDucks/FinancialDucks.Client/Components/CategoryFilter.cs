@@ -47,6 +47,8 @@ namespace FinancialDucks.Client.Components
             StarredCategories = tree.GetDescendants()
                                     .Where(p => p.Starred)
                                     .ToArray();
+
+            await OnCategorySelected.InvokeAsync(tree);
         }
 
         protected override void OnParametersSet()

@@ -18,7 +18,12 @@ namespace FinancialDucks.Application.Models.AppModels
 
         }
 
-        public bool IsValid => Category != null && !RangeStart.IsInvalid() && !RangeEnd.IsInvalid();
+        public bool IsValid(bool requireCategory)
+        {
+            return !RangeStart.IsInvalid()
+                && !RangeEnd.IsInvalid()
+                && (!requireCategory || Category != null);
+        }
 
         public TransactionsFilter ChangeCategory(ICategoryDetail newCategory)
         {

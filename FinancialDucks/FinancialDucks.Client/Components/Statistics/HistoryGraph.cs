@@ -13,7 +13,8 @@ namespace FinancialDucks.Client.Components.Statistics
 
         [Parameter]
         public TransactionsFilter Filter { get; set; }
-     
+
+        [Parameter]
         public TimeInterval TimeInterval { get; set; } = TimeInterval.Monthly;
 
         public CategoryTimeSlice[] TimeSlices { get; set; }

@@ -8,6 +8,12 @@ namespace FinancialDucks.Client.Components
     public partial class TransactionsFilterToolbar
     {
         [Parameter]
+        public bool IncludeIntervalSelector { get; set; } = false;
+
+        [Parameter]
+        public bool IncludeCategorySelector { get; set; } = true;
+
+        [Parameter]
         public TransactionSortColumn SortColumn { get; set; }
 
         [Parameter]
@@ -15,6 +21,10 @@ namespace FinancialDucks.Client.Components
 
         [Parameter]
         public EventCallback<TransactionsFilter> OnFilterChanged { get; set; }
+
+        [Parameter]
+        public EventCallback<TimeInterval> OnTimeIntervalChanged { get; set; }
+
 
         public TransactionsFilter CurrentFilter { get; private set; }
 
@@ -26,7 +36,7 @@ namespace FinancialDucks.Client.Components
 
         public string TextFilter { get; set; }
 
-        public ICategoryDetail? CategoryFilter { get; set; }
+        public ICategoryDetail CategoryFilter { get; set; }
 
         public async Task OnCategorySelected(ICategoryDetail category)
         {

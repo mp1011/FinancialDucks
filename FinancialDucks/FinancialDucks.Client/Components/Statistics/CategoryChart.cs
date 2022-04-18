@@ -76,7 +76,7 @@ namespace FinancialDucks.Client.Components.Statistics
 
         protected override async Task OnParametersSetAsync()
         {
-            if (Filter == null || !Filter.IsValid || Filter.Category.Name == SpecialCategory.All.ToString())
+            if (Filter == null || !Filter.IsValid(requireCategory:true) || Filter.Category.Name == SpecialCategory.All.ToString())
                 return;
 
             _stats = await Mediator.Send(new CategoryStatsFeature.QueryWithChildren(Filter));

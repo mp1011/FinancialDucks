@@ -17,7 +17,7 @@
 @code
 {
     [Parameter]
-    public TimeInterval Interval { get; set; } = TimeInterval.Quarterly;
+    public TimeInterval Interval { get; set; } = TimeInterval.Monthly;
 
     [Parameter]
     public EventCallback<TimeInterval> OnIntervalSelected { get; set; }
@@ -27,5 +27,10 @@
     {
         Interval = interval;
         await OnIntervalSelected.InvokeAsync(interval);
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await OnIntervalSelected.InvokeAsync(Interval);
     }
 }

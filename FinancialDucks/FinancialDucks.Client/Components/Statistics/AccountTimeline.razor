@@ -1,0 +1,16 @@
+﻿<RadzenChart>
+    <RadzenLineSeries 
+        Smooth="true" 
+        Data="Snapshots" 
+        CategoryProperty="Date" 
+        Title="Accounts" 
+        LineType="LineType.Dashed" 
+        ValueProperty="Amount">
+        <RadzenMarkers MarkerType="MarkerType.Square" />
+    </RadzenLineSeries>    
+    <RadzenCategoryAxis Padding="20" FormatString="{0:MMM}" />
+    <RadzenValueAxis Formatter="@Format">
+        <RadzenGridLines Visible="true" />
+        <RadzenAxisTitle Text="Balance" />
+    </RadzenValueAxis>
+</RadzenChart>

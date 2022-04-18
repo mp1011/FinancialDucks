@@ -14,9 +14,12 @@ else
     <h3>Statistics</h3>
 }
 
-<TransactionsFilterToolbar OnFilterChanged="(f) => CurrentFilter = f" />
+<TransactionsFilterToolbar 
+    IncludeIntervalSelector="true" 
+    OnTimeIntervalChanged="(t)=> TimeInterval=t"
+    OnFilterChanged="(f) => CurrentFilter = f" />
 
-<HistoryGraph Filter=@CurrentFilter  />
+<HistoryGraph Filter=@CurrentFilter TimeInterval=@TimeInterval  />
 <CategoryChart Filter=@CurrentFilter CategoryClicked="OnCategoryChanged" />
 
 @code 
@@ -24,6 +27,8 @@ else
     public TransactionsFilter CurrentFilter { get; set; }
 
     public ICategory Category =>CurrentFilter?.Category;
+
+    public TimeInterval TimeInterval { get; set; }
 
     public void OnCategoryChanged(ICategoryDetail category)
     {

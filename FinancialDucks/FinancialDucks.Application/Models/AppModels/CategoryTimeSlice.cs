@@ -30,7 +30,7 @@
                             return $"{year}Q4";
                     case TimeInterval.Weekly:
                         year = SliceStart.ToString("yy");
-                        return $"{year}w{SliceStart.DayOfYear}";
+                        return $"{year}w{(SliceStart.DayOfYear/7)+1}";
                     case TimeInterval.Annual:
                         return SliceStart.ToString("yy");
                     default:
