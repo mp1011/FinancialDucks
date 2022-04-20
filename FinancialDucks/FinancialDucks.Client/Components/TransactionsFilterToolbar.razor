@@ -1,9 +1,13 @@
 ﻿@using FinancialDucks.Client.Components.SimpleControls
 <div class="btn-toolbar" role="toolbar" aria-label="Toolbar">
-    <div class="input-group pe-3">
-        <div class="input-group-text">Filter</div>
-        <input @bind="TextFilter" type="text" class="form-control" placeholder="" aria-label="Filter" aria-describedby="btnGroupAddon">    
-    </div>
+
+    @if (IncludeTextFilter)
+    {
+        <div class="input-group pe-3">
+            <div class="input-group-text">Filter</div>
+            <input @bind="TextFilter" type="text" class="form-control" placeholder="" aria-label="Filter" aria-describedby="btnGroupAddon">    
+        </div>
+    }
 
     <div class="input-group pe-3">
         <div class="input-group-text">Sources</div>

@@ -4,6 +4,34 @@ namespace FinancialDucks.Application.Extensions
 {
     public static class DateExtensions
     {
+
+        public static string GetLabel(this DateTime date, TimeInterval interval)
+        {
+            switch (interval)
+            {
+                case TimeInterval.Daily:
+                    return date.ToShortDateString();
+                case TimeInterval.Monthly:
+                    return date.ToString("MMMyy");
+                case TimeInterval.Quarterly:
+                    var year = date.ToString("yy");
+                    if (date.Month <= 3)
+                        return $"{year}Q1";
+                    else if (date.Month <= 6)
+                        return $"{year}Q2";
+                    else if (date.Month <= 9)
+                        return $"{year}Q3";
+                    else
+                        return $"{year}Q4";
+                case TimeInterval.Weekly:
+                    year = date.ToString("yy");
+                    return $"{year}w{(date.DayOfYear / 7) + 1}";
+                case TimeInterval.Annual:
+                    return date.ToString("yy");
+                default:
+                    return date.ToShortDateString();
+            }
+        }
         public static IEnumerable<TimeSlice> SliceTime(this DateTime start, TimeInterval interval, DateTime end)
         {
             DateTime date = start;

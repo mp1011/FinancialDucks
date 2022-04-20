@@ -18,7 +18,9 @@
 
         public Category? Parent { get; }
 
-        public List<Category> Children { get; } = new List<Category>();
+        private List<Category> _children = new List<Category>();
+
+        public IEnumerable<Category> Children => _children;
 
         public List<ICategoryRule> Rules { get; } = new List<ICategoryRule>();
 
@@ -31,10 +33,21 @@
         ICategoryDetail ICategoryDetail.AddSubcategory(ICategory child)
         {
             var childCategory = new Category(child.Id, child.Name, starred:false, parent:this);
-            Children.Add(childCategory);
+            AddChild (childCategory);
             return childCategory;
         }
 
-        
+        public void AddChild(Category child)
+        {
+            if (_children.Any(c => c.Name == child.Name))
+                return;
+
+            _children.Add(child);
+        }
+
+        public override string ToString()
+        {
+            return Name;
+        }
     }
 }

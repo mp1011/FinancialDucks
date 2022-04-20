@@ -1,31 +1,51 @@
-﻿using MediatR;
-using System.Collections.Concurrent;
+﻿using FinancialDucks.Application.Models.AppModels;
+using MediatR;
 
 namespace FinancialDucks.Application.Services
 {
     public class NotificationDispatcher<T>
          where T : INotification
     {
-        private ConcurrentBag<INotificationHandler<T>> _handlers = new ConcurrentBag<INotificationHandler<T>>();
+        private Dictionary<NotificationPriority, SynchronizedCollection<INotificationHandler<T>>> _handlers
+            = new Dictionary<NotificationPriority, SynchronizedCollection<INotificationHandler<T>>>();
+
+
+        public NotificationDispatcher()
+        {
+            foreach(NotificationPriority priority in Enum.GetValues<NotificationPriority>())
+                _handlers[priority] = new SynchronizedCollection<INotificationHandler<T>>();
+        }
 
         public async Task DispatchEvent(T notification, CancellationToken cancellationToken)
         {
-            var tasks = _handlers
+            foreach(var priority in Enum.GetValues<NotificationPriority>()
+                .OrderBy(p=>p))
+            {
+                await DispatchEvent(notification, priority, cancellationToken);
+            }
+        }
+
+        private async Task DispatchEvent(T notification, NotificationPriority priority, CancellationToken cancellationToken)
+        {
+            var tasks = _handlers[priority]
                 .Select(h => h.Handle(notification, cancellationToken))
                 .ToArray();
 
             await Task.WhenAll(tasks);
         }
 
-        public void Register(INotificationHandler<T> handler)
+        public void Register(INotificationHandler<T> handler, NotificationPriority priority)
         {
-            _handlers.Add(handler);
+            _handlers[priority].Add(handler);
         }
 
         public void Unregister(INotificationHandler<T> handler)
         {
-            if(handler != null)
-                _handlers.TryTake(out handler);
+            if (handler == null)
+                return;
+
+            foreach(var handlerCollection in _handlers.Values)
+                handlerCollection.Remove(handler);
         }
     }
 }

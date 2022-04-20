@@ -1,9 +1,7 @@
-﻿using FinancialDucks.Application.Extensions;
-using FinancialDucks.Application.Models;
+﻿using FinancialDucks.Application.Models;
 using FinancialDucks.Application.Models.AppModels;
 using FinancialDucks.Application.Services;
 using MediatR;
-using System.Linq.Expressions;
 
 namespace FinancialDucks.Application.Features
 {
@@ -11,7 +9,13 @@ namespace FinancialDucks.Application.Features
     {
         public record Query(TransactionsFilter Filter) 
             : IRequest<CategoryStats> 
-        { 
+        {
+
+            public Query(ICategoryDetail Category)
+                : this(Category, new DateTime(1900, 1, 1), DateTime.Now)
+            {
+            }
+
             public Query(ICategoryDetail Category, DateTime RangeStart, DateTime RangeEnd) 
                 : this(new TransactionsFilter(RangeStart,RangeEnd,Category))
             {

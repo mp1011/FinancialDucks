@@ -1,6 +1,31 @@
 ﻿@using FinancialDucks.Client.Components.SimpleControls
 @using FinancialDucks.Client.Models
 
+ <div class="row align-items-center">
+
+     @if(Summary.TotalCredits != 0)
+     {
+        <div class="col">
+          <div class="card" style="width: 18rem;">
+              <div class="card-body">
+                <h5 class="card-title">Total Credits: @Summary.TotalCredits.ToString("C")</h5>
+              </div>
+            </div>
+        </div>
+     }
+
+     @if(Summary.TotalDebits != 0)
+     {
+        <div class="col">
+          <div class="card" style="width: 18rem;">
+              <div class="card-body">
+                <h5 class="card-title">Total Debits: @Summary.TotalDebits.ToString("C")</h5>
+              </div>
+            </div>
+        </div>
+     }
+  </div>
+
  <table class="table">
     <thead>
     <tr>

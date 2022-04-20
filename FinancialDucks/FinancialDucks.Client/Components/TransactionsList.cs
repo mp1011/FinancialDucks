@@ -57,8 +57,8 @@ namespace FinancialDucks.Client.Components
 
         public int Page { get; private set; } = 1;
 
-        public int TotalPages { get; private set; }
-
+        public int TotalPages => Summary.TotalPages;
+        public TransactionsSummary Summary { get; private set; } = new TransactionsSummary(0, 0, 0);
         public int VisibleNavigationPageRange { get; } = 3;
 
         public int[] VisibleNavigationPages
@@ -113,7 +113,7 @@ namespace FinancialDucks.Client.Components
             Loading = true;
             if (recalcPages)
             {
-                TotalPages = await Mediator.Send(new TransactionsFeature.QueryTotalPages(
+                Summary = await Mediator.Send(new TransactionsFeature.QuerySummary(
                     Filter,
                     ResultsPerPage: PageSize));
             }

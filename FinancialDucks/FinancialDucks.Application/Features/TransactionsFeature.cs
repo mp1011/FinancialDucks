@@ -1,4 +1,5 @@
-﻿using FinancialDucks.Application.Models;
+﻿using FinancialDucks.Application.Extensions;
+using FinancialDucks.Application.Models;
 using FinancialDucks.Application.Models.AppModels;
 using FinancialDucks.Application.Services;
 using MediatR;
@@ -15,8 +16,8 @@ namespace FinancialDucks.Application.Features
             int ResultsPerPage)
             : IRequest<ITransactionDetail[]> { }
 
-        public record QueryTotalPages(TransactionsFilter Filter, int ResultsPerPage)
-           : IRequest<int>
+        public record QuerySummary(TransactionsFilter Filter, int ResultsPerPage)
+           : IRequest<TransactionsSummary>
         { }
 
 
@@ -52,7 +53,7 @@ namespace FinancialDucks.Application.Features
             }
         }
 
-        public class QueryTransactionPagesHandler : IRequestHandler<QueryTotalPages, int>
+        public class QueryTransactionPagesHandler : IRequestHandler<QuerySummary, TransactionsSummary>
         {
             private readonly IDataContextProvider _dataContextProvider;
             private readonly ITransactionsQueryBuilder _transactionQueryBuilder;
@@ -65,10 +66,10 @@ namespace FinancialDucks.Application.Features
                 _categoryTreeProvider = categoryTreeProvider;
             }
 
-            public async Task<int> Handle(QueryTotalPages request, CancellationToken cancellationToken)
+            public async Task<TransactionsSummary> Handle(QuerySummary request, CancellationToken cancellationToken)
             {
                 if (request.ResultsPerPage <= 0)
-                    return 0;
+                    return new TransactionsSummary(0,0,0);
 
                 var categoryTree = await _categoryTreeProvider.GetCategoryTree();
                 using var dataContext = _dataContextProvider.CreateDataContext();
@@ -78,7 +79,10 @@ namespace FinancialDucks.Application.Features
                 var totalCount = query.Count();
 
                 var count = (int)Math.Ceiling((decimal)totalCount / request.ResultsPerPage);
-                return count;
+                var credits = query.Where(p => p.Amount > 0).Sum(p => p.Amount);
+                var debits = query.Where(p => p.Amount < 0).Sum(p => p.Amount).Abs();
+
+                return new TransactionsSummary(count, credits, debits);
             }
         }
 

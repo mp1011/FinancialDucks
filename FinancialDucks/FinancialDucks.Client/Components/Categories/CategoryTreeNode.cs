@@ -2,13 +2,13 @@
 using FinancialDucks.Application.Models;
 using FinancialDucks.Application.Models.AppModels;
 using FinancialDucks.Application.Services;
-using FinancialDucks.Client.Models;
 using MediatR;
 using Microsoft.AspNetCore.Components;
+using System.Text;
 
 namespace FinancialDucks.Client.Components.Categories
 {
-    public partial class CategoryTreeNode : INotificationHandler<CategoryChangeNotification>, IDisposable
+    public partial class CategoryTreeNode 
     {
         public string NewCategoryText { get; set; }
         public int? NumTransactions { get; private set; }
@@ -16,6 +16,8 @@ namespace FinancialDucks.Client.Components.Categories
         public decimal? DollarTotal { get; private set; }
 
         public int Id => Category==null ? 0 : Category.Id;
+
+        private ChangeTracked<int> _categoryId = new ChangeTracked<int>();
 
         [Parameter]
         public ICategoryDetail Category { get; set; }
@@ -32,23 +34,21 @@ namespace FinancialDucks.Client.Components.Categories
         [Inject]
         public NotificationDispatcher<CategoryChangeNotification> CategoryChangeDispatcher { get; set; }
 
-        protected override async Task OnInitializedAsync()
+        protected override async Task OnParametersSetAsync()
         {
             if (Category == null)
                 return;
 
-            CategoryChangeDispatcher.Register(this);
-            var stats = await Mediator.Send(new CategoryStatsFeature.Query(Category,
-                new DateTime(2022, 1, 1),
-                new DateTime(2022, 12, 1)));
+            _categoryId.Value = Category.Id;
+
+            if (!_categoryId.HasChanges)
+                return;
+
+            _categoryId.AcceptChanges();
+            var stats = await Mediator.Send(new CategoryStatsFeature.Query(Category));
             NumTransactions = stats.TransactionCount;
             DollarTotal = stats.Total;
             StateHasChanged();
-        }
-
-        public void Dispose()
-        {
-            CategoryChangeDispatcher.Unregister(this);
         }
 
         public async Task NewButton_Clicked()
@@ -60,21 +60,6 @@ namespace FinancialDucks.Client.Components.Categories
         public async Task Category_Clicked()
         {
             await CategorySelected.InvokeAsync(Category);
-        }
-
-        public async Task Handle(CategoryChangeNotification notification, CancellationToken cancellationToken)
-        {
-            var changedNode = Category.Root().GetDescendant(notification.Category.Id);
-
-            if (changedNode.HasLinearRelationTo(Category))
-            {
-                var stats = await Mediator.Send(new CategoryStatsFeature.Query(Category,
-                    DateTime.Now.AddYears(-1),
-                    DateTime.Now));
-                NumTransactions = stats.TransactionCount;
-                DollarTotal = stats.Total;
-                StateHasChanged();
-            }
         }
     }
 }

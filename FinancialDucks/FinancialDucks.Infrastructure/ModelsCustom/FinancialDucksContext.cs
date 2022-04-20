@@ -163,8 +163,17 @@ namespace FinancialDucks.Infrastructure.Models
             if (dbRecord == null)
                 return category;
 
-            Categories.Remove(dbRecord);
-            CategoryRules.RemoveRange(CategoryRules.Where(p => p.CategoryId == dbRecord.Id));
+            var categoryAnddescendants = Categories
+                .Include(p=>p.CategoryRules)
+                .Where(p => p.HierarchyId.IsDescendantOf(dbRecord.HierarchyId))
+                .ToArray();
+
+            var descendantRules = categoryAnddescendants
+                .SelectMany(p => p.CategoryRules);
+
+            CategoryRules.RemoveRange(descendantRules);
+            Categories.RemoveRange(categoryAnddescendants);
+
 
             await SaveChangesAsync();
             await transaction.CommitAsync();

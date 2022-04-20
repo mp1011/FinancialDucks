@@ -29,6 +29,7 @@ namespace FinancialDucks.Infrastructure.Services
                    .AsNoTracking()
                    .Include(p=>p.CategoryRules)
                    .Where(p => p.HierarchyId.GetAncestor(1) == hierarchyId)
+                   .Distinct()
                    .OrderBy(p=>p.Name)
                    .ToArrayAsync();
 
@@ -36,7 +37,7 @@ namespace FinancialDucks.Infrastructure.Services
             {
                 var childCategory = new AppCategory(child.Id, child.Name, child.Starred, category);
                 childCategory.Rules.AddRange(child.CategoryRules);
-                category.Children.Add(childCategory);
+                category.AddChild(childCategory);
                 await BuildCategoryTree(dbContext, childCategory, child.HierarchyId);
             }
 

@@ -13,6 +13,11 @@ namespace FinancialDucks.Client.Components
         [Parameter]
         public bool IncludeCategorySelector { get; set; } = true;
 
+
+        [Parameter]
+        public bool IncludeTextFilter { get; set; } = true;
+
+
         [Parameter]
         public TransactionSortColumn SortColumn { get; set; }
 

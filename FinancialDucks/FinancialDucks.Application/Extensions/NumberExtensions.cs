@@ -2,6 +2,7 @@
 {
     public static class NumberExtensions
     {
+        public static decimal Abs(this decimal d) => Math.Abs(d);
         public static int ModPositive(this int Number, int Mod)
         {
             while (Number < 0)

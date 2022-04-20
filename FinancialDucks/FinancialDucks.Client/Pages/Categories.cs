@@ -1,5 +1,6 @@
 ﻿using FinancialDucks.Application.Features;
 using FinancialDucks.Application.Models;
+using FinancialDucks.Application.Models.AppModels;
 using FinancialDucks.Application.Services;
 using MediatR;
 using Microsoft.AspNetCore.Components;
@@ -24,7 +25,7 @@ namespace FinancialDucks.Client.Pages
 
         protected override void OnInitialized()
         {
-            CategoryChangeDispatcher.Register(this);
+            CategoryChangeDispatcher.Register(this, NotificationPriority.Low);
         }
 
         public void Dispose()
@@ -45,11 +46,7 @@ namespace FinancialDucks.Client.Pages
 
         public async void NewCategoryButton_Click(CategoriesFeature.AddCategoryCommand addCategoryCommand)
         {
-            var newCategory = await Mediator.Send(addCategoryCommand);
-            Root.GetDescendant(addCategoryCommand.Parent.Name)
-                .AddSubcategory(newCategory);
-
-            StateHasChanged();
+            await Mediator.Send(addCategoryCommand);
         }
 
         public void OnCategorySelected(ICategoryDetail category)
@@ -61,7 +58,11 @@ namespace FinancialDucks.Client.Pages
         public async Task Handle(CategoryChangeNotification notification, CancellationToken cancellationToken)
         {
             Root = await Mediator.Send(new CategoriesFeature.CategoryTreeRequest());
-            SelectedCategory = Root.GetDescendant(SelectedCategory.Id);
+
+            if (SelectedCategory == null)
+                SelectedCategory = Root;
+            else 
+                SelectedCategory = Root.GetDescendant(SelectedCategory.Id);
             StateHasChanged();
         }
     }

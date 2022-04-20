@@ -1,4 +1,5 @@
-﻿using FinancialDucks.Application.Models;
+﻿using FinancialDucks.Application.Extensions;
+using FinancialDucks.Application.Models;
 using FinancialDucks.Application.Models.AppModels;
 using FinancialDucks.Application.Services;
 using MediatR;
@@ -38,14 +39,14 @@ namespace FinancialDucks.Application.Features
 
                 while(date <= request.DateTo)
                 {
-                    var snapshot = ComputeSnapshot(date, transactions, snapshots);
+                    var snapshot = ComputeSnapshot(date, transactions, snapshots, request.Interval);
                     if (snapshot != null)
                         yield return snapshot;
 
                     date = date.Add(request.Interval);
                 }
             }
-            private SourceSnapshot ComputeSnapshot(DateTime date, ITransaction[] transactions, ISourceSnapshot[] snapshots)
+            private SourceSnapshot ComputeSnapshot(DateTime date, ITransaction[] transactions, ISourceSnapshot[] snapshots, TimeInterval timeInterval)
             {
                 decimal sum = 0;
 
@@ -53,22 +54,23 @@ namespace FinancialDucks.Application.Features
                 {
                     var sourceSnapshot = ComputeSnapshotForSingleSource(date,
                         sourceGroup.ToArray(),
-                        snapshots.Where(p => p.SourceId == sourceGroup.Key).ToArray());
+                        snapshots.Where(p => p.SourceId == sourceGroup.Key).ToArray(),
+                        timeInterval);
 
                     sum += sourceSnapshot.Amount;
                 }
 
-                return new SourceSnapshot(date, sum);
+                return new SourceSnapshot(date, date.GetLabel(timeInterval), sum);
             }
             
-            private SourceSnapshot ComputeSnapshotForSingleSource(DateTime date, ITransaction[] transactions, ISourceSnapshot[] snapshots)
+            private SourceSnapshot ComputeSnapshotForSingleSource(DateTime date, ITransaction[] transactions, ISourceSnapshot[] snapshots, TimeInterval timeInterval)
             {
                 var thisSnapshot = snapshots.FirstOrDefault(s => s.Date == date);
                 if (thisSnapshot != null)
-                    return new SourceSnapshot(thisSnapshot.Date, thisSnapshot.Amount);
+                    return new SourceSnapshot(thisSnapshot.Date, thisSnapshot.Date.GetLabel(timeInterval), thisSnapshot.Amount);
 
                 var anchorSnapshot = new SourceSnapshot(snapshots.LastOrDefault(s => s.Date < date)
-                    ?? snapshots.FirstOrDefault(s => s.Date > date));
+                    ?? snapshots.FirstOrDefault(s => s.Date > date), timeInterval);
 
 
                 DateTime filterFrom, filterTo;
@@ -88,9 +90,9 @@ namespace FinancialDucks.Application.Features
                     .Sum(p => p.Amount);
 
                 if (anchorSnapshot.Date < date)
-                    return new SourceSnapshot(date, anchorSnapshot.Amount + filteredSum);
+                    return new SourceSnapshot(date, date.GetLabel(timeInterval), anchorSnapshot.Amount + filteredSum);
                 else
-                    return new SourceSnapshot(date, anchorSnapshot.Amount - filteredSum);
+                    return new SourceSnapshot(date, date.GetLabel(timeInterval), anchorSnapshot.Amount - filteredSum);
             }
 
             private async Task<(ITransaction[], ISourceSnapshot[])> GetTransactionsAndSnapshots(Query request)

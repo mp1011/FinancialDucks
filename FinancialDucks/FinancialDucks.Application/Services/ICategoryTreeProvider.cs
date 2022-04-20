@@ -19,7 +19,7 @@ namespace FinancialDucks.Application.Services
         public CachedCategoryTreeProvider(ICategoryTreeProvider realProvider, NotificationDispatcher<CategoryChangeNotification> dispatcher)
         {
             _realProvider = realProvider;
-            dispatcher.Register(this);
+            dispatcher.Register(this, NotificationPriority.High);
         }
 
         public async Task<ICategoryDetail> GetCategoryTree()

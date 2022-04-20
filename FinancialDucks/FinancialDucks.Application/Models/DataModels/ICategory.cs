@@ -1,4 +1,5 @@
 ﻿using FinancialDucks.Application.Models.AppModels;
+using System.Text;
 
 namespace FinancialDucks.Application.Models
 {
@@ -17,6 +18,21 @@ namespace FinancialDucks.Application.Models
 
     public static class ICategoryExtensions
     {
+
+        public static void DebugWrite(this ICategoryDetail category)
+        {
+            var sb = new StringBuilder();
+            category.DebugWrite(sb,0);
+            System.Diagnostics.Debug.WriteLine(sb.ToString());
+        }
+
+        private static void DebugWrite(this ICategoryDetail category, StringBuilder sb, int indent)
+        {
+            sb.AppendLine(category.Name.PadLeft(category.Name.Length + indent, '\t'));
+            foreach (var child in category.Children)
+                child.DebugWrite(sb, indent + 1);
+        }
+
         public static bool IsSpecialCategory(this ICategory category)
         {
             if (category == null)
@@ -27,6 +43,9 @@ namespace FinancialDucks.Application.Models
 
         public static ICategoryDetail Root(this ICategoryDetail category)
         {
+            if (category == null || category.Parent == null)
+                return new EmptyCategory();
+
             var node = category;
             while(node.Parent != null)
                 node = node.Parent;

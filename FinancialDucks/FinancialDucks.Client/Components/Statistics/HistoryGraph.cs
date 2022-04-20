@@ -3,6 +3,7 @@ using FinancialDucks.Application.Models;
 using FinancialDucks.Application.Models.AppModels;
 using MediatR;
 using Microsoft.AspNetCore.Components;
+using Radzen;
 
 namespace FinancialDucks.Client.Components.Statistics
 {
@@ -33,6 +34,11 @@ namespace FinancialDucks.Client.Components.Statistics
         {
             TimeInterval = newInterval;
             await OnParametersSetAsync();
+        }
+
+        public void SeriesClicked(SeriesClickEventArgs arg)
+        {
+
         }
     }
 }
