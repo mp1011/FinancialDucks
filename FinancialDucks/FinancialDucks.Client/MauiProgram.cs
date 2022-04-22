@@ -1,6 +1,7 @@
 ﻿using FinancialDucks.Application.Features;
 using FinancialDucks.Application.Models;
 using FinancialDucks.Application.Services;
+using FinancialDucks.Client.Services;
 using FinancialDucks.Infrastructure.Models;
 using FinancialDucks.Infrastructure.Services;
 using MediatR;
@@ -34,6 +35,7 @@ namespace FinancialDucks.Client
             builder.Services.AddSingleton<ITransactionFileSourceIdentifier, TransactionFileSourceIdentifier>();
             builder.Services.AddSingleton<ITransactionClassifier, TransactionClassifier>();
             builder.Services.AddSingleton<SqlCategoryTreeProvider>();
+            builder.Services.AddSingleton<NavigationService>();
             builder.Services.AddSingleton((sp) =>
             {
 
