@@ -38,7 +38,7 @@ namespace FinancialDucks.Application.Extensions
             while (date < end)
             {
                 var endDate = date.Add(interval);
-                yield return new TimeSlice(date, endDate);
+                yield return new TimeSlice(date, endDate.AddDays(-1));
                 date = endDate;
             }
         }

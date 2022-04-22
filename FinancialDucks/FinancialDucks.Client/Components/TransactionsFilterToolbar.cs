@@ -30,8 +30,8 @@ namespace FinancialDucks.Client.Components
         [Parameter]
         public EventCallback<TimeInterval> OnTimeIntervalChanged { get; set; }
 
-
-        public TransactionsFilter CurrentFilter { get; private set; }
+        [Parameter]
+        public TransactionsFilter CurrentFilter { get; set; }
 
         public DateTime RangeStart { get; set; } = DateTime.Now.AddMonths(-6);
 
@@ -47,6 +47,17 @@ namespace FinancialDucks.Client.Components
         {
             CategoryFilter = category;
             await UpdateCurrentFilter();
+        }
+
+        protected override void OnParametersSet()
+        {
+            if(CurrentFilter != null)
+            {
+                RangeStart = CurrentFilter.RangeStart;
+                RangeEnd = CurrentFilter.RangeEnd;
+                TextFilter = CurrentFilter.TextFilter;
+                CategoryFilter = CurrentFilter.Category;
+            }
         }
 
         private async Task UpdateCurrentFilter(bool forceUpdate = false)

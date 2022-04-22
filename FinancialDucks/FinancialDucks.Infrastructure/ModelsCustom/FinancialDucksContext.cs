@@ -77,6 +77,13 @@ namespace FinancialDucks.Infrastructure.Models
 
         public async Task<ICategory> AddSubcategory(ICategory parent, string name)
         {
+
+            var existing = await Categories
+                .FirstOrDefaultAsync(c => c.Name == name);
+
+            if (existing != null)
+                return existing;
+
             using var transaction = Database.BeginTransaction();
 
             var parentCategory = Categories

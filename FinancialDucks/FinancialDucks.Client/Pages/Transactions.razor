@@ -21,7 +21,7 @@
     </div>
 </div>
 
-<TransactionsFilterToolbar OnFilterChanged="(t) => CurrentFilter=t" />
+<TransactionsFilterToolbar CurrentFilter="CurrentFilter" OnFilterChanged="(t) => CurrentFilter=t" />
 
 <TransactionsList Filter="CurrentFilter" OnTransactionMouseUp="OnTransactionMouseUp" />
 

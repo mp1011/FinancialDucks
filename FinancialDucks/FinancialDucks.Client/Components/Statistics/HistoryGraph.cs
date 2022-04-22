@@ -12,6 +12,9 @@ namespace FinancialDucks.Client.Components.Statistics
         [Inject]
         public IMediator Mediator { get; set; }
 
+        [Inject]
+        public NavigationManager NavigationManager { get; set; }
+
         [Parameter]
         public TransactionsFilter Filter { get; set; }
 
@@ -38,7 +41,11 @@ namespace FinancialDucks.Client.Components.Statistics
 
         public void SeriesClicked(SeriesClickEventArgs arg)
         {
+            var timeSlice = arg.Data as TimeSlice;
+            if(timeSlice == null) return;
 
+            var uri = $@"/transactions?dateFrom={timeSlice.SliceStart.ToShortDateString()}&dateTo={timeSlice.SliceEnd.ToShortDateString()}&category={Filter.Category.Name}";
+            NavigationManager.NavigateTo(uri, forceLoad: true);
         }
     }
 }
