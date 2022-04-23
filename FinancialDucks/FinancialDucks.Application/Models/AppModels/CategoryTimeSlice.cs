@@ -6,16 +6,8 @@ namespace FinancialDucks.Application.Models.AppModels
     public record CategoryTimeSlice(decimal Amount, TimeInterval TimeInterval, DateTime SliceStart, DateTime SliceEnd) 
         : TimeSlice(SliceStart,SliceEnd) 
     { 
-        
-       
-        public decimal AmountAbs => Math.Abs(Amount);
-
-        public string Label => SliceStart.GetLabel(TimeInterval);
-
         public CategoryTimeSlice ChangeAmount(decimal newAmount) => 
             new CategoryTimeSlice(newAmount,TimeInterval, SliceStart,SliceEnd);
-
-
     }
 
     public record CategorySnapshot(decimal Amount, DateTime Date);

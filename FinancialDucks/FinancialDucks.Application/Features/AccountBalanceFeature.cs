@@ -126,7 +126,7 @@ namespace FinancialDucks.Application.Features
 
                 var transactions = await context.Transactions
                     .Where(t => sources.Contains(t.SourceId)
-                        && t.Date >= request.DateFrom
+                        && t.Date >= request.DateFrom.StartOfDay()
                         && t.Date <= request.DateTo.EndOfDay())
                     .ToArrayAsync(context);
 

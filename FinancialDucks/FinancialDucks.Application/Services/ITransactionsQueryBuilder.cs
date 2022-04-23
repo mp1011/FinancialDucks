@@ -88,7 +88,7 @@ namespace FinancialDucks.Application.Services
             if (filter.Sources.NotNullOrEmpty())
                 sourceIds = filter.Sources.Select(p => p.Id).ToArray();
 
-            return query.Where(p=>p.Date >= filter.RangeStart 
+            return query.Where(p=>p.Date >= filter.RangeStart.StartOfDay()
                                 && p.Date <= filter.RangeEnd.EndOfDay()
                                 && (sourceIds==null || sourceIds.Contains(p.SourceId))
                                 && (textFilter == null || p.Description.Contains(textFilter)));

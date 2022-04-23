@@ -38,21 +38,24 @@
 
     public async Task RefreshTransactionsFromDisk()
     {
+        ImportMessage = $"Downloading transactions...";
+        var downloadedFiles = await Mediator.Send(new WebTransactionExtractorFeature.Query());
+
         ImportMessage = $"Reading transactions from disk...";
         StateHasChanged();
 
-        var localTransactions = await Mediator.Send(new ReadLocalTransactions.Request());
+        //var localTransactions = await Mediator.Send(new ReadLocalTransactions.Request());
 
-        ImportMessage = $"Read {localTransactions.Count()} transactions from disk. Syncing with database...";
-        StateHasChanged();
+        //ImportMessage = $"Read {localTransactions.Count()} transactions from disk. Syncing with database...";
+        //StateHasChanged();
 
-        var newRecords = await Mediator.Send(new UploadTransactions.Command(localTransactions));
-        if (newRecords.Any())
-            ImportMessage = $"Inserted {newRecords.Count()} transactions into database.";
-        else
-            ImportMessage = $"No new transactions to insert.";
+        //var newRecords = await Mediator.Send(new UploadTransactions.Command(localTransactions));
+        //if (newRecords.Any())
+        //    ImportMessage = $"Inserted {newRecords.Count()} transactions into database.";
+        //else
+        //    ImportMessage = $"No new transactions to insert.";
 
-        //UpdateCurrentFilter();
-        StateHasChanged();
+        ////UpdateCurrentFilter();
+        //StateHasChanged();
     }
 }

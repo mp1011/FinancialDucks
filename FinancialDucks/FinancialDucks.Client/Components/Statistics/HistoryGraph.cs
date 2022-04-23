@@ -1,6 +1,8 @@
-﻿using FinancialDucks.Application.Features;
+﻿using FinancialDucks.Application.Extensions;
+using FinancialDucks.Application.Features;
 using FinancialDucks.Application.Models;
 using FinancialDucks.Application.Models.AppModels;
+using FinancialDucks.Client.Models;
 using MediatR;
 using Microsoft.AspNetCore.Components;
 using Radzen;
@@ -21,7 +23,7 @@ namespace FinancialDucks.Client.Components.Statistics
         [Parameter]
         public TimeInterval TimeInterval { get; set; } = TimeInterval.Monthly;
 
-        public CategoryTimeSlice[] TimeSlices { get; set; }
+        public LabelledData<CategoryTimeSlice>[] TimeSlices { get; set; }
 
         public string Format(object value) => ((double)value).ToString("C");
 
@@ -29,8 +31,15 @@ namespace FinancialDucks.Client.Components.Statistics
         { 
             if(Filter == null) return;
 
-            TimeSlices = await Mediator.Send(
+            var timeSlices = await Mediator.Send(
                 new HistoryGraphFeature.Query(Filter, TimeInterval));
+
+            TimeSlices = timeSlices
+                .Select((x, i) => new LabelledData<CategoryTimeSlice>(
+                    label: i%2 == 0 ? "" : x.SliceStart.GetLabel(x.TimeInterval),
+                    value: x.Amount.Abs(),
+                    data: x))
+                .ToArray();
         }
 
         public async Task UpdateTimeInterval(TimeInterval newInterval)
@@ -41,10 +50,10 @@ namespace FinancialDucks.Client.Components.Statistics
 
         public void SeriesClicked(SeriesClickEventArgs arg)
         {
-            var timeSlice = arg.Data as TimeSlice;
+            var timeSlice = arg.Data as LabelledData<CategoryTimeSlice>;
             if(timeSlice == null) return;
 
-            var uri = $@"/transactions?dateFrom={timeSlice.SliceStart.ToShortDateString()}&dateTo={timeSlice.SliceEnd.ToShortDateString()}&category={Filter.Category.Name}";
+            var uri = $@"/transactions?dateFrom={timeSlice.Data.SliceStart.ToShortDateString()}&dateTo={timeSlice.Data.SliceEnd.ToShortDateString()}&category={Filter.Category.Name}";
             NavigationManager.NavigateTo(uri, forceLoad: true);
         }
     }
