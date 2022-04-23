@@ -160,7 +160,7 @@ namespace FinancialDucks.Tests
             DateTime lastPaymentDate = new DateTime(2022, 1, 1);
 
             List<ITransactionDetail> transactionDetails = new List<ITransactionDetail>();
-            DateTime date = new DateTime(2022, 1, 1);
+            DateTime date = new DateTime(2021, 1, 1);
             while(date.Year < 2024)
             {
                 transactionDetails.Add(AddMockTransaction(date, -100M, "Purchase", source));

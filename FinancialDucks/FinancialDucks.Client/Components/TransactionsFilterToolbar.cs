@@ -8,6 +8,9 @@ namespace FinancialDucks.Client.Components
     public partial class TransactionsFilterToolbar
     {
         [Parameter]
+        public bool IncludeTransfersCategory { get; set; } = true;
+
+        [Parameter]
         public bool IncludeIntervalSelector { get; set; } = false;
 
         [Parameter]

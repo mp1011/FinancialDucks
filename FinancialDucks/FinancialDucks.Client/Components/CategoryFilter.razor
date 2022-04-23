@@ -21,8 +21,11 @@
                 }
             </button>
             <ul class="dropdown-menu" aria-labelledby=@Id>
-                <li><button type="button" class="dropdown-item" @onclick="()=>SetCategory(categorySelection,null)">All</button></li>
-                @foreach (var subcat in categorySelection.Parent.Children)
+                @if(IncludeTransfersCategory)
+                {
+                    <li><button type="button" class="dropdown-item" @onclick="()=>SetCategory(categorySelection,null)">All</button></li>
+                }
+                @foreach (var subcat in categorySelection.Parent.Children.Where(ShouldBeIncluded))
                 {
                     <li><button type="button" class="dropdown-item" @onclick="()=>SetCategory(categorySelection, subcat)">@subcat.Name</button></li>
                 }  

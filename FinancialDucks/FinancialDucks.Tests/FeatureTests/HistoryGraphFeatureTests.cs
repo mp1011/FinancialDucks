@@ -1,4 +1,5 @@
-﻿using FinancialDucks.Application.Features;
+﻿using FinancialDucks.Application.Extensions;
+using FinancialDucks.Application.Features;
 using FinancialDucks.Application.Models;
 using FinancialDucks.Application.Models.AppModels;
 using FinancialDucks.Application.Services;
@@ -45,7 +46,7 @@ namespace FinancialDucks.Tests.FeatureTests
 
             Assert.True(result.TakeWhile(p=>p.Amount != 0).Count() >= result.Length-5);
             Assert.Equal(DateTime.Parse(dateFrom), firstResult.SliceStart);
-            Assert.Equal(DateTime.Parse(dateFrom).Add(interval), firstResult.SliceEnd);
+            Assert.Equal(DateTime.Parse(dateFrom).Add(interval).AddDays(-1).EndOfDay(), firstResult.SliceEnd);
         }
     }
 }

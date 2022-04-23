@@ -89,7 +89,7 @@ namespace FinancialDucks.Application.Services
                 sourceIds = filter.Sources.Select(p => p.Id).ToArray();
 
             return query.Where(p=>p.Date >= filter.RangeStart 
-                                && p.Date <= filter.RangeEnd
+                                && p.Date <= filter.RangeEnd.EndOfDay()
                                 && (sourceIds==null || sourceIds.Contains(p.SourceId))
                                 && (textFilter == null || p.Description.Contains(textFilter)));
         }

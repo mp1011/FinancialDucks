@@ -5,6 +5,9 @@ namespace FinancialDucks.Application.Extensions
     public static class DateExtensions
     {
 
+        public static DateTime EndOfDay(this DateTime date) =>
+            new DateTime(date.Year, date.Month, date.Day, 23, 59, 59,999);
+
         public static string GetLabel(this DateTime date, TimeInterval interval)
         {
             switch (interval)
@@ -38,7 +41,7 @@ namespace FinancialDucks.Application.Extensions
             while (date < end)
             {
                 var endDate = date.Add(interval);
-                yield return new TimeSlice(date, endDate.AddDays(-1));
+                yield return new TimeSlice(date, endDate.AddDays(-1).EndOfDay());
                 date = endDate;
             }
         }

@@ -16,6 +16,7 @@ namespace FinancialDucks.Application.Features
 
         public class Handler : IRequestHandler<Query, SourceSnapshot[]>
         {
+            private record SnapshotCalcInfo(ITransaction[] Transactions, ISourceSnapshot[] Snapshots, int[] SourceIds);
             private readonly IDataContextProvider _dataContextProvider;
 
             public Handler(IDataContextProvider dataContextProvider)
@@ -26,35 +27,41 @@ namespace FinancialDucks.Application.Features
             public async Task<SourceSnapshot[]> Handle(Query request, CancellationToken cancellationToken)
             {
                 var transactionsAndSnaphots = await GetTransactionsAndSnapshots(request);
-                var transactions = transactionsAndSnaphots.Item1;
-                var snapshots = transactionsAndSnaphots.Item2;
 
-                return ComputeSnapshots(transactions, snapshots, request)
+                return ComputeSnapshots(transactionsAndSnaphots, request)
                     .ToArray();
             }
 
-            private IEnumerable<SourceSnapshot> ComputeSnapshots(ITransaction[] transactions, ISourceSnapshot[] snapshots, Query request)
+            private IEnumerable<SourceSnapshot> ComputeSnapshots(SnapshotCalcInfo info, Query request)
             {
                 DateTime date = request.DateFrom;
 
                 while(date <= request.DateTo)
                 {
-                    var snapshot = ComputeSnapshot(date, transactions, snapshots, request.Interval);
+                    var snapshot = ComputeSnapshot(date, info, request.Interval);
                     if (snapshot != null)
                         yield return snapshot;
 
                     date = date.Add(request.Interval);
                 }
             }
-            private SourceSnapshot ComputeSnapshot(DateTime date, ITransaction[] transactions, ISourceSnapshot[] snapshots, TimeInterval timeInterval)
+            private SourceSnapshot ComputeSnapshot(DateTime date, SnapshotCalcInfo info, TimeInterval timeInterval)
             {
                 decimal sum = 0;
 
-                foreach(var sourceGroup in transactions.GroupBy(p=>p.SourceId))
+                foreach(var sourceId in info.SourceIds)
                 {
+                    var transactions = info.Transactions
+                        .Where(p => p.SourceId == sourceId)
+                        .ToArray();
+
+                    var snapshots = info.Snapshots
+                        .Where(p => p.SourceId == sourceId)
+                        .ToArray();
+
                     var sourceSnapshot = ComputeSnapshotForSingleSource(date,
-                        sourceGroup.ToArray(),
-                        snapshots.Where(p => p.SourceId == sourceGroup.Key).ToArray(),
+                        transactions,
+                        snapshots,
                         timeInterval);
 
                     sum += sourceSnapshot.Amount;
@@ -95,7 +102,7 @@ namespace FinancialDucks.Application.Features
                     return new SourceSnapshot(date, date.GetLabel(timeInterval), anchorSnapshot.Amount - filteredSum);
             }
 
-            private async Task<(ITransaction[], ISourceSnapshot[])> GetTransactionsAndSnapshots(Query request)
+            private async Task<SnapshotCalcInfo> GetTransactionsAndSnapshots(Query request)
             {
 
                 using var context = _dataContextProvider.CreateDataContext();
@@ -120,7 +127,7 @@ namespace FinancialDucks.Application.Features
                 var transactions = await context.Transactions
                     .Where(t => sources.Contains(t.SourceId)
                         && t.Date >= request.DateFrom
-                        && t.Date <= request.DateTo)
+                        && t.Date <= request.DateTo.EndOfDay())
                     .ToArrayAsync(context);
 
                 var snapshots = await context.SourceSnapshots
@@ -128,7 +135,7 @@ namespace FinancialDucks.Application.Features
                     .OrderBy(t=>t.Date)
                     .ToArrayAsync(context);
 
-                return (transactions, snapshots);
+                return new SnapshotCalcInfo(transactions, snapshots, sources);
             }
         }
     }

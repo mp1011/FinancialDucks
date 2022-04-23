@@ -1,4 +1,5 @@
 ﻿using FinancialDucks.Application.Models;
+using FinancialDucks.Application.Models.AppModels;
 using Microsoft.AspNetCore.Components;
 
 namespace FinancialDucks.Client.Components
@@ -8,6 +9,9 @@ namespace FinancialDucks.Client.Components
         public record CategorySelection(ICategoryDetail Parent, ICategoryDetail? SelectedChild);
 
         public string Id { get; private set; }
+
+        [Parameter]
+        public bool IncludeTransfersCategory { get; set; } = true;
 
         [Parameter]
         public EventCallback<ICategoryDetail> OnCategorySelected { get; set; }
@@ -41,14 +45,28 @@ namespace FinancialDucks.Client.Components
             Id = $"CategorySelection_{Guid.NewGuid}";
             var tree = await CategoryTreeProvider.GetCategoryTree();
 
+
+            ICategoryDetail initialSelection = null;
+            if (!IncludeTransfersCategory)
+                initialSelection = tree.GetDescendant(SpecialCategory.Debits.ToString());
+
             CategorySelections.Clear();
-            CategorySelections.Add(new CategorySelection(tree, null));
+            CategorySelections.Add(new CategorySelection(tree, initialSelection));
 
             StarredCategories = tree.GetDescendants()
                                     .Where(p => p.Starred)
                                     .ToArray();
 
-            await OnCategorySelected.InvokeAsync(tree);
+            await OnCategorySelected.InvokeAsync(initialSelection ?? tree);
+        }
+
+        public bool ShouldBeIncluded(ICategoryDetail category)
+        {
+            if (IncludeTransfersCategory)
+                return true;
+            else
+                return category.Name != SpecialCategory.Transfers.ToString()
+                    && category.Name != SpecialCategory.All.ToString();
         }
 
         protected override void OnParametersSet()
