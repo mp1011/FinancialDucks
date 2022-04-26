@@ -1,0 +1,10 @@
+﻿namespace FinancialDucks.Application.Models.AppModels
+{
+    public enum ScraperCommandType
+    {
+        FillUsername,
+        FillPassword,
+        Click,
+        ClickAndDownload
+    }
+}

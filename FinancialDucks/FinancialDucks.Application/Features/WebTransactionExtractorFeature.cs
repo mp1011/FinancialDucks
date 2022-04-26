@@ -1,63 +1,52 @@
-﻿using FinancialDucks.Application.Extensions;
+﻿using FinancialDucks.Application.Models;
+using FinancialDucks.Application.Services;
 using MediatR;
-using PuppeteerSharp;
 
 namespace FinancialDucks.Application.Features
 {
     public class WebTransactionExtractorFeature
     {
-        public record Query : IRequest<FileInfo?>
+        public record Query : IRequest<FileInfo[]>
         {
 
         }
 
-        public class Handler : IRequestHandler<Query, FileInfo?>
+        public class Handler : IRequestHandler<Query, FileInfo[]>
         {
-            public async Task<FileInfo?> Handle(Query request, CancellationToken cancellationToken)
+            private readonly IDataContextProvider _dataContextProvider;
+            private readonly IScraperService _scraperService;
+
+            public Handler(IDataContextProvider dataContextProvider, IScraperService scraperService)
             {
-                var fetcher = new BrowserFetcher(new BrowserFetcherOptions
-                {
-                    Path = @"E:\Documents\monies\chr"
-                });
-                
-                var revisionInfo = await fetcher.DownloadAsync(BrowserFetcher.DefaultChromiumRevision);
-
-                using var browser = await Puppeteer.LaunchAsync(new LaunchOptions
-                {
-                    ExecutablePath = revisionInfo.ExecutablePath,
-                    Devtools = true,
-                    Headless = false
-                }); 
-
-                try
-                {
-                    var page = await browser.NewPageAsync();
-                    var response = await page.GoToAsync("xyz");
-
-                    await page.FillInputAsync("input#username", "xyz");
-                    await page.FillInputAsync("input#password", "xyz");
-                    await page.ClickAndWaitForNavigateAsync("button#signInBtn");
-
-                    var link = await page.WaitForInnerHTMLAsync("a", h => h.Contains("xyz"));
-                    await page.ClickAndWaitForNavigateAsync(link);
-
-                    await page.WaitAndClickAsync("#downloadTrans");
-
-                    var downloadButton = await page.WaitForInnerHTMLAsync("button", h => h.Equals("Download"));
-                    if (downloadButton != null)
-                    {
-                        var file = await downloadButton.ClickAndWaitForFileDownloadAsync(new DirectoryInfo("xyz"));
-                        if (file != null)
-                            return file;
-                    }
-                }
-                catch(Exception e)
-                {
-                    System.Diagnostics.Debug.WriteLine("!");
-                }
-
-                return null;
+                _dataContextProvider = dataContextProvider;
+                _scraperService = scraperService;
             }
+
+            public async Task<FileInfo[]> Handle(Query request, CancellationToken cancellationToken)
+            {
+                var commands = await GetScraperCommands();
+
+                var sources = commands
+                    .Select(p => p.Source)
+                    .Distinct()
+                    .ToArray();
+
+                List<FileInfo> files = new List<FileInfo>();
+                foreach(var source in sources)
+                {
+                    var file = await _scraperService.Execute(source, commands);
+                    if (file != null)
+                        files.Add(file);
+                }
+
+                return files.ToArray();
+            }
+
+            private async Task<IScraperCommandDetail[]> GetScraperCommands()
+            {
+                using var ctx = _dataContextProvider.CreateDataContext();
+                return await ctx.ScraperCommandsDetail.ToArrayAsync(ctx);
+            }         
         }
     }
 }

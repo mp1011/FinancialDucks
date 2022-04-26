@@ -4,7 +4,6 @@ using FinancialDucks.Tests.TestModels;
 using Moq;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
 namespace FinancialDucks.Tests
@@ -116,6 +115,8 @@ namespace FinancialDucks.Tests
         }
 
         public List<ICategoryRuleDetail> MockCategoryRules { get; } = new List<ICategoryRuleDetail>();
+
+        public List<IScraperCommandDetail> MockScraperCommands { get; } = new List<IScraperCommandDetail>();
 
         private IEnumerable<ICategoryRuleDetail> GetMockCategoryRules()
         {
@@ -319,6 +320,20 @@ namespace FinancialDucks.Tests
             };
             MockTransations.Add(t);
             return t;
+        }
+
+        public void AddMockScraperCommand(ITransactionSourceDetail source, int sequence, ScraperCommandType scraperCommandType, 
+            string selector="", bool waitForNavigate=false)
+        {
+            var mock = new Mock<IScraperCommandDetail>();
+            mock.Setup(x => x.SearchInnerText).Returns(false);
+            mock.Setup(x => x.Sequence).Returns(sequence);
+            mock.Setup(x=>x.Source).Returns(source);
+            mock.Setup(x => x.SourceId).Returns(source.Id);
+            mock.Setup(x => x.Selector).Returns(selector);
+            mock.Setup(x => x.WaitForNavigate).Returns(waitForNavigate);
+            mock.Setup(x => x.TypeId).Returns(scraperCommandType);
+            MockScraperCommands.Add(mock.Object);
         }
     }
 }

@@ -29,6 +29,8 @@ namespace FinancialDucks.Tests.CustomMocks
 
         public IQueryable<ICategoryRuleDetail> CategoryRulesDetail => _mockDataHelper.MockCategoryRules.AsQueryable();
 
+        public IQueryable<IScraperCommandDetail> ScraperCommandsDetail => _mockDataHelper.MockScraperCommands.AsQueryable();
+
         public IQueryable<ITransactionWithCategory> TransactionsWithCategories
         {
             get

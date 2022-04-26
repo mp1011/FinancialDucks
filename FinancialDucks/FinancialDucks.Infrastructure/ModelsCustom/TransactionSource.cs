@@ -7,7 +7,9 @@ namespace FinancialDucks.Infrastructure.Models
         IEnumerable<ITransactionSourceFileMappingDetail> ITransactionSourceDetail.SourceFileMappings =>
             TransactionSourceFileMappings.Cast<ITransactionSourceFileMappingDetail>();
 
+        ITransactionSourceType ITransactionSourceDetail.SourceType => Type;
 
-
+        IEnumerable<IScraperCommandDetail> ITransactionSourceDetail.ScraperCommands => 
+            ScraperCommands.Cast<IScraperCommandDetail>();
     }
 }

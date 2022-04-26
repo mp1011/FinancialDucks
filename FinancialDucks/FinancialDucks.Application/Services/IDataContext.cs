@@ -12,6 +12,8 @@ namespace FinancialDucks.Application.Services
         IQueryable<ISourceSnapshot> SourceSnapshots { get; }
         IQueryable<ICategoryRuleDetail> CategoryRulesDetail { get; }
         IQueryable<ITransactionWithCategory> TransactionsWithCategories { get; }
+
+        IQueryable<IScraperCommandDetail> ScraperCommandsDetail { get; }
         Task<ITransaction[]> UploadTransactions(ITransaction[] transactions);
         Task<ICategory> AddSubcategory(ICategory parent, string name);
         Task<ICategoryRuleDetail> AddCategoryRule(ICategory category, ICategoryRule rule);

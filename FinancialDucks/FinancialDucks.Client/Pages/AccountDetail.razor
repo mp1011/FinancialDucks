@@ -1,0 +1,8 @@
+﻿@page "/accounts/{Id:int}"
+<h3>AccountDetail</h3>
+<p>@Id</p>
+@code 
+{
+     [Parameter]
+     public int Id { get; set; }
+}

@@ -23,6 +23,15 @@ namespace FinancialDucks.Tests.ExtensionTests
         }
 
         [Theory]
+        [InlineData("HelloWorld", "Hello World")]
+        public void TestAddSpacesAtCapitals(string text, string expected)
+        {
+            Assert.Equal(expected, text.AddSpacesAtCapitals());
+        }
+
+
+
+        [Theory]
         [InlineData("12.45", 12.45)]
         [InlineData("(12.45)", -12.45)]
         [InlineData("$12.45", 12.45)]

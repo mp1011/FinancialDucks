@@ -10,6 +10,7 @@ namespace FinancialDucks.Infrastructure.Models
        
         public virtual DbSet<Category> Categories { get; set; }
         public virtual DbSet<CategoryRule> CategoryRules { get; set; }
+        public virtual DbSet<ScraperCommand> ScraperCommands { get; set; }
         public virtual DbSet<SourceSnapshot> SourceSnapshots { get; set; }
         public virtual DbSet<Transaction> Transactions { get; set; }
         public virtual DbSet<TransactionCategory> TransactionCategories { get; set; }
@@ -51,6 +52,23 @@ namespace FinancialDucks.Infrastructure.Models
                     .HasForeignKey(d => d.CategoryId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_CategoryRules_Categories");
+            });
+
+            modelBuilder.Entity<ScraperCommand>(entity =>
+            {
+                entity.HasIndex(e => new { e.SourceId, e.Sequence }, "IX_ScraperCommands")
+                    .IsUnique();
+
+                entity.Property(e => e.Selector)
+                    .IsRequired()
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.HasOne(d => d.Source)
+                    .WithMany(p => p.ScraperCommands)
+                    .HasForeignKey(d => d.SourceId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_ScraperCommands_TransactionSources");
             });
 
             modelBuilder.Entity<SourceSnapshot>(entity =>
@@ -108,6 +126,10 @@ namespace FinancialDucks.Infrastructure.Models
             {
                 entity.Property(e => e.Name)
                     .IsRequired()
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Url)
                     .HasMaxLength(100)
                     .IsUnicode(false);
 

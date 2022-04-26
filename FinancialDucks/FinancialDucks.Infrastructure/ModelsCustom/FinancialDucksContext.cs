@@ -22,7 +22,9 @@ namespace FinancialDucks.Infrastructure.Models
 
         public IQueryable<ITransactionSourceDetail> TransactionSourcesDetail =>
             TransactionSources.AsNoTracking()
-                .Include(x => x.TransactionSourceFileMappings);
+                .Include(x => x.TransactionSourceFileMappings)
+                .Include(x => x.Type)
+                .Include(x => x.ScraperCommands);
 
         IQueryable<ITransactionSource> IDataContext.TransactionSources => TransactionSources.AsNoTracking();
 
@@ -42,6 +44,11 @@ namespace FinancialDucks.Infrastructure.Models
 
         IQueryable<ISourceSnapshot> IDataContext.SourceSnapshots =>
             SourceSnapshots.AsNoTracking();
+
+        IQueryable<IScraperCommandDetail> IDataContext.ScraperCommandsDetail =>
+            ScraperCommands
+                .Include(s=>s.Source)
+                .AsNoTracking();
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

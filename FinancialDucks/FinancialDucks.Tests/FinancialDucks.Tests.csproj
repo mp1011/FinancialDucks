@@ -26,17 +26,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="TestData\" />
+    <Folder Include="TestData\Downloads\" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\FinancialDucks.Application\FinancialDucks.Application.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="appsettings.json">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
 </Project>

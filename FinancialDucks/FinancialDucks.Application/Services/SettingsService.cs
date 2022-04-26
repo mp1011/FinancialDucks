@@ -6,6 +6,7 @@ namespace FinancialDucks.Application.Services
     public interface ISettingsService
     {
         DirectoryInfo SourcePath { get; }
+        DirectoryInfo DownloadsFolder { get; }        
         string ConnectionString { get; }
     }
 
@@ -19,6 +20,7 @@ namespace FinancialDucks.Application.Services
         }
 
         public DirectoryInfo SourcePath => new DirectoryInfo(_configuration[nameof(SourcePath)]);
+        public DirectoryInfo DownloadsFolder => new DirectoryInfo(_configuration[nameof(DownloadsFolder)]);
 
         public string ConnectionString => _configuration.GetConnectionString("DB");
     }

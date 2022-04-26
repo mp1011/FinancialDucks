@@ -29,6 +29,12 @@ namespace FinancialDucks.Application.Extensions
             return str.Trim();
         }
 
+        public static string AddSpacesAtCapitals(this string str)
+        {
+            str = Regex.Replace(str, @"([a-z])([A-Z])", m => $"{m.Groups[1].Value} {m.Groups[2].Value}");
+            return str.Trim();
+        }
+
         public static string CleanExtraSpaces(this string str)
         {
             return Regex.Replace(str, @"\s+", " ").Trim();
