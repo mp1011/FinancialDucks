@@ -9,7 +9,7 @@
     public interface ITransactionSourceDetail : ITransactionSource
     {
         IEnumerable<ITransactionSourceFileMappingDetail> SourceFileMappings { get; }
-        IEnumerable<IScraperCommandDetail> ScraperCommands { get; }
+        IEnumerable<ISourceSnapshot> SourceSnapshots { get; }
         ITransactionSourceType SourceType { get; }
     }
 }

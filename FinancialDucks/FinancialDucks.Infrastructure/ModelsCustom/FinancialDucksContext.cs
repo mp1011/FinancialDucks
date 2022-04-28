@@ -24,7 +24,8 @@ namespace FinancialDucks.Infrastructure.Models
             TransactionSources.AsNoTracking()
                 .Include(x => x.TransactionSourceFileMappings)
                 .Include(x => x.Type)
-                .Include(x => x.ScraperCommands);
+                .Include(x => x.ScraperCommands)
+                .Include(x => x.SourceSnapshots);
 
         IQueryable<ITransactionSource> IDataContext.TransactionSources => TransactionSources.AsNoTracking();
 

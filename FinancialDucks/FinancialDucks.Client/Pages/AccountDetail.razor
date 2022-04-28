@@ -1,8 +1,27 @@
 ﻿@page "/accounts/{Id:int}"
-<h3>AccountDetail</h3>
-<p>@Id</p>
+@using FinancialDucks.Application.Features
+@using FinancialDucks.Application.Models
+@using FinancialDucks.Client.Components.AccountsControls
+@using MediatR
+@inject IMediator Mediator;
+@if(_account != null)
+{
+    <h1>@_account.Name</h1>
+
+    <AccountSnapshots Source="@_account" />
+    <ScraperCommands Source="@_account" />
+}
+
 @code 
 {
-     [Parameter]
-     public int Id { get; set; }
+    private ITransactionSourceDetail _account;
+
+    [Parameter]
+    public int Id { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        var sources = await Mediator.Send(new TransactionSourcesFeature.Query());
+        _account = sources.FirstOrDefault(s => s.Id == Id);
+    }
 }

@@ -1,0 +1,22 @@
+﻿<h3>Snapshots</h3>
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Date</th>
+      <th scope="col">Amount</th>
+      <th scope="col"></th>
+    </tr>
+  </thead>
+  <tbody>
+      @foreach(var snapshot in Snapshots)
+        {
+           <tr>
+              <td>@snapshot.Date</td>
+              <td><CurrencyLabel Amount="@snapshot.Amount" /></td>
+              <td></td>
+            </tr> 
+        }
+          
+  </tbody>
+</table>
+

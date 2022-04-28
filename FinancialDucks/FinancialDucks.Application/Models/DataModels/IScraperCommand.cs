@@ -10,6 +10,6 @@ namespace FinancialDucks.Application.Models
         bool SearchInnerText { get; set; }
         bool WaitForNavigate { get; set; }
         string Selector { get; set; }
-        ITransactionSource Source {get;}
+        ITransactionSource Source { get; }
     }
 }
