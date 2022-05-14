@@ -85,6 +85,11 @@ namespace FinancialDucks.Tests.CustomMocks
             throw new NotImplementedException();
         }
 
+        public Task<ITransactionSourceDetail> Update(ITransactionSource source)
+        {
+            throw new NotImplementedException();
+        }
+
         public Task<ITransaction[]> UploadTransactions(ITransaction[] transactions)
         {
             throw new NotImplementedException();
@@ -93,6 +98,16 @@ namespace FinancialDucks.Tests.CustomMocks
         public IQueryable<T> WatchCommandText<T>(IQueryable<T> query, Action<string> watcher)
         {
             return query;
+        }
+
+        Task<IScraperCommandDetail> IDataContext.Delete(IScraperCommandDetail command)
+        {
+            throw new NotImplementedException();
+        }
+
+        Task<IScraperCommandDetail> IDataContext.Update(IScraperCommandDetail command)
+        {
+            throw new NotImplementedException();
         }
     }
 }

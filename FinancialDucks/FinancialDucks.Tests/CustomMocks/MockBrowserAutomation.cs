@@ -1,6 +1,8 @@
-﻿using FinancialDucks.Application.Services;
+﻿using FinancialDucks.Application.Models.AppModels;
+using FinancialDucks.Application.Services;
 using System;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace FinancialDucks.Tests.CustomMocks
@@ -20,7 +22,7 @@ namespace FinancialDucks.Tests.CustomMocks
         {
         }
 
-        public Task DoClick(string selector, bool searchInnerText)
+        public Task DoClick(string selector, bool searchInnerText, CancellationToken cancellationToken)
         {
             Url += "x";
 
@@ -33,9 +35,29 @@ namespace FinancialDucks.Tests.CustomMocks
             return Task.CompletedTask;
         }
 
-        public Task FillText(string selector, string text)
+        public Task FillDate(string selector, DateTime date, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task FillText(string selector, string text, CancellationToken cancellationToken)
         {
             return Task.CompletedTask;
+        }
+
+        public Task<ScrapedElement[]> GetScrapedElements(string selector, bool searchInnerText)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task GoBack()
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task WaitFor(string selector, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
         }
 
         public Task WaitForNavigate(string originalUrl)

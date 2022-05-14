@@ -45,6 +45,7 @@ namespace FinancialDucks.Tests
                    sc.AddSingleton<ITransactionClassifier, TransactionClassifier>();
                    sc.AddSingleton<ITransactionsQueryBuilder, TransactionsQueryBuilder>();
                    sc.AddSingleton<NotificationDispatcher<CategoryChangeNotification>>();
+                   sc.AddSingleton<NotificationDispatcher<WebTransactionExtractorFeature.Notification>>();
 
                    sc.AddSingleton<ICategoryTreeProvider>(sp =>
                    {
@@ -72,8 +73,8 @@ namespace FinancialDucks.Tests
                    {
                        var settingsService = s.GetRequiredService<ISettingsService>();
                        var mock = new Mock<IBrowserAutomationService>();                      
-                       mock.Setup(x => x.CreateBrowser(It.IsAny<string>()))
-                        .Returns<string>((s) => 
+                       mock.Setup(x => x.CreateBrowser(It.IsAny<string>(),It.IsAny<bool>()))
+                        .Returns<string,bool>((s,b) => 
                             Task.FromResult(new MockBrowserAutomation(settingsService) { Url = s } as IBrowserAutomation));
 
                        return mock.Object;

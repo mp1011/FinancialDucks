@@ -15,6 +15,26 @@ namespace FinancialDucks.Application.Extensions
             return str;
         }
 
+        public static bool WildcardMatch(this string str, string pattern)
+        {
+            var parts = pattern.Split('*', StringSplitOptions.RemoveEmptyEntries);
+            var regex = string.Join("(.*)", parts.Select(p => Regex.Escape(p)).ToArray());
+
+            if (pattern.StartsWith("*"))
+                regex = "(.*)" + regex;
+            else
+                regex = "^" + regex;
+
+
+            if (pattern.EndsWith("*"))
+                regex = regex + "(.*)";
+            else
+                regex = regex + "$";
+
+
+            return Regex.IsMatch(str, regex, RegexOptions.IgnoreCase);
+        }
+
         public static string RemoveNonAlphanumeric(this string str)
         {
             return Regex.Replace(str, @"\W", "");            

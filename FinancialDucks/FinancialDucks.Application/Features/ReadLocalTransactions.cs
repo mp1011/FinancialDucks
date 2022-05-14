@@ -24,7 +24,7 @@ namespace FinancialDucks.Application.Features
             public async Task<ITransaction[]> Handle(Request request, CancellationToken cancellationToken)
             {
                 var parsed = await Task.WhenAll(_settingsService.SourcePath
-                    .GetFiles("",SearchOption.AllDirectories)
+                    .GetFiles("*.csv",SearchOption.AllDirectories)
                     .Select(f => _transactionReader.ParseTransactions(f)));
 
                 return parsed.SelectMany(p => p)

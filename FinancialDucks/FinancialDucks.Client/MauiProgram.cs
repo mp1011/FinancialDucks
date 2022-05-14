@@ -6,9 +6,11 @@ using FinancialDucks.Infrastructure.Models;
 using FinancialDucks.Infrastructure.Services;
 using MediatR;
 using Microsoft.Extensions.Configuration;
+using System.Runtime.Versioning;
 
 namespace FinancialDucks.Client
 {
+    [SupportedOSPlatform("windows")]
     public static class MauiProgram
     {
         public static MauiApp CreateMauiApp()
@@ -36,6 +38,10 @@ namespace FinancialDucks.Client
             builder.Services.AddSingleton<ITransactionClassifier, TransactionClassifier>();
             builder.Services.AddSingleton<SqlCategoryTreeProvider>();
             builder.Services.AddSingleton<NavigationService>();
+            builder.Services.AddSingleton<IScraperService, ScraperService>();
+            builder.Services.AddSingleton<IBrowserAutomationService, PuppeteerService>();
+            builder.Services.AddSingleton<ISecureStringSaver, SecureStringSaver>();
+
             builder.Services.AddSingleton((sp) =>
             {
 
@@ -46,6 +52,8 @@ namespace FinancialDucks.Client
             });
 
             builder.Services.AddSingleton<NotificationDispatcher<CategoryChangeNotification>>();
+            builder.Services.AddSingleton<NotificationDispatcher<WebTransactionExtractorFeature.Notification>>();
+
             builder.Services.AddSingleton<ITransactionsQueryBuilder, TransactionsQueryBuilder>();
             var path = AppContext.BaseDirectory;
             var configBuilder = new ConfigurationBuilder()

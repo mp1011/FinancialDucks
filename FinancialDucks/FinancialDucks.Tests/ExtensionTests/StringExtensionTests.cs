@@ -41,5 +41,19 @@ namespace FinancialDucks.Tests.ExtensionTests
         {
             Assert.Equal(expected, str.ParseCurrency());
         }
+
+        [Theory]
+        [InlineData("Floop the Pig","Floop*",true)]
+        [InlineData("Floop the Pig", "Flop*", false)]
+        [InlineData("Floop the Pig", "*the*", true)]
+        [InlineData("Floop the Pig", "Flo*the*ig", true)]
+        [InlineData("Floop the Pig", "Flop*the*ig", false)]
+        [InlineData("Floop the Pig", "Floop", false)]
+        [InlineData("Floop the Pig", "Pig", false)]
+        [InlineData("Floop the Pig", "Floop the PIG", true)]
+        public void TestWildcardMatch(string str, string pattern, bool isMatch)
+        {
+            Assert.Equal(isMatch, str.WildcardMatch(pattern));
+        }
     }
 }

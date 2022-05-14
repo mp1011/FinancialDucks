@@ -11,5 +11,13 @@
         {
             return e != null && e.Any();
         }
+
+        public static int MaxOrDefault(this IEnumerable<int> list, int defaultReturn=0)
+        {
+            if (list == null || !list.Any())
+                return defaultReturn;
+            else
+                return list.Max();
+        }
     }
 }

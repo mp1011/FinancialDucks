@@ -5,6 +5,10 @@
         FillUsername,
         FillPassword,
         Click,
-        ClickAndDownload
+        ClickAndDownload,
+        FillCurrentDate,
+        FillPastDate,
+        GoBack,
+        Wait
     }
 }

@@ -1,6 +1,9 @@
 ﻿#nullable disable
+using FinancialDucks.Application.Models.AppModels;
 using FinancialDucks.Application.Services;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Xunit;
 
 namespace FinancialDucks.Tests.ServiceTests
@@ -51,6 +54,38 @@ namespace FinancialDucks.Tests.ServiceTests
             public string ThrowsError => throw new Exception("error");
         }
 
+
+        interface INestedType
+        {
+            IInnerType InnerType { get; }
+        }
+
+        interface IInnerType
+        {
+            string Field { get; }
+        }
+
+        class NestedTypeA : INestedType
+        {
+            public IInnerType InnerType { get; set; }
+        }
+
+        class InnerTypeA : IInnerType
+        {
+            public string Field { get; set; }
+        }
+
+        class NestedTypeB : INestedType
+        {
+            public InnerTypeB InnerType { get; set; }
+            IInnerType INestedType.InnerType => InnerType;
+        }
+
+        class InnerTypeB : IInnerType
+        {
+            public string Field { get; set; }
+        }
+
         [Fact]
         public void CanConvertTypesWithIdenticalProperties()
         {
@@ -80,5 +115,40 @@ namespace FinancialDucks.Tests.ServiceTests
             Assert.Equal(typeA.PropertyB, typeB.PropertyB);
 
         }
+
+        [Fact]
+        public void CanMapNestedObjects()
+        {
+            var mapper = new ReflectionObjectMapper();
+            var nestedTypeA = new NestedTypeA();
+            nestedTypeA.InnerType = new InnerTypeA { Field = "TEST123" };
+
+            var nestedTypeB = mapper.CopyIntoNew<NestedTypeA,NestedTypeB>(nestedTypeA,
+                new Dictionary<Type, Type>
+                {
+                    {  typeof(InnerTypeA), typeof(InnerTypeB) }
+                });
+
+            Assert.IsType<InnerTypeB>(nestedTypeB.InnerType);
+            Assert.Equal(nestedTypeB.InnerType.Field, nestedTypeA.InnerType.Field);
+        }
+
+        [Fact]
+        public void CanMapNestedObjectsByInterface()
+        {
+            var mapper = new ReflectionObjectMapper();
+            var nestedTypeA = new NestedTypeA();
+            nestedTypeA.InnerType = new InnerTypeA { Field = "TEST123" };
+
+            var nestedTypeB = mapper.CopyIntoNew<NestedTypeA, NestedTypeB>(nestedTypeA,
+                new Dictionary<Type, Type>
+                {
+                    {  typeof(IInnerType), typeof(InnerTypeB) }
+                });
+
+            Assert.IsType<InnerTypeB>(nestedTypeB.InnerType);
+            Assert.Equal(nestedTypeB.InnerType.Field, nestedTypeA.InnerType.Field);
+        }
+
     }
 }

@@ -10,7 +10,11 @@ namespace FinancialDucks.Application.Features
         {
         }
 
-        public class Handler : IRequestHandler<Query, IScraperCommandDetail[]>
+        public record SaveCommand(IScraperCommandDetail Command) : IRequest<IScraperCommandDetail> { }
+
+        public class Handler 
+            : IRequestHandler<Query, IScraperCommandDetail[]>,
+              IRequestHandler<SaveCommand, IScraperCommandDetail>
         {
             private readonly IDataContextProvider _contextProvider;
 
@@ -25,6 +29,12 @@ namespace FinancialDucks.Application.Features
                 return await context.ScraperCommandsDetail
                     .Where(p => p.SourceId == request.Source.Id)
                     .ToArrayAsync(context);
+            }
+
+            public async Task<IScraperCommandDetail> Handle(SaveCommand request, CancellationToken cancellationToken)
+            {
+                using var context = _contextProvider.CreateDataContext();
+                return await context.Update(request.Command);
             }
         }
     }

@@ -215,5 +215,64 @@ namespace FinancialDucks.Infrastructure.Models
             return dbRecord;
         }
 
+        async Task<IScraperCommandDetail> IDataContext.Update(IScraperCommandDetail command)
+        {
+            using var transaction = await Database.BeginTransactionAsync();
+            
+            var dbRecord = await ScraperCommands.FirstOrDefaultAsync(c => c.Id == command.Id);
+            if (dbRecord == null)
+            {
+                dbRecord = _objectMapper.CopyIntoNew<IScraperCommandDetail, ScraperCommand>(command,
+                    new Dictionary<Type, Type> { { typeof(ITransactionSource), typeof(TransactionSource) } });
+
+                Entry(dbRecord.Source).State = EntityState.Unchanged;
+                ScraperCommands.Add(dbRecord);
+            }
+            else
+            {
+                Entry(dbRecord).State = EntityState.Modified;               
+                _objectMapper.CopyAllProperties(command, dbRecord);
+                if(dbRecord.Source != null)
+                    Entry(dbRecord.Source).State = EntityState.Unchanged;
+            }
+
+            await SaveChangesAsync();
+            await transaction.CommitAsync();
+
+            return dbRecord;
+        }
+
+        async Task<IScraperCommandDetail> IDataContext.Delete(IScraperCommandDetail command)
+        {
+            using var transaction = await Database.BeginTransactionAsync();
+
+            var dbRecord = ScraperCommands
+                            .FirstOrDefault(c => c.Id == command.Id);
+
+            if (dbRecord == null)
+                return null;
+
+            ScraperCommands.Remove(dbRecord);
+
+            await SaveChangesAsync();
+            await transaction.CommitAsync();
+
+            return dbRecord;
+        }
+
+        public async Task<ITransactionSourceDetail> Update(ITransactionSource source)
+        {
+            using var transaction = await Database.BeginTransactionAsync();
+            var dbRecord = TransactionSources
+                .FirstOrDefault(p => p.Id == source.Id);
+
+            Entry(dbRecord).State = EntityState.Modified;
+            _objectMapper.CopyAllProperties(source, dbRecord);
+
+            await SaveChangesAsync();
+            await transaction.CommitAsync();
+
+            return dbRecord;
+        }
     }
 }
