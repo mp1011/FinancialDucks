@@ -215,7 +215,6 @@ namespace FinancialDucks.Application.Services
 
             var revisionInfo = await fetcher.DownloadAsync(BrowserFetcher.DefaultChromiumRevision);
 
-            //todo, change to headless
             var browser = await Puppeteer.LaunchAsync(new LaunchOptions
             {
                 ExecutablePath = revisionInfo.ExecutablePath,

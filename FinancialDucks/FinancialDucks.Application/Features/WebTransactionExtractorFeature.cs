@@ -7,7 +7,7 @@ namespace FinancialDucks.Application.Features
 {
     public class WebTransactionExtractorFeature
     {
-        public record Query() : IRequest<FileInfo[]>
+        public record Query(ITransactionSource[] SourceFilter) : IRequest<FileInfo[]>
         {
 
         }
@@ -17,7 +17,7 @@ namespace FinancialDucks.Application.Features
 
         }
 
-        public record Notification(IScraperCommandDetail Command, string Message, DateTime Timestamp, ScrapedElement[] Elements) : INotification 
+        public record Notification(FetchStatus FetchStatus, IScraperCommandDetail Command, string Message, DateTime Timestamp, ScrapedElement[] Elements) : INotification 
         {
             public class Handler : INotificationHandler<Notification>
             {
@@ -52,15 +52,16 @@ namespace FinancialDucks.Application.Features
             {
                 var commands = await GetScraperCommands();
 
-                var sources = commands
-                    .Select(p => p.Source)
+                var sourceIds = commands
+                    .Select(p => p.Source.Id)
                     .Distinct()
                     .ToArray();
 
                 List<FileInfo> files = new List<FileInfo>();
-                foreach(var source in sources)
+                foreach(var sourceId in sourceIds)
                 {
-                    files.AddRange(await _scraperService.Execute(source, commands, showBrowser:false, cancellationToken: cancellationToken));
+                    var source = commands.First(p => p.SourceId == sourceId).Source;
+                    files.AddRange(await _scraperService.Execute(source, commands, showBrowser:true, cancellationToken: cancellationToken));
                 }
 
                 return files.ToArray();

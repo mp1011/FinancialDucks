@@ -63,11 +63,5 @@ namespace FinancialDucks.Client.Pages
             SelectedTransaction = args.Transaction;
             await JSRuntime.ShowModal(nameof(CategoryQuickAdd));            
         }
-
-        public async Task ShowTransactionImportDialog()
-        {
-            ImportRequestTime = DateTime.Now;
-            await JSRuntime.ShowModal(nameof(TransactionImportDialog));
-        }
     }
 }

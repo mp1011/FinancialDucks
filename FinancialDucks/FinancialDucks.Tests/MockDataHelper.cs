@@ -177,16 +177,16 @@ namespace FinancialDucks.Tests
             return transactionDetails;
         }
 
-        public IEnumerable<ITransactionDetail> AddTransactionsWithSource(ITransactionSourceDetail source, int count)
+        public IEnumerable<ITransactionDetail> AddTransactionsWithSource(ITransactionSourceDetail source, int count, DateTime? date=null)
         {
             List<ITransactionDetail> transactionDetails = new List<ITransactionDetail>();
-            DateTime date = new DateTime(2022, 1, 1);
+            date = date ?? new DateTime(2022, 1, 1);
 
             int index = 0;
             while(index++ < count)
             {
-                transactionDetails.Add(AddMockTransaction(date, -9.99M, "Krusty Burger", source));
-                date = date.AddDays(5);
+                transactionDetails.Add(AddMockTransaction(date.Value, -9.99M, "Krusty Burger", source));
+                date = date.Value.AddDays(5);
             }
 
             return transactionDetails;

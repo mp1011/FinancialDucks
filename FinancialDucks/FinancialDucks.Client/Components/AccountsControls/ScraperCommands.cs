@@ -15,6 +15,7 @@ namespace FinancialDucks.Client.Components.AccountsControls
 
         [Inject]
         public NotificationDispatcher<WebTransactionExtractorFeature.Notification> Dispatcher { get; set; } 
+
         [Inject]
         public IObjectMapper ObjectMapper { get; set; }
 

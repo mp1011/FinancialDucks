@@ -1,0 +1,66 @@
+﻿@page "/accounts/sync"
+@using FinancialDucks.Application.Extensions
+
+@if(Status == null)
+{
+    <div class="spinner-border" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+}
+else 
+{
+    <button type="button" class="btn btn-primary" @onclick="FetchTransactions">Fetch Transactions</button>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Account</th>
+                <th scope="col">Last Transaction Date</th>
+                <th scope="col">Downloaded Transactions</th>
+                <th scope="col">Do Fetch</th>
+                <th scope="col">Fetch Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var accountStatus in Status)
+            {
+                <tr>
+                    <td>@accountStatus.AccountName</td>
+                    <td>
+                        @if(@accountStatus.LastTransactionDate.HasValue)
+                        {
+                            @accountStatus.LastTransactionDate.Value.ToShortDateString()
+                        }
+                        else 
+                        {
+                            <span>None</span>
+                        }
+                    </td>
+                    <td>
+                        @if(@accountStatus.DownloadedTransactionCount > 0)
+                        {
+                            <span>@accountStatus.DownloadedTransactionCount</span>
+                            <span> Transactions from </span>
+                            <span>@accountStatus.FirstDownloadedDate.Value.ToShortDateString()</span>
+                            <span>-</span>
+                            <span>@accountStatus.LastDownloadedDate.Value.ToShortDateString()</span>
+                        }
+                        else 
+                        {
+                            <span>None</span>
+                        }
+                    </td>
+                    <td>
+                        <div class="form-check">
+                          <input class="form-check-input" type="checkbox" @bind="accountStatus.DoFetch">
+                        </div>
+                    </td>
+                    <td>
+                        <span>@accountStatus.FetchStatus.ToString().AddSpacesAtCapitals()</span>
+                        <span>@accountStatus.FetchMessage</span>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

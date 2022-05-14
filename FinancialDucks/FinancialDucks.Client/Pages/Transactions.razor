@@ -6,18 +6,7 @@
     <div class="row">
         <div class="col-md-auto">
             <h3>Transactions</h3>
-        </div>
-        <div class="col">
-           <div class="dropdown">
-              <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-              </button>
-              <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                <li>
-                    <button type="button" class="dropdown-item" @onclick="ShowTransactionImportDialog">Load from Disk</button>
-                </li>
-              </ul>
-            </div>   
-        </div>
+        </div>        
     </div>
 </div>
 
@@ -26,5 +15,3 @@
 <TransactionsList Filter="CurrentFilter" OnTransactionMouseUp="OnTransactionMouseUp" />
 
 <CategoryQuickAdd Text="@SelectedText" Transaction="@SelectedTransaction" />
-
-<TransactionImportDialog ImportRequestTime=@ImportRequestTime />

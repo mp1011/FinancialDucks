@@ -1,4 +1,5 @@
 ﻿using FinancialDucks.Application.Features;
+using FinancialDucks.Application.Models;
 using FinancialDucks.Application.Models.AppModels;
 using FinancialDucks.Application.Services;
 using MediatR;
@@ -26,9 +27,10 @@ namespace FinancialDucks.Tests.FeatureTests
             mockDataHelper.AddMockScraperCommand(source, 3, ScraperCommandType.Click, waitForNavigate:true);
             mockDataHelper.AddMockScraperCommand(source, 4, ScraperCommandType.ClickAndDownload, selector:"download");
 
-            var result = await mediator.Send(new WebTransactionExtractorFeature.Query());
+            var result = await mediator.Send(new WebTransactionExtractorFeature.Query(new Application.Models.ITransactionSource[] { source }));
             Assert.NotNull(result);
             Assert.NotEmpty(result);
+            Assert.Contains(source.Name, result[0].FullName);
         }
 
         [Fact]
@@ -49,7 +51,7 @@ namespace FinancialDucks.Tests.FeatureTests
                 mockDataHelper.AddMockScraperCommand(source, 3, ScraperCommandType.Click, waitForNavigate: true);
 
                 _notifications.Clear();
-                var result = await mediator.Send(new WebTransactionExtractorFeature.Query());
+                var result = await mediator.Send(new WebTransactionExtractorFeature.Query( new ITransactionSource[] {source}));
 
                 Assert.NotEmpty(_notifications);
 

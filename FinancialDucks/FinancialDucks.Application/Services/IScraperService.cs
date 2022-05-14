@@ -44,28 +44,33 @@ namespace FinancialDucks.Application.Services
         {
             var files = new List<FileInfo>();
 
+            IScraperCommandDetail lastCommand = null;
+
             foreach(var command in commands
                 .Where(p=>p.SourceId == source.Id)
                 .OrderBy(p=>p.Sequence))
             {
                 try
                 {
-                    await _mediator.Publish(new WebTransactionExtractorFeature.Notification(command, "Begin", DateTime.Now, Array.Empty<ScrapedElement>()));
+                    lastCommand = command;
+                    await _mediator.Publish(new WebTransactionExtractorFeature.Notification(FetchStatus.Processing, command, "Begin", DateTime.Now, Array.Empty<ScrapedElement>()));
 
                     if (command.TypeId == ScraperCommandType.ClickAndDownload)
                         files.Add(await ExecuteFileDownloadCommand(browser, command, cancellationToken));
                     else
                         await Execute(browser, command, cancellationToken);
 
-                    await _mediator.Publish(new WebTransactionExtractorFeature.Notification(command, "Success", DateTime.Now, Array.Empty<ScrapedElement>()));
+                    await _mediator.Publish(new WebTransactionExtractorFeature.Notification(FetchStatus.Processing, command, "Success", DateTime.Now, Array.Empty<ScrapedElement>()));
 
                 }
                 catch (Exception e)
                 {
-                    await _mediator.Publish(new WebTransactionExtractorFeature.Notification(command, $"Failure: {e.Message}", DateTime.Now, await browser.GetScrapedElements(command.Selector, command.SearchInnerText)));
+                    await _mediator.Publish(new WebTransactionExtractorFeature.Notification(FetchStatus.Failed, command, $"Failure: {e.Message}", DateTime.Now, await browser.GetScrapedElements(command.Selector, command.SearchInnerText)));
                     break;
                 }
             }
+
+            await _mediator.Publish(new WebTransactionExtractorFeature.Notification(FetchStatus.Done, lastCommand!, "Success", DateTime.Now, Array.Empty<ScrapedElement>()));
 
             return files; 
         }
@@ -84,15 +89,24 @@ namespace FinancialDucks.Application.Services
             while ((DateTime.Now - start).TotalSeconds <= 30)
             {
                 var newFile = downloadsFolder.GetFiles()
-                                             .FirstOrDefault(p => p.LastWriteTime > requestTime 
+                                             .FirstOrDefault(p => p.LastWriteTime > requestTime
+                                                               && !p.Name.Contains("crdownload", StringComparison.OrdinalIgnoreCase)
                                                                && !p.Name.Contains("unconfirmed", StringComparison.OrdinalIgnoreCase));
                 if (newFile != null)
-                    return newFile;
+                    return MoveToAccountFolder(newFile, command.Source);
                 else
                     await Task.Delay(500);
             }
 
             throw new Exception("Unable to download file");
+        }
+
+        private FileInfo MoveToAccountFolder(FileInfo file, ITransactionSource source)
+        {
+            var timeStr = DateTime.Now.ToString("yyyy_MM_dd");
+            var destination = new FileInfo($"{_settingsService.SourcePath.FullName}\\{source.Name}\\{timeStr}{file.Extension}");
+            file.MoveTo(destination.FullName, overwrite: true);
+            return destination;
         }
 
         private string GetUsername(ITransactionSource source)
