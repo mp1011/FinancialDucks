@@ -11,6 +11,10 @@ else
 {
     <button type="button" class="btn btn-primary" @onclick="FetchTransactions">Fetch Transactions</button>
 
+    <button type="button" class="btn btn-secondary" @onclick="ImportTransactions">Import Downloaded Transactions</button>
+
+
+
     <table class="table">
         <thead>
             <tr>
@@ -19,6 +23,7 @@ else
                 <th scope="col">Downloaded Transactions</th>
                 <th scope="col">Do Fetch</th>
                 <th scope="col">Fetch Status</th>
+                <th scope="col">Import Status</th>
             </tr>
         </thead>
         <tbody>
@@ -58,6 +63,9 @@ else
                     <td>
                         <span>@accountStatus.FetchStatus.ToString().AddSpacesAtCapitals()</span>
                         <span>@accountStatus.FetchMessage</span>
+                    </td>
+                     <td>
+                        <span>@accountStatus.ImportMessage</span>
                     </td>
                 </tr>
             }

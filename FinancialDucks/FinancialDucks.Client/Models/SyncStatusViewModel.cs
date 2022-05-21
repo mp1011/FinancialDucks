@@ -16,6 +16,8 @@ namespace FinancialDucks.Client.Models
 
         public int DownloadedTransactionCount => _status.DownloadedTransactions.Length;
 
+        public ITransaction[] DownloadedTransactions => _status.DownloadedTransactions;
+
         public FetchStatus FetchStatus { get; set; } = FetchStatus.NotStarted;
 
         public DateTime? FirstDownloadedDate { get; }
@@ -24,6 +26,9 @@ namespace FinancialDucks.Client.Models
         public bool DoFetch { get; set; } 
 
         public string FetchMessage { get; set; } = string.Empty;
+
+        public string ImportMessage { get; set; } = string.Empty;
+
         public SyncStatusViewModel(SyncStatus status)
         {
             _status = status;

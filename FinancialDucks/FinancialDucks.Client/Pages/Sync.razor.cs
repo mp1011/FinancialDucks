@@ -7,7 +7,8 @@ using Microsoft.AspNetCore.Components;
 
 namespace FinancialDucks.Client.Pages
 {
-    public partial class Sync : INotificationHandler<WebTransactionExtractorFeature.Notification>, IDisposable
+    public partial class Sync 
+        : INotificationHandler<WebTransactionExtractorFeature.Notification>, IDisposable
     {
         [Inject]
         public IMediator Mediator { get; set; }
@@ -26,6 +27,27 @@ namespace FinancialDucks.Client.Pages
         {
             var result = await Mediator.Send(new SyncFeature.Query());
             Status = result.Select(s => new SyncStatusViewModel(s)).ToArray();
+        }
+
+        public async Task ImportTransactions()
+        {
+            foreach(var status in Status)
+            {
+                status.ImportMessage = "Importing transactions";
+                StateHasChanged();
+
+                try
+                {
+                    var transactions = await Mediator.Send(new UploadTransactions.Command(status.DownloadedTransactions));
+                    status.ImportMessage = $"Imported {transactions.Length} Transactions";
+                    StateHasChanged();
+                }
+                catch(Exception e)
+                {
+                    status.ImportMessage = $"Failed to import transactions: {e.Message}";
+                    StateHasChanged();
+                }
+            }
         }
 
         public async Task FetchTransactions()
