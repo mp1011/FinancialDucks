@@ -65,7 +65,7 @@ namespace FinancialDucks.Application.Services
                 }
                 catch (Exception e)
                 {
-                    await _mediator.Publish(new WebTransactionExtractorFeature.Notification(FetchStatus.Failed, command, $"Failure: {e.Message}", DateTime.Now, await browser.GetScrapedElements(command.Selector, command.SearchInnerText)));
+                    await _mediator.Publish(new WebTransactionExtractorFeature.Notification(FetchStatus.Failed, command, $"Failure: {e.Message}", DateTime.Now, await browser.GetScrapedElements(command.Selector, command.Text)));
                     break;
                 }
             }
@@ -82,7 +82,7 @@ namespace FinancialDucks.Application.Services
                 throw new Exception("Downloads folder contains files with a future last modified date");
 
             var currentFiles = downloadsFolder.GetFiles();
-            await browser.DoClick(command.Selector, command.SearchInnerText, cancellationToken);
+            await browser.DoClick(command.Selector, command.Text, cancellationToken);
 
             //todo, expect file with known pattern
             DateTime start=  DateTime.Now;
@@ -90,6 +90,7 @@ namespace FinancialDucks.Application.Services
             {
                 var newFile = downloadsFolder.GetFiles()
                                              .FirstOrDefault(p => p.LastWriteTime > requestTime
+                                                               && p.Extension != ".tmp"
                                                                && !p.Name.Contains("crdownload", StringComparison.OrdinalIgnoreCase)
                                                                && !p.Name.Contains("unconfirmed", StringComparison.OrdinalIgnoreCase));
                 if (newFile != null)
@@ -105,7 +106,15 @@ namespace FinancialDucks.Application.Services
         {
             var timeStr = DateTime.Now.ToString("yyyy_MM_dd");
             var destination = new FileInfo($"{_settingsService.SourcePath.FullName}\\{source.Name}\\{timeStr}{file.Extension}");
-            file.MoveTo(destination.FullName, overwrite: true);
+
+            int num = 2;
+            while(destination.Exists)
+            {
+                destination = new FileInfo($"{_settingsService.SourcePath.FullName}\\{source.Name}\\{timeStr}_{num}{file.Extension}");
+                num++;
+            }
+
+            file.MoveTo(destination.FullName);
             return destination;
         }
 
@@ -125,7 +134,7 @@ namespace FinancialDucks.Application.Services
             switch(command.TypeId)
             {
                 case ScraperCommandType.Click:
-                    await browser.DoClick(command.Selector, command.SearchInnerText, cancellationToken);
+                    await browser.DoClick(command.Selector, command.Text, cancellationToken);
                     break;
                 case ScraperCommandType.FillUsername:
                     await browser.FillText(command.Selector, GetUsername(command.Source), cancellationToken);
@@ -138,6 +147,9 @@ namespace FinancialDucks.Application.Services
                     break;
                 case ScraperCommandType.FillPastDate:
                     await browser.FillDate(command.Selector, DateTime.Now.AddMonths(-3), cancellationToken);
+                    break;
+                case ScraperCommandType.SelectDropdownText:
+                    await browser.SelectDropdownText(command.Selector, command.Text, cancellationToken);
                     break;
                 case ScraperCommandType.GoBack:
                     await browser.GoBack();

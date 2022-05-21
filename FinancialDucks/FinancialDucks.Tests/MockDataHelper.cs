@@ -325,15 +325,21 @@ namespace FinancialDucks.Tests
         public void AddMockScraperCommand(ITransactionSourceDetail source, int sequence, ScraperCommandType scraperCommandType, 
             string selector="", bool waitForNavigate=false)
         {
-            var mock = new Mock<IScraperCommandDetail>();
-            mock.Setup(x => x.SearchInnerText).Returns(false);
-            mock.Setup(x => x.Sequence).Returns(sequence);
-            mock.Setup(x=>x.Source).Returns(source);
-            mock.Setup(x => x.SourceId).Returns(source.Id);
-            mock.Setup(x => x.Selector).Returns(selector);
-            mock.Setup(x => x.WaitForNavigate).Returns(waitForNavigate);
-            mock.Setup(x => x.TypeId).Returns(scraperCommandType);
-            MockScraperCommands.Add(mock.Object);
+            MockScraperCommands.Add(CreateMockScraperCommand(source,sequence,scraperCommandType,selector,waitForNavigate));
+        }
+
+        public IScraperCommandDetail CreateMockScraperCommand(ITransactionSourceDetail source, int sequence, ScraperCommandType scraperCommandType,
+            string selector = "", bool waitForNavigate = false)
+        {
+            return new ScraperCommandEdit
+            {
+                Source=source,
+                Id = NextId(),
+                Sequence = sequence,
+                TypeId = scraperCommandType,
+                Selector = selector,
+                WaitForNavigate = waitForNavigate
+            };
         }
     }
 }

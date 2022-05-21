@@ -24,14 +24,16 @@ namespace FinancialDucks.Tests.ServiceTests
         [InlineData($"\\Misc\\April2022\\hsabank.csv", 95.25, "4/7/2022", "Payroll Deduction", 6)]
         [InlineData($"\\Misc\\April2022\\ira_roth.csv", 47365.19, "4/1/2022", "Vanguard Value Index Fund (Automatic Purchase)", 7)]
         [InlineData($"\\Misc\\April2022\\ira_trad.csv", 92166.14, "3/31/2022", "VANGUARD HIGH-YIELD CORPORATE ADM (Accrual Dividend Reinvest)", 7)]
-        [InlineData($"\\Citibank Savings\\Aug2021\\downloaded.csv",0,"X","X",0)]
+        [InlineData($"\\Citibank Savings\\Aug2021\\downloaded.csv",15009.93,"7/2/2021","Interest Payment",2)]
+        [InlineData($"\\IRA\\2022_05_14.xls", 543.49, "5/2/2022", "VANGUARD INTERM-TERM INVESTMENT-GR (Automatic Purchase)", 7)]
+
         public async Task CanParseFile(string source, decimal expectedTotal, string expectedDate, string expectedDescription, int expectedSourceId)
         {
             var serviceProvider = CreateServiceProvider();
-            var sourceDataFolder = serviceProvider.GetService<ISettingsService>()!.SourcePath;
 
             var importService = serviceProvider.GetService<ITransactionReader>();
-            var results = await importService!.ParseTransactions(new FileInfo($"{sourceDataFolder.FullName}{source}"));
+           
+            var results = await importService!.ParseTransactions(GetTestFile(serviceProvider,source));
 
             Assert.NotNull(results);
             var total = results.Sum(p => p.Amount);

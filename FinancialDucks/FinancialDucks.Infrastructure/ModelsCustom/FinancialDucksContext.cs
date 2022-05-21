@@ -230,11 +230,14 @@ namespace FinancialDucks.Infrastructure.Models
             }
             else
             {
-                Entry(dbRecord).State = EntityState.Modified;               
+                Entry(dbRecord).State = EntityState.Modified;
                 _objectMapper.CopyAllProperties(command, dbRecord);
-                if(dbRecord.Source != null)
-                    Entry(dbRecord.Source).State = EntityState.Unchanged;
+                if (dbRecord.Source != null)
+                    dbRecord.Source = null;
             }
+
+            dbRecord.Selector = dbRecord.Selector ?? "";
+            dbRecord.Text = dbRecord.Text ?? "";
 
             await SaveChangesAsync();
             await transaction.CommitAsync();

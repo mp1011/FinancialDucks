@@ -13,15 +13,18 @@ namespace FinancialDucks.Application.Services
     public class TransactionReader : ITransactionReader
     {
         private readonly ITransactionFileSourceIdentifier _transactionFileSourceIdentifier;
+        private readonly IExcelToCSVConverter _excelToCSVConverter;
+        private readonly string[] _dateColumns = new string[] { "Date", "Transaction Date", "Requested Date" };
 
-        public TransactionReader(ITransactionFileSourceIdentifier transactionFileSourceIdentifier)
+        public TransactionReader(ITransactionFileSourceIdentifier transactionFileSourceIdentifier, IExcelToCSVConverter excelToCSVConverter)
         {
             _transactionFileSourceIdentifier = transactionFileSourceIdentifier;
+            _excelToCSVConverter = excelToCSVConverter;
         }
 
         public async Task<ITransaction[]> ParseTransactions(FileInfo file)
         {
-
+            file = ConvertToCSVIfNeeded(file);
             using var reader = new StreamReader(file.OpenRead());
             using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
 
@@ -32,7 +35,7 @@ namespace FinancialDucks.Application.Services
 
             while(await csv.ReadAsync())
             {
-                if (csv.HeaderRecord.Length <= 1)
+                if (!HasValidHeader(csv))
                     csv.ReadHeader();
                 else
                 {
@@ -54,6 +57,23 @@ namespace FinancialDucks.Application.Services
                     .ToArray();
         }
 
+        private bool HasValidHeader(CsvReader csv)
+        {
+            if (csv.HeaderRecord.Length <= 1)
+                return false;
+
+            var i = csv.HeaderRecord.Intersect(_dateColumns).ToArray();
+            return i.Any();
+        }
+
+        private FileInfo ConvertToCSVIfNeeded(FileInfo file)
+        {
+            if (file.Extension.Equals(".xls", StringComparison.OrdinalIgnoreCase))
+                return _excelToCSVConverter.ConvertExcelToCSV(file);
+            else
+                return file;
+        }
+
         private decimal ReadAmount(CsvReader csv)
         {
             decimal amount = csv.TryReadDecimal("Trade Amount","Amount");
@@ -68,7 +88,7 @@ namespace FinancialDucks.Application.Services
 
         private DateTime? ReadDate(CsvReader csv)
         {
-            var date = csv.TryReadDate("Date", "Transaction Date", "Requested Date");
+            var date = csv.TryReadDate(_dateColumns);
             return date;
         }
 

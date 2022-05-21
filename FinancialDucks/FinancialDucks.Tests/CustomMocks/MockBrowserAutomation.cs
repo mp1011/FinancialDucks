@@ -21,8 +21,12 @@ namespace FinancialDucks.Tests.CustomMocks
         public void Dispose()
         {
         }
+        public Task SelectDropdownText(string selector, string text, CancellationToken cancellationToken)
+        {
+            return Task.CompletedTask;
+        }
 
-        public Task DoClick(string selector, bool searchInnerText, CancellationToken cancellationToken)
+        public Task DoClick(string selector, string searchInnerText, CancellationToken cancellationToken)
         {
             Url += "x";
 
@@ -45,7 +49,7 @@ namespace FinancialDucks.Tests.CustomMocks
             return Task.CompletedTask;
         }
 
-        public Task<ScrapedElement[]> GetScrapedElements(string selector, bool searchInnerText)
+        public Task<ScrapedElement[]> GetScrapedElements(string selector, string searchInnerText)
         {
             throw new NotImplementedException();
         }

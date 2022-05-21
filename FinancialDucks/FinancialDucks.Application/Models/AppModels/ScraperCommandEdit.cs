@@ -9,6 +9,8 @@
         public bool WaitForNavigate { get; set; }
         public string? Selector { get; set; }
 
+        public string? Text { get; set; }
+
         public ITransactionSource? Source { get; set; }
 
         public int Id { get; set; }

@@ -9,6 +9,8 @@
         FillCurrentDate,
         FillPastDate,
         GoBack,
-        Wait
+        Wait,
+        SelectDropdownText
+
     }
 }

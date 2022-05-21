@@ -59,6 +59,8 @@ namespace FinancialDucks.Application.Extensions
                 foreach (var content in iFrameContent.NullToEmpty())
                 {
                     if (content == null) continue;
+                    if (content.Url.IsNullOrEmpty()) 
+                        continue;
 
                     var frameResult = await content.QuerySelectorAllAsync(selector);
                     if (frameResult != null)
@@ -75,7 +77,55 @@ namespace FinancialDucks.Application.Extensions
             return new PageElementsWithFrames(elements, frames.ToArray());
         }
 
-        public static async Task<ElementHandle> WaitForSelectorAsyncEx(this Page page, string selector,CancellationToken cancellationToken, bool timeout)
+        public static async Task<ElementHandle> WaitForSelectorAsyncEx(this Page page, string selector, CancellationToken cancellationToken, bool timeout)
+        {
+            Exception? lastException = null;
+            DateTime start = DateTime.Now;
+            while ((DateTime.Now - start).TotalSeconds <= 30 || !timeout)
+            {
+                if (cancellationToken.IsCancellationRequested)
+                    throw new TaskCanceledException($"Task cancelled while waiting for selector {selector}");
+
+                try
+                {
+                    var pageElementWithFrames = await page.QuerySelectorAllAsyncEx(selector);
+
+                    var visibleElements = await pageElementWithFrames.PageElements.VisibleOnly();
+                    if (visibleElements.Count() == 1)
+                        return visibleElements.First();
+
+                    foreach(var frame in pageElementWithFrames.FrameGroups)
+                    {
+                        var frameVisible = await frame.ElementHandles.VisibleOnly();
+                        if (frameVisible.Count() == 1)
+                            return frameVisible.First();
+                    }
+
+                }
+                catch (Exception e)
+                {
+                    lastException = e;
+                }
+            }
+
+
+            throw lastException ?? new Exception($"Unable to find element {selector}");
+        }
+
+        private static async Task<IEnumerable<ElementHandle>> VisibleOnly(this IEnumerable<ElementHandle> elements)
+        {
+            List<ElementHandle> visibleElements = new List<ElementHandle>();
+            foreach(var element in elements)
+            {
+                var visible = await element.CheckVisible();
+                if (visible)
+                    visibleElements.Add(element);
+            }
+            return visibleElements;
+        }
+
+        //delete me
+        private static async Task<ElementHandle> WaitForSelectorAsyncEx2(this Page page, string selector,CancellationToken cancellationToken, bool timeout)
         {
             Exception lastException=null;
             DateTime start = DateTime.Now;

@@ -9,11 +9,12 @@ namespace FinancialDucks.Application.Services
     {
         string Url { get; }
 
-        Task<ScrapedElement[]> GetScrapedElements(string selector, bool searchInnerText);
+        Task<ScrapedElement[]> GetScrapedElements(string selector, string text);
         Task WaitForNavigate(string originalUrl);
-        Task DoClick(string selector, bool searchInnerText, CancellationToken cancellationToken);
+        Task DoClick(string selector, string searchText, CancellationToken cancellationToken);
         Task FillText(string selector, string text, CancellationToken cancellationToken);
         Task FillDate(string selector, DateTime date, CancellationToken cancellationToken);
+        Task SelectDropdownText(string selector, string text, CancellationToken cancellationToken);
         Task GoBack();
         Task WaitFor(string selector, CancellationToken cancellationToken);
     }
@@ -42,21 +43,20 @@ namespace FinancialDucks.Application.Services
             _browser.Dispose();
         }
 
-        public async Task DoClick(string selector, bool searchInnerText, CancellationToken cancellationToken)
+        public async Task DoClick(string selector, string searchText, CancellationToken cancellationToken)
         {
             ElementHandle element;
 
-            var parts = selector.Split('|');
-            if (!searchInnerText || parts.Length != 2)
+            if (searchText.IsNullOrEmpty())
                 element = await _page.WaitForSelectorAsyncEx(selector, cancellationToken, timeout:true)
                                      .HandleError(e=>OnSelectorFail(e,selector));
             else
-                element = await WaitForInnerHTMLAsync(parts[0], parts[1], cancellationToken);
+                element = await WaitForInnerHTMLAsync(selector, searchText, cancellationToken, TimeSpan.FromSeconds(30));
 
             await element.ClickAsync()
                             .HandleError(e => OnSelectorFail(e, selector));
-
         }
+
 
         private async Task OnSelectorFail(Exception e, string selector)
         {
@@ -64,12 +64,15 @@ namespace FinancialDucks.Application.Services
             {
                 var content = await _page.GetContentAsync();
 
-                var iFrames = await _page.QuerySelectorAllAsync("iframe");
-                var iFrameContent = await Task.WhenAll(iFrames.Select(async i =>
-                {
-                    var content = await i.ContentFrameAsync();
-                    return await content.GetContentAsync();
-                }));
+                //var iFrames = await _page.QuerySelectorAllAsync("iframe");
+                //var iFrameContent = await Task.WhenAll(iFrames.Select(async i =>
+                //{
+                //    var content = await i.ContentFrameAsync();
+                //    if(content == null)
+                //        return null;
+
+                //    return await content.GetContentAsync();
+                //}));
 
                 System.Diagnostics.Debug.WriteLine(e.Message);
             }
@@ -83,10 +86,10 @@ namespace FinancialDucks.Application.Services
 
 
 
-        private async Task<ElementHandle> WaitForInnerHTMLAsync(string selector, string match, CancellationToken cancellationToken)
+        private async Task<ElementHandle> WaitForInnerHTMLAsync(string selector, string match, CancellationToken cancellationToken, TimeSpan timeout)
         {
             var start = DateTime.Now;
-            while ((DateTime.Now-start).TotalSeconds < 30)
+            while ((DateTime.Now-start) < timeout)
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
@@ -108,11 +111,12 @@ namespace FinancialDucks.Application.Services
                     {
                         foreach(var element in frame.ElementHandles)
                         {
-                            bool isVisible = await element.CheckVisible();
+                            bool isVisible = await element.CheckVisible();                         
+                            var html = await element.GetInnerHTML(frame.Frame);
+
                             if (!isVisible)
                                 continue;
 
-                            var html = await element.GetInnerHTML(frame.Frame);
                             if (html != null && html.Trim().WildcardMatch(match))
                                 return element;
                         }
@@ -131,7 +135,19 @@ namespace FinancialDucks.Application.Services
             var input = await _page.WaitForSelectorAsyncEx(selector, cancellationToken, timeout:true)
                                    .HandleError(e => OnSelectorFail(e, selector));
 
+            var inputs = await _page.QuerySelectorAllAsyncEx(selector);
+            if(inputs.TotalCount > 1)
+            {
+                var ex = new Exception($"More than one element matches the selector {selector}");
+                await OnSelectorFail(ex, selector);
+                throw ex;
+            }
+
             await input.FocusAsync();
+            await _page.Keyboard.DownAsync(Key.Shift);
+            await _page.Keyboard.PressAsync(Key.Home);
+            await _page.Keyboard.UpAsync(Key.Shift);
+            await _page.Keyboard.PressAsync(Key.Delete);
             await _page.Keyboard.TypeAsync(text);
         }
 
@@ -151,12 +167,9 @@ namespace FinancialDucks.Application.Services
             await _page.WaitForNavigationAsync();
         }
 
-        public async Task<ScrapedElement[]> GetScrapedElements(string selector, bool searchInnerText)
+        public async Task<ScrapedElement[]> GetScrapedElements(string selector, string searchText)
         {
-            var parts = selector.Split('|');
-            if (searchInnerText && parts.Length == 2)
-                selector = parts[0];
-
+          
             var elements = await _page.QuerySelectorAllAsync(selector);
             List<ScrapedElement> scrapedElements = new List<ScrapedElement>();
 
@@ -165,7 +178,7 @@ namespace FinancialDucks.Application.Services
                 var innerHTML = await _page.EvaluateFunctionAsync<string>("e=>e.innerHTML", element);
                 var outerHTML= await _page.EvaluateFunctionAsync<string>("e=>e.outerHTML", element);   
                 
-                if(!searchInnerText || innerHTML.WildcardMatch(parts[1]))
+                if(searchText.IsNullOrEmpty() || innerHTML.WildcardMatch(searchText))
                     scrapedElements.Add(new ScrapedElement(outerHTML, innerHTML));
             }
 
@@ -194,6 +207,80 @@ namespace FinancialDucks.Application.Services
 
                 }
             }
+        }
+
+        public async Task SelectDropdownText(string selector, string text, CancellationToken cancellationToken)
+        {
+            var start = DateTime.Now;
+
+            Exception? lastError = null;
+
+            while ((DateTime.Now - start).TotalSeconds <= 60)
+            {
+                //standard select
+                try
+                {
+                    await _page.SelectAsync(selector, text);
+                    return;
+                }
+                catch { }
+
+                //select within frame
+                try
+                {
+
+                    var iFrames = await _page.QuerySelectorAllAsync("iframe");
+                    var iFrameContent = await Task.WhenAll(iFrames.Select(i => i.ContentFrameAsync()));
+                    foreach (var content in iFrameContent.NullToEmpty())
+                    {
+                        if (content == null) continue;
+                        if (content.Url.IsNullOrEmpty())
+                            continue;
+
+                        try
+                        {
+                            await content.SelectAsync(selector, text);
+                            return;
+                        }
+                        catch { }
+                    }
+                }
+                catch
+                {
+
+                }
+
+
+                //non-select dropdowns
+
+                try
+                {
+                    ElementHandle? element = await _page.WaitForSelectorAsyncEx(selector, cancellationToken, timeout: true)
+                                                        .HandleError(e => Task.FromResult(null as ElementHandle));
+
+                    if (element != null)
+                    {
+                        await element.ClickAsync();
+
+                        var itemElement = await WaitForInnerHTMLAsync("span,option", text, cancellationToken, TimeSpan.FromSeconds(5))
+                                                .HandleError(e => Task.FromResult(null as ElementHandle));
+
+                        if (itemElement != null)
+                        {
+                            await itemElement.ClickAsync();
+                            return;
+                        }
+                    }
+                }
+                catch(Exception e)
+                {
+                    lastError = e;
+                }
+            }
+
+            throw lastError ?? new Exception($"Unable to select dropdown text {text}");
+
+
         }
     }
 

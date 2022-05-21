@@ -35,11 +35,7 @@ namespace FinancialDucks.Client.Components.AccountsControls
         {
             var saved = await Mediator.Send(new ScraperCommandsFeature.SaveCommand(command));
             command.Id = saved.Id;
-
-            if(_commands.Last().Id !=0)
-                _commands.Add(new ScraperCommandEdit { 
-                    Source = Source,
-                    Sequence = _commands.Select(c => c.Sequence).MaxOrDefault() + 1 });
+            await LoadCommands();
         }
 
         protected override void OnInitialized()
@@ -48,19 +44,25 @@ namespace FinancialDucks.Client.Components.AccountsControls
         }
 
 
-
         protected override async Task OnParametersSetAsync()
         {
             if (Source == null)
                 return;
 
+            await LoadCommands();
+        }
+
+        private async Task LoadCommands()
+        {
             _commands.Clear();
             var commands = await Mediator.Send(new ScraperCommandsFeature.Query(Source));
             _commands.AddRange(commands.Select(p => ObjectMapper.CopyIntoNew<IScraperCommandDetail, ScraperCommandEdit>(p)));
 
-            _commands.Add(new ScraperCommandEdit {
+            _commands.Add(new ScraperCommandEdit
+            {
                 Source = Source,
-                Sequence = _commands.Select(c=>c.Sequence).MaxOrDefault() + 1 });
+                Sequence = _commands.Select(c => c.Sequence).MaxOrDefault() + 1
+            });
         }
 
         public async Task Test()

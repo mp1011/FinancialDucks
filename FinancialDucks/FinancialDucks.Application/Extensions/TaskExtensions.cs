@@ -17,6 +17,21 @@
             }
         }
 
+        public static async Task<T?> HandleError<T>(this Task<T> task, Func<Exception, Task<T?>> handleError)
+        {
+            try
+            {
+                var result = await task;
+                return result;
+            }
+            catch (Exception e)
+            {
+                T? result = await handleError(e);
+                return result;
+            }
+        }
+
+
         public static async Task HandleError(this Task task, Func<Exception, Task> handleError)
         {
             try

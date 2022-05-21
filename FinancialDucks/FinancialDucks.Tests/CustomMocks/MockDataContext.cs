@@ -107,7 +107,12 @@ namespace FinancialDucks.Tests.CustomMocks
 
         Task<IScraperCommandDetail> IDataContext.Update(IScraperCommandDetail command)
         {
-            throw new NotImplementedException();
+            if (_mockDataHelper.MockScraperCommands.Any(p => p.Sequence == command.Sequence && p.Id != command.Id))
+                throw new Exception("Command with this sequence already exists");
+
+            _mockDataHelper.MockScraperCommands.Add(command);
+            return Task.FromResult(command);
+
         }
     }
 }

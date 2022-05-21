@@ -35,10 +35,12 @@ namespace FinancialDucks.Application.Features
 
             public async Task<ITransaction[]> Handle(Request request, CancellationToken cancellationToken)
             {
-                var parsed = await Task.WhenAll(GetSourceFolder(request)
-                    .GetFiles("*.csv",SearchOption.AllDirectories)
-                    .Select(f => _transactionReader.ParseTransactions(f)));
+                var files = GetSourceFolder(request)
+                    .EnumerateFiles("*.*", SearchOption.AllDirectories)
+                    .Where(p => p.Extension.ToLower() == ".csv" || p.Extension.ToLower() == ".xls")
+                    .ToArray();
 
+                var parsed = await Task.WhenAll(files.Select(f => _transactionReader.ParseTransactions(f))); 
                 return parsed.SelectMany(p => p)
                                 .Distinct(_transactionEqualityComparer)
                                 .ToArray();

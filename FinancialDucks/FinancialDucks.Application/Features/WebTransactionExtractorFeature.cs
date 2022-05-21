@@ -50,7 +50,7 @@ namespace FinancialDucks.Application.Features
 
             public async Task<FileInfo[]> Handle(Query request, CancellationToken cancellationToken)
             {
-                var commands = await GetScraperCommands();
+                var commands = await GetScraperCommands(request.SourceFilter);
 
                 var sourceIds = commands
                     .Select(p => p.Source.Id)
@@ -85,6 +85,19 @@ namespace FinancialDucks.Application.Features
 
                 return files.ToArray();
             }
+
+            private async Task<IScraperCommandDetail[]> GetScraperCommands(ITransactionSource[] sources)
+            {
+                var sourceIds = sources
+                    .Select(s => s.Id)
+                    .ToArray();
+
+                using var ctx = _dataContextProvider.CreateDataContext();
+                return await ctx.ScraperCommandsDetail
+                    .Where(p=> sourceIds.Contains(p.SourceId))
+                    .ToArrayAsync(ctx);
+            }
+
 
             private async Task<IScraperCommandDetail[]> GetScraperCommands()
             {

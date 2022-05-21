@@ -7,7 +7,6 @@ namespace FinancialDucks.Infrastructure.Models
 {
     public partial class FinancialDucksContext : DbContext
     {
-       
         public virtual DbSet<Category> Categories { get; set; }
         public virtual DbSet<CategoryRule> CategoryRules { get; set; }
         public virtual DbSet<ScraperCommand> ScraperCommands { get; set; }
@@ -63,6 +62,13 @@ namespace FinancialDucks.Infrastructure.Models
                     .IsRequired()
                     .HasMaxLength(100)
                     .IsUnicode(false);
+
+                entity.Property(e => e.Text)
+                    .IsRequired()
+                    .HasMaxLength(100)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.TimeoutSeconds).HasDefaultValueSql("((30))");
 
                 entity.HasOne(d => d.Source)
                     .WithMany(p => p.ScraperCommands)
@@ -130,6 +136,7 @@ namespace FinancialDucks.Infrastructure.Models
                     .IsUnicode(false);
 
                 entity.Property(e => e.Url)
+                    .IsRequired()
                     .HasMaxLength(100)
                     .IsUnicode(false);
 

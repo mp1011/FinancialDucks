@@ -18,8 +18,18 @@ using System.Threading.Tasks;
 namespace FinancialDucks.Tests
 {
     [SupportedOSPlatform("windows")]
-    public class TestBase 
+    public class TestBase : IDisposable
     {
+        private Guid _testId;
+        private DirectoryInfo? _testFolder;
+
+        public TestBase()
+        {
+            _testId = Guid.NewGuid();
+        }
+
+        
+
         protected IServiceProvider CreateServiceProvider()
         {
             var builder = Host.CreateDefaultBuilder()
@@ -46,6 +56,8 @@ namespace FinancialDucks.Tests
                    sc.AddSingleton<ITransactionsQueryBuilder, TransactionsQueryBuilder>();
                    sc.AddSingleton<NotificationDispatcher<CategoryChangeNotification>>();
                    sc.AddSingleton<NotificationDispatcher<WebTransactionExtractorFeature.Notification>>();
+
+                   sc.AddSingleton<IExcelToCSVConverter, Word97ExcelConverter>();
 
                    sc.AddSingleton<ICategoryTreeProvider>(sp =>
                    {
@@ -108,6 +120,36 @@ namespace FinancialDucks.Tests
             }
 
             return directory;
+        }
+   
+    
+        protected FileInfo GetTestFile(IServiceProvider serviceProvider, string relativePath)
+        {
+            var sourceDataFolder = serviceProvider.GetService<ISettingsService>()!.SourcePath;
+            if(_testFolder == null)
+                _testFolder = new DirectoryInfo($"{sourceDataFolder.FullName}_{_testId}");
+
+            var srcFile = new FileInfo($"{sourceDataFolder.FullName}{relativePath}");
+            var testFile = new FileInfo(srcFile.FullName.Replace("\\TestData\\", $"\\TestData_{_testId}\\"));
+
+            if (!testFile.Directory!.Exists)
+                testFile.Directory.Create();
+
+            srcFile.CopyTo(testFile.FullName);
+            return testFile;
+        }
+
+        public void Dispose()
+        {
+            try
+            {
+                if (_testFolder != null && _testFolder.Exists)
+                    _testFolder.Delete(recursive: true);
+            }
+            catch
+            {
+
+            }
         }
     }
 }

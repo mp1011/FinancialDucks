@@ -15,6 +15,17 @@ namespace FinancialDucks.Application.Extensions
             return str;
         }
 
+        public static string WrapInQuotes(this string str)
+        {
+            str = str.Trim();
+            if (!str.StartsWith('"'))
+                str = "\"" + str;
+            if (!str.EndsWith('"'))
+                str = str + "\"";
+            return str;
+
+        }
+
         public static bool WildcardMatch(this string str, string pattern)
         {
             var parts = pattern.Split('*', StringSplitOptions.RemoveEmptyEntries);
@@ -63,6 +74,11 @@ namespace FinancialDucks.Application.Extensions
         public static bool IsNonEmpty(this string str)
         {
             return !string.IsNullOrEmpty(str);
+        }
+
+        public static bool IsNullOrEmpty(this string str)
+        {
+            return string.IsNullOrEmpty(str);
         }
 
         public static decimal ParseCurrency(this string str)

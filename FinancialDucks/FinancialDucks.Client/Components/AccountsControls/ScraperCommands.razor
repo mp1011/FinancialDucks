@@ -6,7 +6,7 @@
         <th scope="col">#</th>
         <th scope="col">Command</th>
         <th scope="col">Selector</th>
-        <th scope="col">Text Search</th>
+        <th scope="col">Search Text</th>
         <th scope="col">Wait for Navigate</th>
         <th></th>
         <th></th>
@@ -26,9 +26,7 @@
                 <input type="text" class="form-control" @bind=command.Selector>
             </td>
             <td>
-                <div class="form-check">
-                  <input class="form-check-input" type="checkbox" value="" @bind=command.SearchInnerText>
-                </div>
+                 <input type="text" class="form-control" @bind=command.Text>
             </td>
             <td>
                 <div class="form-check">
