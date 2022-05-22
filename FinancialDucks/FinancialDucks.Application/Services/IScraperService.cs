@@ -114,6 +114,9 @@ namespace FinancialDucks.Application.Services
                 num++;
             }
 
+            if (!destination.Directory.Exists)
+                destination.Directory.Create();
+
             file.MoveTo(destination.FullName);
             return destination;
         }

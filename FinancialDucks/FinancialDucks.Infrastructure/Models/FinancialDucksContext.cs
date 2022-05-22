@@ -14,7 +14,6 @@ namespace FinancialDucks.Infrastructure.Models
         public virtual DbSet<Transaction> Transactions { get; set; }
         public virtual DbSet<TransactionCategory> TransactionCategories { get; set; }
         public virtual DbSet<TransactionSource> TransactionSources { get; set; }
-        public virtual DbSet<TransactionSourceFileMapping> TransactionSourceFileMappings { get; set; }
         public virtual DbSet<TransactionSourceType> TransactionSourceTypes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -146,21 +145,7 @@ namespace FinancialDucks.Infrastructure.Models
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_TransactionSources_TransactionSourceTypes");
             });
-
-            modelBuilder.Entity<TransactionSourceFileMapping>(entity =>
-            {
-                entity.Property(e => e.FilePattern)
-                    .IsRequired()
-                    .HasMaxLength(100)
-                    .IsUnicode(false);
-
-                entity.HasOne(d => d.Source)
-                    .WithMany(p => p.TransactionSourceFileMappings)
-                    .HasForeignKey(d => d.SourceId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_TransactionSourceFileMapping_TransactionSources");
-            });
-
+           
             modelBuilder.Entity<TransactionSourceType>(entity =>
             {
                 entity.Property(e => e.Name)

@@ -15,9 +15,9 @@ namespace FinancialDucks.Tests.FeatureTests
     public class QueryTransactionsTests : TestBase
     {
         [Theory]
-        [InlineData("Citibank Card")]
-        [InlineData("Capital One Card")]
-        [InlineData("Citibank Card,Capital One Card")]
+        [InlineData("Bank A")]
+        [InlineData("Bank A, Bank B")]
+        [InlineData("Bank A, Bank B, Credit Card")]
         public async Task CanQueryTransactionsBySource(string sourcesCSV)
         {
             var serviceProvider = CreateServiceProvider();

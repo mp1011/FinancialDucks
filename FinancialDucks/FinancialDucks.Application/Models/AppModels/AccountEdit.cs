@@ -8,8 +8,6 @@ namespace FinancialDucks.Application.Models.AppModels
 {
     public class AccountEdit : ITransactionSourceDetail
     {
-        public IEnumerable<ITransactionSourceFileMappingDetail> SourceFileMappings { get; }
-
         public IEnumerable<ISourceSnapshot> SourceSnapshots { get; }
 
         public ITransactionSourceType SourceType { get; }
@@ -24,7 +22,6 @@ namespace FinancialDucks.Application.Models.AppModels
 
         public AccountEdit(ITransactionSourceDetail src)
         {
-            SourceFileMappings = src.SourceFileMappings;
             SourceSnapshots = src.SourceSnapshots;
             SourceType = src.SourceType;
             TypeId = src.TypeId;

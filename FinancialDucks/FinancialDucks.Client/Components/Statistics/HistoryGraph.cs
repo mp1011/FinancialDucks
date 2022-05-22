@@ -36,7 +36,7 @@ namespace FinancialDucks.Client.Components.Statistics
 
             TimeSlices = timeSlices
                 .Select((x, i) => new LabelledData<CategoryTimeSlice>(
-                    label: i%2 == 0 ? "" : x.SliceStart.GetLabel(x.TimeInterval),
+                    label: x.SliceStart.GetLabel(x.TimeInterval),
                     value: x.Amount.Abs(),
                     data: x))
                 .ToArray();

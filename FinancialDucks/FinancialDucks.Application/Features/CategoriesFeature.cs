@@ -11,6 +11,7 @@ namespace FinancialDucks.Application.Features
         public record AddCategoryCommand(ICategory Parent, string Text) : IRequest<ICategory> { }
         public record UpdateCategoryCommand(ICategory Category) : IRequest<ICategory> { }
         public record DeleteCommand(ICategory Category) : IRequest<ICategory> { }
+        public record MoveCommand(ICategory Category, ICategory NewParent) : IRequest<ICategory> { }
 
         public class CategoryTreeRequestHandler : IRequestHandler<CategoryTreeRequest, ICategoryDetail>
         {

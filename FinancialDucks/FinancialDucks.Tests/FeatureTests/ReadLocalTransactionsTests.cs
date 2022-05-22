@@ -15,14 +15,16 @@ namespace FinancialDucks.Tests.FeatureTests
     public class ReadLocalTransactionsTests : TestBase
     {
         [Theory]
-        [InlineData("Citibank Checking",367)]
-        [InlineData("Citibank Savings", 45)]
-        [InlineData("Bank A", 0)]
+        [InlineData("Bank A", 121)]
+        [InlineData("Bank B", 22)]
+        [InlineData("Other", 0)]
         public async Task CanReadLocalTransactions(string sourceName, int expectedTransactions)
         {
             var services = CreateServiceProvider();
             var mediator = services.GetRequiredService<IMediator>();
             var testHelper = services.GetRequiredService<MockDataHelper>();
+
+            CopyTestFiles(sourceName);
 
             var source = testHelper.GetMockTransactionSources().Single(p => p.Name == sourceName);
             var result = await mediator.Send(new ReadLocalTransactions.Request(source));

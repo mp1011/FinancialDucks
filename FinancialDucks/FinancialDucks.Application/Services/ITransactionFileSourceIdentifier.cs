@@ -23,9 +23,6 @@ namespace FinancialDucks.Application.Services
          
             foreach(var source in dataContext.TransactionSourcesDetail)
             {
-                if (source.SourceFileMappings.Any(p => fileName.Contains(p.FilePattern, StringComparison.OrdinalIgnoreCase)))
-                    return source;
-
                 if((fileInfo?.Directory?.FullName??"").Contains(source.Name, StringComparison.OrdinalIgnoreCase))
                     return source;
             }

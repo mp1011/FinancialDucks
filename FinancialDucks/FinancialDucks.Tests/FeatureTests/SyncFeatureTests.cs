@@ -19,6 +19,9 @@ namespace FinancialDucks.Tests.FeatureTests
             var testHelper = services.GetRequiredService<MockDataHelper>();
 
             var sources = testHelper.GetMockTransactionSources();
+            foreach (var source in sources)
+                CopyTestFiles(source.Name);
+
             testHelper.AddTransactionsWithSource(sources[0], 1, new DateTime(2021,1,1));
             testHelper.AddTransactionsWithSource(sources[1], 1, new DateTime(2021,2,1));
 
@@ -31,7 +34,7 @@ namespace FinancialDucks.Tests.FeatureTests
             Assert.Equal(new DateTime(2021, 1, 1), result[0].LastTransactionDate);
             Assert.Equal(new DateTime(2021, 2, 1), result[1].LastTransactionDate);
             Assert.NotEmpty(result[0].DownloadedTransactions);
-            Assert.Empty(result[2].DownloadedTransactions);
+            Assert.Empty(result[4].DownloadedTransactions);
         }
     }
 }

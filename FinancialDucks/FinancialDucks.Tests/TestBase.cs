@@ -44,9 +44,9 @@ namespace FinancialDucks.Tests
                    {
                        var mock = new Mock<ISettingsService>();
                        mock.Setup(x => x.SourcePath)
-                           .Returns(() => GetTestFolder("TestData"));
+                           .Returns(() => CreateTestDataFolder());
                        mock.Setup(x => x.DownloadsFolder)
-                           .Returns(() => GetTestFolder("TestData\\Downloads", clearFiles: true));
+                           .Returns(() => CreateDownloadsFolder());
 
                        return mock.Object;
                    });
@@ -98,34 +98,57 @@ namespace FinancialDucks.Tests
         }
     
     
-        private DirectoryInfo GetTestFolder(string relativePath, bool clearFiles=false)
+        private DirectoryInfo CreateTestDataFolder()
+        {
+            if (_testFolder != null)
+                return _testFolder;
+
+            var srcData = GetSourceTestDataFolder();
+            _testFolder = new DirectoryInfo($"{srcData.FullName}_{_testId}");
+            if (!_testFolder.Exists)
+                _testFolder.Create();
+
+            return _testFolder;
+        }
+
+
+        private DirectoryInfo CreateDownloadsFolder()
+        {
+            var testDataFolder = CreateTestDataFolder();
+            var downloads = new DirectoryInfo($"{testDataFolder.FullName}\\Downloads");
+            downloads.Create();
+            return downloads;
+        }
+
+        private DirectoryInfo GetSourceTestDataFolder()
         {
             var directory = new DirectoryInfo(Path.GetDirectoryName(Assembly.GetExecutingAssembly()!.Location!)!);
-            
-            while(directory != null && directory.Name != "FinancialDucks.Tests")
+
+            while (directory != null && directory.Name != "FinancialDucks.Tests")
                 directory = directory.Parent;
 
             if (directory == null)
                 throw new Exception("Unable to find app folder");
 
-            directory = new DirectoryInfo($"{directory}\\{relativePath}");
-            if(!directory.Exists)
-                throw new Exception("Unable to find folder: " + relativePath);
-
-            if(clearFiles)
-            {
-                var files = directory.GetFiles();
-                foreach (var f in files)
-                    f.Delete();
-            }
-
+            directory = new DirectoryInfo($"{directory}\\TestData");
             return directory;
         }
-   
-    
-        protected FileInfo GetTestFile(IServiceProvider serviceProvider, string relativePath)
+
+        protected void CopyTestFiles(string relativePath)
         {
-            var sourceDataFolder = serviceProvider.GetService<ISettingsService>()!.SourcePath;
+            var src = GetSourceTestDataFolder();
+            src = new DirectoryInfo($"{src.FullName}\\{relativePath}");
+
+            foreach(var file in src.GetFiles("*.*", SearchOption.AllDirectories))
+            {
+                var filePath = file.FullName.Substring(file.FullName.IndexOf("TestData") + 8);
+                GetTestFile(filePath);
+            }
+        }
+
+        protected FileInfo GetTestFile(string relativePath)
+        {
+            var sourceDataFolder = GetSourceTestDataFolder();
             if(_testFolder == null)
                 _testFolder = new DirectoryInfo($"{sourceDataFolder.FullName}_{_testId}");
 

@@ -8,7 +8,6 @@
 
     public interface ITransactionSourceDetail : ITransactionSource
     {
-        IEnumerable<ITransactionSourceFileMappingDetail> SourceFileMappings { get; }
         IEnumerable<ISourceSnapshot> SourceSnapshots { get; }
         ITransactionSourceType SourceType { get; }
     }

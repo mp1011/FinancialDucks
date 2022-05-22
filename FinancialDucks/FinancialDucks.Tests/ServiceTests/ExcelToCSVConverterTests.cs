@@ -11,12 +11,12 @@ namespace FinancialDucks.Tests.ServiceTests
     public class ExcelToCSVConverterTests : TestBase
     {
         [Theory]
-        [InlineData($"\\IRA\\2022_05_14.xls")]
+        [InlineData($"\\IRA\\transactions.xls")]
         public void CanConvertExcelToCSV(string filePath)
         {
             var serviceProvider = CreateServiceProvider()!;
 
-            var file = GetTestFile(serviceProvider, filePath);
+            var file = GetTestFile(filePath);
             var converter = serviceProvider.GetRequiredService<IExcelToCSVConverter>();
 
             var result = converter.ConvertExcelToCSV(file);

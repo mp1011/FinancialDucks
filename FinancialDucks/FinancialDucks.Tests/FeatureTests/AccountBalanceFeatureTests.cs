@@ -13,11 +13,11 @@ namespace FinancialDucks.Tests.FeatureTests
     public class AccountBalanceFeatureTests :TestBase
     {
         [Theory]
-        [InlineData("Bank A", "2022/1/1", "2022/6/1", 80000, 82500, TimeInterval.Monthly)]
-        [InlineData("Bank A", "2021/1/1", "2021/6/1", 81600, 80000, TimeInterval.Monthly)]
-        [InlineData("Bank A", "2024/1/1", "2024/6/1", 400000, 400000, TimeInterval.Monthly)]
-        [InlineData("Bank A", "2022/1/1", "2022/3/1", 80000, 80400, TimeInterval.Daily)]
-        [InlineData("Bank A,Bank B", "2022/1/1", "2024/1/1", 170000, 862600, TimeInterval.Quarterly)]
+        [InlineData("Bank A", "2022/1/1", "2022/6/1", 10000, 12500, TimeInterval.Monthly)]
+        [InlineData("Bank A", "2021/1/1", "2021/6/1", 11600, 10000, TimeInterval.Monthly)]
+        [InlineData("Bank A", "2024/1/1", "2024/6/1", 50000, 50000, TimeInterval.Monthly)]
+        [InlineData("Bank A", "2022/1/1", "2022/3/1", 10000, 10400, TimeInterval.Daily)]
+        [InlineData("Bank A,Bank B", "2022/1/1", "2024/1/1", 30000, 162600, TimeInterval.Quarterly)]
         public async Task CanCalculateAccountBalanceAtDate(string accountsCSV, string fromDate, string toDate, 
             decimal expectedFirstTotal, decimal expectedLastTotal, TimeInterval interval)
         {

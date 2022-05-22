@@ -19,26 +19,20 @@ namespace FinancialDucks.Tests
         {
             return new ITransactionSourceDetail[]
             {
-                CreateMockTransactionSource(1,"Citibank Checking","chk"),
-                CreateMockTransactionSource(2, "Citibank Savings", "sav"),
-                CreateMockTransactionSource(3, "Citibank Card", "citi 9536", "citi 6204","citi_9536","citi_6204","citi1","citi2"),
-                CreateMockTransactionSource(4, "Capital One Card","cap"),
-                CreateMockTransactionSource(5, "TFCU","tfcu"),
-                CreateMockTransactionSource(6, "HSA","hsa"),
-                CreateMockTransactionSource(7, "IRA","ira"),
-                CreateMockTransactionSource(8, "Bank A","banka"),
-                CreateMockTransactionSource(9, "Bank B","bankb")
+                CreateMockTransactionSource(1,"Bank A"),
+                CreateMockTransactionSource(2, "Bank B"),
+                CreateMockTransactionSource(3, "Credit Card"),
+                CreateMockTransactionSource(4, "IRA"),
+                CreateMockTransactionSource(5, "Other")
+
             };
         }
 
-        public ITransactionSourceDetail CreateMockTransactionSource(int id, string name, params string[] fileMappings)
+        public ITransactionSourceDetail CreateMockTransactionSource(int id, string name)
         {
             var mock = new Mock<ITransactionSourceDetail>();
             mock.Setup(x => x.Id).Returns(id);
             mock.Setup(x => x.Name).Returns(name);
-            mock.Setup(x => x.SourceFileMappings)
-                .Returns(CreateMockTransactionSourceMapping(mock.Object, fileMappings).ToList());
-
             return mock.Object;
         }
 
@@ -50,21 +44,6 @@ namespace FinancialDucks.Tests
             mock.Setup(x => x.Amount).Returns(amount);
 
             return mock.Object;
-        }
-
-
-        private IEnumerable<ITransactionSourceFileMappingDetail> CreateMockTransactionSourceMapping(ITransactionSourceDetail source, 
-            string[] fileMappings)
-        {
-            foreach(var mapping in fileMappings)
-            {
-                var mock = new Mock<ITransactionSourceFileMappingDetail>();
-                mock.Setup(x => x.FilePattern).Returns(mapping);
-                mock.Setup(x=>x.SourceId).Returns(source.Id);
-                mock.Setup(x => x.Source).Returns(source);
-                yield return mock.Object;
-            }
-
         }
 
         private int _nextId;
