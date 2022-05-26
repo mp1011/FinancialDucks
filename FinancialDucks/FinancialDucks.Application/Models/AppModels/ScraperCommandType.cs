@@ -10,7 +10,8 @@
         FillPastDate,
         GoBack,
         Wait,
-        SelectDropdownText
+        SelectDropdownText,
+        NavigateTo
 
     }
 }

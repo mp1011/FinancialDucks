@@ -53,9 +53,14 @@ namespace FinancialDucks.Tests
             _nextId++;
             return _nextId;
         }
-        
+
+        private ICategoryDetail _mockTree;
+
         public ICategoryDetail GetMockCategoryTree()
         {
+            if (_mockTree != null)
+                return _mockTree;
+
             int id = 1;
             var root = new TestCategory(id++, "Master", null);
 
@@ -90,6 +95,7 @@ namespace FinancialDucks.Tests
             credits
                 .AddChild(id++, "Paychecks");
 
+            _mockTree = root;
             return root;
         }
 
@@ -103,6 +109,9 @@ namespace FinancialDucks.Tests
             int id = 1;
 
             yield return new CategoryRule(id++, Priority: 0, categories.GetDescendant("Krusty Burger")!,
+                SubstringMatch: "Krusty Burger");
+
+            yield return new CategoryRule(id++, Priority: 0, categories.GetDescendant("Fast-Food")!,
                 SubstringMatch: "Krusty Burger");
 
             yield return new CategoryRule(id++, Priority: 0, categories.GetDescendant("McDonalds")!,
@@ -235,7 +244,7 @@ namespace FinancialDucks.Tests
             while (date.Month < 3)
             {
                 transactionDetails.Add(AddMockTransaction(date, -999.99M, "Transfer From Account"));
-                transactionDetails.Add(AddMockTransaction(date, 999.99M, "Transfer To Account"));
+                transactionDetails.Add(AddMockTransaction(date, 888.88M, "Transfer To Account"));
 
                 date = date.AddDays(5);
             }

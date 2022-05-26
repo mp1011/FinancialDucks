@@ -58,7 +58,21 @@ namespace FinancialDucks.Tests.CustomMocks
 
         public Task<ICategory> AddSubcategory(ICategory category, string name)
         {
-            return Task.FromResult(new TestCategory(0, name, category as TestCategory) as ICategory);
+            var parent = category as TestCategory;
+            var subCategory = _mockDataHelper.GetMockCategoryTree().GetDescendant(name) as TestCategory;
+
+            subCategory = subCategory ?? new TestCategory(1000, name, parent);
+
+            var oldParent = subCategory.Parent as TestCategory;
+            if(oldParent != null && oldParent != parent)
+                oldParent.Children.Remove(subCategory);
+
+
+            subCategory.Parent = parent;
+            parent.Children.Add(subCategory);
+
+
+            return Task.FromResult(subCategory as ICategory); 
         }
 
         public Task<ICategory> Delete(ICategory category)

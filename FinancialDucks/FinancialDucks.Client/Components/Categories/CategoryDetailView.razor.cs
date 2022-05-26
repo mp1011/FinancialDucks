@@ -16,6 +16,8 @@ namespace FinancialDucks.Client.Components.Categories
 
         private ChangeTracked<bool> _starred = new ChangeTracked<bool>();
 
+        public ICategoryDetail Parent { get; set; }
+
         public bool Starred
         {
             get => _starred;
@@ -95,7 +97,14 @@ namespace FinancialDucks.Client.Components.Categories
             {
                 _starred.SetAndAccept(Category.Starred);
                 _name.SetAndAccept(Category.Name);
+
+                Parent = Category.Parent;
             }                
+        }
+
+        public async Task ChangeParent()
+        {
+            await Mediator.Send(new CategoriesFeature.MoveCommand(Category, Parent));
         }
     }
 

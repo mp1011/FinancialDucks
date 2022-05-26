@@ -6,6 +6,14 @@ namespace FinancialDucks.Client.Components
 {
     public partial class CategoryFilter
     {
+        private ChangeTracked<bool> _includeTransfers = new ChangeTracked<bool>(true);
+
+        public bool IncludeTransfers
+        {
+            get => _includeTransfers.Value;
+            set => _includeTransfers.Value = value;
+        }
+
         public record CategorySelection(ICategoryDetail Parent, ICategoryDetail? SelectedChild);
 
         public string Id { get; private set; }
@@ -18,6 +26,9 @@ namespace FinancialDucks.Client.Components
 
         [Parameter]
         public ICategoryDetail SelectedCategory { get; set; }
+
+        [Parameter]
+        public EventCallback<bool> OnIncludeTransfersChanged { get; set; }
 
         public ICategoryDetail[] StarredCategories { get; private set; }
 
@@ -67,6 +78,15 @@ namespace FinancialDucks.Client.Components
             else
                 return category.Name != SpecialCategory.Transfers.ToString()
                     && category.Name != SpecialCategory.All.ToString();
+        }
+
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            if(_includeTransfers.HasChanges)
+            {
+                _includeTransfers.AcceptChanges();
+                await OnIncludeTransfersChanged.InvokeAsync(_includeTransfers.Value);
+            }
         }
 
         protected override void OnParametersSet()

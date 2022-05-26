@@ -84,12 +84,8 @@ namespace FinancialDucks.Infrastructure.Models
 
         public async Task<ICategory> AddSubcategory(ICategory parent, string name)
         {
-
-            var existing = await Categories
+            var subCategory = await Categories
                 .FirstOrDefaultAsync(c => c.Name == name);
-
-            if (existing != null)
-                return existing;
 
             using var transaction = Database.BeginTransaction();
 
@@ -104,27 +100,26 @@ namespace FinancialDucks.Infrastructure.Models
                 .OrderByDescending(p => p)
                 .FirstOrDefault();
 
-            var newCategory = new Category
-            {
-                Name = name,
-                HierarchyId = parentCategory.HierarchyId.GetDescendant(latestChild, null)
-            };
+            subCategory = subCategory ?? new Category { Name = name };
+            subCategory.HierarchyId = parentCategory.HierarchyId.GetDescendant(latestChild, null);
+            
+            if(subCategory.Id == 0)
+                Categories.Add(subCategory);
+            else
+                Entry(subCategory).State = EntityState.Modified;
 
-            Categories.Add(newCategory);
             await SaveChangesAsync();
 
             var autoRule = new CategoryRule
             {
-                CategoryId = newCategory.Id,
-                SubstringMatch = newCategory.Name
+                CategoryId = subCategory.Id,
+                SubstringMatch = subCategory.Name
             };
             CategoryRules.Add(autoRule);
             await SaveChangesAsync();
 
-
             await transaction.CommitAsync();
-
-            return newCategory;
+            return subCategory;
         }
 
         public async Task<ICategoryRuleDetail> AddCategoryRule(ICategory category, ICategoryRule rule)

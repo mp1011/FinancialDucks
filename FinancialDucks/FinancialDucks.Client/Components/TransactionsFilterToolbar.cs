@@ -52,6 +52,12 @@ namespace FinancialDucks.Client.Components
             await UpdateCurrentFilter();
         }
 
+        public async Task OnIncludeTransfersChanged(bool includeTransfers)
+        {
+            IncludeTransfersCategory = includeTransfers;
+            await UpdateCurrentFilter();
+        }
+
         protected override void OnParametersSet()
         {
             if(CurrentFilter != null)
@@ -70,10 +76,11 @@ namespace FinancialDucks.Client.Components
                 || CurrentFilter.RangeStart != RangeStart
                 || CurrentFilter.RangeEnd != RangeEnd
                 || CurrentFilter.TextFilter != TextFilter
-                || CurrentFilter.Category != CategoryFilter)
+                || CurrentFilter.Category != CategoryFilter
+                || CurrentFilter.IncludeTransfers != IncludeTransfersCategory)
             {
                 CurrentFilter = new TransactionsFilter(
-                    RangeStart, RangeEnd, CategoryFilter, Sources,TextFilter);
+                    RangeStart, RangeEnd, CategoryFilter, Sources, IncludeTransfersCategory, TextFilter);
                 StateHasChanged();
 
                 await OnFilterChanged.InvokeAsync(CurrentFilter);

@@ -160,6 +160,9 @@ namespace FinancialDucks.Application.Services
                 case ScraperCommandType.Wait:
                     await browser.WaitFor(command.Selector, cancellationToken);
                     break;
+                case ScraperCommandType.NavigateTo:
+                    await browser.NavigateTo(command.Text, cancellationToken);
+                    break;
             }
 
             if (command.WaitForNavigate)

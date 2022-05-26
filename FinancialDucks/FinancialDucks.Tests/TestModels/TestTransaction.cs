@@ -18,6 +18,8 @@ namespace FinancialDucks.Tests.TestModels
 
         public int Id { get; set; }
 
+        public ICategory[] Categories { get; set; }
+
         public override string ToString() => $"{Date.ToShortDateString()} {Description} {Amount.ToString("C")}";
 
     }

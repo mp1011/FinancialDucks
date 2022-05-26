@@ -49,6 +49,7 @@ namespace FinancialDucks.Tests.FeatureTests
                    RangeStart: new DateTime(2022, 1, 1),
                    RangeEnd: new DateTime(2024, 1, 1),
                    Category: tree,
+                   IncludeTransfers: true,
                    Sources: selectedSources.ToArray()),
                 TransactionSortColumn.Amount,
                 SortDirection.Ascending,
@@ -242,6 +243,56 @@ namespace FinancialDucks.Tests.FeatureTests
 
             Assert.Equal(results.Sum(p => p.Amount), results2.Sum(p => p.Amount));
 
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public async Task CanExcludeTransfersFromSearch(bool includeTransfers)
+        {
+            var serviceProvider = CreateServiceProvider();
+            var mockDataHelper = serviceProvider.GetRequiredService<MockDataHelper>();
+
+            mockDataHelper.AddKrustyBurgerTransactions();
+            mockDataHelper.AddTransferTransactions();
+
+            var mediator = serviceProvider.GetService<IMediator>();
+            var results = await mediator!.Send(new TransactionsFeature.QueryTransactions(
+                new TransactionsFilter(
+                    new DateTime(2022, 1, 1),
+                    new DateTime(2031, 1, 1),
+                    mockDataHelper.GetMockCategoryTree(),
+                    IncludeTransfers: includeTransfers,
+                    TextFilter:null), TransactionSortColumn.Date, SortDirection.Descending, 0,1000));
+
+
+            var hasTransfers = results.Any(p => p.Categories.Any(c => c.Name == "Transfers"));
+            Assert.Equal(includeTransfers, hasTransfers);
+        }
+
+        [Fact]
+        public async Task TransactionsQueryIncludesCategories()
+        {
+            var serviceProvider = CreateServiceProvider();
+            var mockDataHelper = serviceProvider.GetRequiredService<MockDataHelper>();
+
+            mockDataHelper.AddKrustyBurgerTransactions();
+ 
+            var tree = await serviceProvider.GetRequiredService<ICategoryTreeProvider>().GetCategoryTree();
+         
+            var mediator = serviceProvider.GetService<IMediator>();
+            var results = await mediator!.Send(new TransactionsFeature.QueryTransactions(
+                new TransactionsFilter(
+                    RangeStart: new DateTime(2022, 1, 1),
+                    RangeEnd: new DateTime(2022, 4, 1),
+                    Category: tree),
+                 SortColumn: TransactionSortColumn.Date,
+                SortDirection: SortDirection.Ascending,
+                0,
+                100))!;
+
+            var categoryNames = results[0].Categories.Select(p => p.Name).ToArray();
+            Assert.Collection(categoryNames, p => Assert.Equal("Krusty Burger", p));
         }
     }
 }

@@ -6,6 +6,11 @@ namespace FinancialDucks.Tests.TestModels
 {
     internal class TestCategory : ICategoryDetail
     {
+        public override string ToString()
+        {
+            return Name;
+        }
+        
         public int Id { get; }
 
         public string Name { get; }
@@ -19,7 +24,7 @@ namespace FinancialDucks.Tests.TestModels
             Parent = parent;
         }
 
-        public TestCategory? Parent { get; }
+        public TestCategory? Parent { get; set;  }
 
         public List<TestCategory> Children { get; } = new List<TestCategory>();
 

@@ -51,7 +51,7 @@ namespace FinancialDucks.Client.Components
 
         public bool Loading { get; private set; }
 
-        public ITransactionDetail[] Transactions { get; private set; } = Array.Empty<ITransactionDetail>();
+        public TransactionWithCategories[] Transactions { get; private set; } = Array.Empty<TransactionWithCategories>();
 
         public int PageSize { get; private set; } = 10;
 

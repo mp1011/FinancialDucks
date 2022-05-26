@@ -53,3 +53,11 @@ else
     </li>
 </ul>
 
+<h4>Parent</h4>
+<CategoryFilter IncludeTransfersCategory="true" SelectedCategory="@Parent" OnCategorySelected="(p)=> Parent=p" />
+
+ @if(Parent != null && Parent.Id != Category.Parent.Id)
+{
+    <button type="button" class="btn btn-primary" lab
+        @onclick="ChangeParent">Apply</button>
+}

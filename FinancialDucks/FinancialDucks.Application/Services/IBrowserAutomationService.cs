@@ -17,6 +17,7 @@ namespace FinancialDucks.Application.Services
         Task SelectDropdownText(string selector, string text, CancellationToken cancellationToken);
         Task GoBack();
         Task WaitFor(string selector, CancellationToken cancellationToken);
+        Task NavigateTo(string url, CancellationToken cancellationToken);
     }
 
     public interface IBrowserAutomationService
@@ -48,7 +49,7 @@ namespace FinancialDucks.Application.Services
             ElementHandle element;
 
             if (searchText.IsNullOrEmpty())
-                element = await _page.WaitForSelectorAsyncEx(selector, cancellationToken, timeout:true)
+                element = await _page.WaitForSelectorAsyncEx(selector, cancellationToken)
                                      .HandleError(e=>OnSelectorFail(e,selector));
             else
                 element = await WaitForInnerHTMLAsync(selector, searchText, cancellationToken, TimeSpan.FromSeconds(30));
@@ -84,6 +85,10 @@ namespace FinancialDucks.Application.Services
             e.Rethrow();            
         }
 
+        public async Task NavigateTo(string url, CancellationToken cancellationToken)
+        {
+            await _page.GoToAsync(url);
+        }
 
 
         private async Task<ElementHandle> WaitForInnerHTMLAsync(string selector, string match, CancellationToken cancellationToken, TimeSpan timeout)
@@ -132,7 +137,7 @@ namespace FinancialDucks.Application.Services
 
         public async Task FillText(string selector, string text, CancellationToken cancellationToken)
         {
-            var input = await _page.WaitForSelectorAsyncEx(selector, cancellationToken, timeout:true)
+            var input = await _page.WaitForSelectorAsyncEx(selector, cancellationToken)
                                    .HandleError(e => OnSelectorFail(e, selector));
 
             var inputs = await _page.QuerySelectorAllAsyncEx(selector);
@@ -198,7 +203,10 @@ namespace FinancialDucks.Application.Services
             {
                 try
                 {
-                    var result = await _page.WaitForSelectorAsyncEx(selector, timeout: false, cancellationToken: cancellationToken);
+                    if (cancellationToken.IsCancellationRequested)
+                        return;
+
+                    var result = await _page.WaitForSelectorAsyncEx(selector, timeoutSeconds: 5, cancellationToken: cancellationToken);
                     if (result != null)
                         return;
                 }
@@ -255,7 +263,7 @@ namespace FinancialDucks.Application.Services
 
                 try
                 {
-                    ElementHandle? element = await _page.WaitForSelectorAsyncEx(selector, cancellationToken, timeout: true)
+                    ElementHandle? element = await _page.WaitForSelectorAsyncEx(selector, cancellationToken)
                                                         .HandleError(e => Task.FromResult(null as ElementHandle));
 
                     if (element != null)

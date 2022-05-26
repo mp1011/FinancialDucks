@@ -14,14 +14,14 @@ namespace FinancialDucks.Application.Features
             SortDirection SortDirection,
             int Page, 
             int ResultsPerPage)
-            : IRequest<ITransactionDetail[]> { }
+            : IRequest<TransactionWithCategories[]> { }
 
         public record QuerySummary(TransactionsFilter Filter, int ResultsPerPage)
            : IRequest<TransactionsSummary>
         { }
 
 
-        public class QueryTransactionsHandler : IRequestHandler<QueryTransactions, ITransactionDetail[]>
+        public class QueryTransactionsHandler : IRequestHandler<QueryTransactions, TransactionWithCategories[]>
         {
             private readonly IDataContextProvider _dataContextProvider;
             private readonly ITransactionsQueryBuilder _transactionQueryBuilder;
@@ -34,7 +34,7 @@ namespace FinancialDucks.Application.Features
                 _categoryTreeProvider = categoryTreeProvider;
             }
 
-            public async Task<ITransactionDetail[]> Handle(QueryTransactions request, CancellationToken cancellationToken)
+            public async Task<TransactionWithCategories[]> Handle(QueryTransactions request, CancellationToken cancellationToken)
             {
                 using var dataContext = _dataContextProvider.CreateDataContext();
 
@@ -49,7 +49,38 @@ namespace FinancialDucks.Application.Features
                     .Take(request.ResultsPerPage)
                     .DebugWatchCommandText(dataContext);
 
-                return await query.ToArrayAsync(dataContext);
+                var transactions = await query.ToArrayAsync(dataContext);
+
+                var transactionIds = transactions.Select(p=>p.Id).ToArray();
+
+                var transactionsWithCategories = dataContext
+                    .TransactionsWithCategories
+                    .Where(p => transactionIds.Contains(p.Id))
+                    .ToArray();
+
+
+                var result = transactions.Select(t =>
+                    new TransactionWithCategories(
+                        Transaction: t,
+                        Categories: GetCategoriesForTransaction(transactionsWithCategories, categoryTree, t)))
+                    .ToArray();
+
+
+                return result;
+            }
+
+            private IEnumerable<ICategory> GetCategoriesForTransaction(ITransactionWithCategory[] transactionsWithCategories, ICategoryDetail categoryTree, ITransaction transaction)
+            {
+                var categories = transactionsWithCategories
+                                       .Where(p => p.Id == transaction.Id)
+                                       .Select(c => categoryTree.GetDescendant(c.CategoryId.GetValueOrDefault()))
+                                       .Where(p=> p != null)
+                                       .Distinct()
+                                       .ToArray();
+
+                return categories
+                    .Where(c => !c.GetDescendants().Intersect(categories).Any())
+                    .ToArray();
             }
         }
 

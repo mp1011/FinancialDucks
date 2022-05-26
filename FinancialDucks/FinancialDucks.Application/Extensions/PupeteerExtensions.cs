@@ -77,11 +77,11 @@ namespace FinancialDucks.Application.Extensions
             return new PageElementsWithFrames(elements, frames.ToArray());
         }
 
-        public static async Task<ElementHandle> WaitForSelectorAsyncEx(this Page page, string selector, CancellationToken cancellationToken, bool timeout)
+        public static async Task<ElementHandle> WaitForSelectorAsyncEx(this Page page, string selector, CancellationToken cancellationToken, int timeoutSeconds=30)
         {
             Exception? lastException = null;
             DateTime start = DateTime.Now;
-            while ((DateTime.Now - start).TotalSeconds <= 30 || !timeout)
+            while ((DateTime.Now - start).TotalSeconds <= timeoutSeconds)
             {
                 if (cancellationToken.IsCancellationRequested)
                     throw new TaskCanceledException($"Task cancelled while waiting for selector {selector}");

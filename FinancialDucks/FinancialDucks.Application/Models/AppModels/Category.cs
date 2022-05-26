@@ -1,5 +1,10 @@
 ﻿namespace FinancialDucks.Application.Models.AppModels
 {
+    public record SimpleCategory(int Id, string Name) : ICategory
+    {
+        public bool Starred => false;
+    }
+
     public class Category : ICategoryDetail
     {      
         public int Id { get; }

@@ -33,23 +33,21 @@ namespace FinancialDucks.Tests.FeatureTests
             var serviceProvider = CreateServiceProvider();
             var root = serviceProvider.GetRequiredService<MockDataHelper>().GetMockCategoryTree();
             var mediator = serviceProvider.GetRequiredService<IMediator>();
-
+            var testDataHelper = serviceProvider.GetRequiredService<MockDataHelper>();
+             
             var restaurantCategory = root.GetDescendant("Restaurants")!;
-            var bigKahunaBurger = root.GetDescendant("Big Kahuna Burger")!;
+            var krustyBurger = root.GetDescendant("Krusty Burger")!;
             var fastFoodCategory = root.GetDescendant("Fast-Food")!;
-            Assert.Contains(fastFoodCategory.Children, f => f.Name == "Big Kahuna Burger");
-
+            Assert.Contains(fastFoodCategory.Children, f => f.Name == "Krusty Burger");
 
             var newCategory = await mediator.Send(new CategoriesFeature.AddCategoryCommand(restaurantCategory, "Burger Places"));
-            var movedCategory = await mediator.Send(new CategoriesFeature.MoveCommand(bigKahunaBurger, newCategory));
-
-            root = await mediator.Send(new CategoriesFeature.CategoryTreeRequest());
+            var movedCategory = await mediator.Send(new CategoriesFeature.MoveCommand(krustyBurger, newCategory));
 
             fastFoodCategory = root.GetDescendant("Fast-Food")!;
-            Assert.DoesNotContain(fastFoodCategory.Children, f => f.Name == "Big Kahuna Burger");
+            Assert.DoesNotContain(fastFoodCategory.Children, f => f.Name == "Krusty Burger");
             
             var burgerPlacesCategory = root.GetDescendant("Burger Places")!;
-            Assert.Contains(burgerPlacesCategory.Children, f => f.Name == "Big Kahuna Burger");
+            Assert.Contains(burgerPlacesCategory.Children, f => f.Name == "Krusty Burger");
         }
     }
 }

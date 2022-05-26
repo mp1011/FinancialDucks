@@ -69,8 +69,18 @@ namespace FinancialDucks.Application.Services
             else if (filter.Category != null && filter.Category.Name == SpecialCategory.Unclassified.ToString())
                 query = GetNonTransferTransactions(dataContext, categoryTree).Where(p => p.CategoryId == null);
             else if (categoryIds.Length > 0)
-                query = dataContext.TransactionsWithCategories
-                    .Where(p => p.CategoryId != null && categoryIds.Contains(p.CategoryId.Value));
+            {
+                if (filter.IncludeTransfers)
+                {
+                    query = dataContext.TransactionsWithCategories
+                        .Where(p => p.CategoryId != null && categoryIds.Contains(p.CategoryId.Value));
+                }
+                else
+                {
+                    query = GetNonTransferTransactions(dataContext, categoryTree)
+                       .Where(p => p.CategoryId != null && categoryIds.Contains(p.CategoryId.Value));
+                }
+            }
             else
                 query = GetNonTransferTransactions(dataContext, categoryTree);
 

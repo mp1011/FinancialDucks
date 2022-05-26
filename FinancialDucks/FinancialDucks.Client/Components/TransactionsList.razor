@@ -38,6 +38,8 @@
           <SortIndicator Direction=@AmountSortDirection />
       </th>
       <th scope="col">Description</th>
+      <th scope="col">Source</th>
+      <th scope="col">Category</th>
     </tr>
   </thead>
   <tbody>
@@ -62,7 +64,19 @@
                     </td>
                     <td>
                         <p @onmouseup="(e)=>OnTransactionMouseUp.InvokeAsync(new TransactionMouseUpEventArgs(e,row))">@row.Description</p>
-                    </td>               
+                    </td>  
+                    <td>@row.Source.Name</td>
+                    <td>
+
+                        <ul class="list-group list-group-horizontal-sm">
+                            @foreach(var category in @row.Categories)
+                            {
+                                <li class="list-group-item">@category.Name</li>
+                            }
+                        </ul>
+
+                        
+                    </td>
                 </tr>
             }
         }

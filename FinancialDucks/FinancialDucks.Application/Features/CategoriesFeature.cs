@@ -86,5 +86,25 @@ namespace FinancialDucks.Application.Features
                 return result;
             }
         }
+
+        public class MoveHandler : IRequestHandler<MoveCommand, ICategory>
+        {
+            private readonly IMediator _mediator;
+            private readonly IDataContextProvider _dataContextProvider;
+
+            public MoveHandler(IMediator mediator, IDataContextProvider dataContextProvider)
+            {
+                _mediator = mediator;
+                _dataContextProvider = dataContextProvider;
+            }
+
+            public async Task<ICategory> Handle(MoveCommand request, CancellationToken cancellationToken)
+            {
+                using var dataContext = _dataContextProvider.CreateDataContext();
+                var result = await dataContext.AddSubcategory(request.NewParent, request.Category.Name);
+                await _mediator.Publish(new CategoryChangeNotification(result));
+                return result;
+            }
+        }
     }
 }

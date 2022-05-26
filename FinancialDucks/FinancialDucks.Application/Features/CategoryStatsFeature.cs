@@ -17,7 +17,7 @@ namespace FinancialDucks.Application.Features
             }
 
             public Query(ICategoryDetail Category, DateTime RangeStart, DateTime RangeEnd) 
-                : this(new TransactionsFilter(RangeStart,RangeEnd,Category))
+                : this(new TransactionsFilter(RangeStart,RangeEnd,Category, IncludeTransfers:true))
             {
 
             }
@@ -27,7 +27,7 @@ namespace FinancialDucks.Application.Features
             IRequest<CategoryStatsWithChildren> 
         {
             public QueryWithChildren(ICategoryDetail Category, DateTime RangeStart, DateTime RangeEnd)
-                   : this(new TransactionsFilter(RangeStart, RangeEnd, Category))
+                   : this(new TransactionsFilter(RangeStart, RangeEnd, Category, IncludeTransfers: true))
             {
 
             }

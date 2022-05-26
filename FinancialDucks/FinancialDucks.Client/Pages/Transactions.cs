@@ -43,6 +43,9 @@ namespace FinancialDucks.Client.Pages
         public string? QueryCategoryName { get; set; }
 
 
+        [Parameter]
+        public bool IncludeTransfers { get; set; }
+
         protected override async Task OnParametersSetAsync()
         {
             if (!QueryDateFrom.HasValue || !QueryDateTo.HasValue || QueryCategoryName == null)
@@ -50,7 +53,7 @@ namespace FinancialDucks.Client.Pages
 
             var root = await CategoryTreeProvider.GetCategoryTree();
             var category = root.GetDescendant(QueryCategoryName);
-            CurrentFilter = new TransactionsFilter(QueryDateFrom.Value, QueryDateTo.Value, category);
+            CurrentFilter = new TransactionsFilter(QueryDateFrom.Value, QueryDateTo.Value, category, IncludeTransfers);
         }
 
         public async Task OnTransactionMouseUp(TransactionMouseUpEventArgs args)

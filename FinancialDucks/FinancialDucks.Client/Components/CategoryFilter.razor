@@ -41,5 +41,12 @@
         </div>
     }
     </div>
+    @if(OnIncludeTransfersChanged.HasDelegate && CategorySelections.Count() == 1 && CategorySelections[0].Parent.Name == SpecialCategory.All.ToString())
+    {
+        <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="chkIncludeTransfers" @bind="IncludeTransfers">
+            <label class="form-check-label" for="chkIncludeTransfers">Include Transfers</label>
+        </div>
+    }
 </div>
 
