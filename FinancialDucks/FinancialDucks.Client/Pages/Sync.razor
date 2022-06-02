@@ -65,7 +65,15 @@ else
                         <span>@accountStatus.FetchMessage</span>
                     </td>
                      <td>
-                        <span>@accountStatus.ImportMessage</span>
+                        @if(@accountStatus.Warning != null)
+                        {
+                            <span class="label label-danger">@accountStatus.Warning</span>
+                        }
+                        else
+                        {
+                            <span>@accountStatus.ImportMessage</span>    
+                        }
+                        
                     </td>
                 </tr>
             }

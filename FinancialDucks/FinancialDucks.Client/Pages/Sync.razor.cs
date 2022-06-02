@@ -40,6 +40,8 @@ namespace FinancialDucks.Client.Pages
                 {
                     var transactions = await Mediator.Send(new UploadTransactions.Command(status.DownloadedTransactions));
                     status.ImportMessage = $"Imported {transactions.Length} Transactions";
+
+                    await Mediator.Send(new DeleteDownloadedFilesCommand(status.Source));
                     StateHasChanged();
                 }
                 catch(Exception e)

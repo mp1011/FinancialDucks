@@ -29,6 +29,24 @@ namespace FinancialDucks.Client.Models
 
         public string ImportMessage { get; set; } = string.Empty;
 
+        public string Warning
+        {
+            get
+            {
+                if (FirstDownloadedDate == null)
+                    return null;
+                if (LastTransactionDate == null)
+                    return null;
+
+                var gap = FirstDownloadedDate.Value - LastTransactionDate.Value;
+                if (gap.TotalDays > 0)
+                    return $"Missing {(int)gap.TotalDays} days of transactions";
+                else
+                    return null;
+                    
+            }
+        }
+
         public SyncStatusViewModel(SyncStatus status)
         {
             _status = status;
