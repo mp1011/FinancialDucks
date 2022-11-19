@@ -11,7 +11,7 @@
         GoBack,
         Wait,
         SelectDropdownText,
-        NavigateTo
-
+        NavigateTo,
+        KeyPress
     }
 }

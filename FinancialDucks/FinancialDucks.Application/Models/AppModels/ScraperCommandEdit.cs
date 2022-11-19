@@ -6,7 +6,7 @@
         public ScraperCommandType TypeId { get; set; }
         public int Sequence { get; set; }
         public bool SearchInnerText { get; set; }
-        public bool WaitForNavigate { get; set; }
+        public bool PauseBeforeStep { get; set; }
         public string? Selector { get; set; }
 
         public string? Text { get; set; }

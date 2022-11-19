@@ -8,6 +8,7 @@ namespace FinancialDucks.Infrastructure.Models
     {
         public Category()
         {
+            BudgetLines = new HashSet<BudgetLine>();
             CategoryRules = new HashSet<CategoryRule>();
         }
 
@@ -16,6 +17,7 @@ namespace FinancialDucks.Infrastructure.Models
         public HierarchyId HierarchyId { get; set; }
         public bool Starred { get; set; }
 
+        public virtual ICollection<BudgetLine> BudgetLines { get; set; }
         public virtual ICollection<CategoryRule> CategoryRules { get; set; }
     }
 }

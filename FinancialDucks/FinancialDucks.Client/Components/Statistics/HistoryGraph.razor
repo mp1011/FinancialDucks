@@ -1,4 +1,17 @@
-﻿<RadzenChart SeriesClick="SeriesClicked">
+﻿@if (TimeSlices != null && TimeSlices.Any())
+{
+    <div class="col">
+        <div class="card" style="width: 18rem;">
+            <div class="card-body">
+                <p class="card-text">Min: @TimeSlices.Select(p=>p.Value).Min().ToString("C")</p>
+                <p class="card-text">Max: @TimeSlices.Select(p=>p.Value).Max().ToString("C")</p>
+                <p class="card-text">Average: @TimeSlices.Select(p=>p.Value).Average().ToString("C")</p>
+            </div>
+        </div>
+    </div>
+}
+
+<RadzenChart SeriesClick="SeriesClicked">
     <RadzenColumnSeries 
         Data="@TimeSlices" 
         CategoryProperty="Label"          

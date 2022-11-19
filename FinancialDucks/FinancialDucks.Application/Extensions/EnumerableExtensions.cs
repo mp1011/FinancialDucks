@@ -19,5 +19,19 @@
             else
                 return list.Max();
         }
+
+        public static decimal StandardDeviation(this IEnumerable<decimal> values)
+        {
+            decimal standardDeviation = 0;
+            decimal[] enumerable = values as decimal[] ?? values.ToArray();
+            int count = enumerable.Count();
+            if (count > 1)
+            {
+                decimal avg = enumerable.Average();
+                decimal sum = enumerable.Sum(d => (d - avg) * (d - avg));
+                standardDeviation = (decimal)Math.Sqrt((double)sum / count);
+            }
+            return standardDeviation;
+        }
     }
 }

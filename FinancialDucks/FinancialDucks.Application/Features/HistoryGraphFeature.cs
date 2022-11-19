@@ -8,7 +8,7 @@ namespace FinancialDucks.Application.Features
 {
     public class HistoryGraphFeature
     {
-        public record Query(TransactionsFilter Filter, TimeInterval TimeInterval)
+        public record Query(TransactionsFilter Filter, TimeInterval TimeInterval, bool DistributeOverGaps)
             : IRequest<CategoryTimeSlice[]>
         { }
 
@@ -49,8 +49,13 @@ namespace FinancialDucks.Application.Features
                     })
                     .ToArray();
 
-                var adjustedDistribution = DistributeOverGaps(directDistribution);
-                return adjustedDistribution;
+                if (request.DistributeOverGaps)
+                {
+                    var adjustedDistribution = DistributeOverGaps(directDistribution);
+                    return adjustedDistribution;
+                }
+                else
+                    return directDistribution;
             }
 
             private CategoryTimeSlice[] DistributeOverGaps(CategoryTimeSlice[] slices)

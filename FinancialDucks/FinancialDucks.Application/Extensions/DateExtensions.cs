@@ -16,6 +16,7 @@ namespace FinancialDucks.Application.Extensions
             switch (interval)
             {
                 case TimeInterval.Daily:
+                case TimeInterval.Biweekly:
                     return date.ToShortDateString();
                 case TimeInterval.Monthly:
                     return date.ToString("MMMyy");
@@ -61,6 +62,8 @@ namespace FinancialDucks.Application.Extensions
                 case TimeInterval.Weekly:
                     var dayOfWeek = date.DayOfWeek;
                     return date.AddDays(-(int)dayOfWeek);
+                case TimeInterval.Biweekly:
+                    return date;
                 case TimeInterval.Monthly:
                     return date.AddDays(-(date.Day - 1));
                 case TimeInterval.Quarterly:

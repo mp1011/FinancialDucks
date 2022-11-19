@@ -84,11 +84,6 @@ namespace FinancialDucks.Application.Features
                     .OrderByDescending(p => Math.Abs(p.Total))
                     .ToList();
 
-                decimal miscAmount = parentStats.Total - childStats.Sum(p => p.Total);
-
-                if (miscAmount != 0)
-                    childStats.Add(new CategoryStats(new Category(0,"Other",false,null), 0, miscAmount));
-
                 return new CategoryStatsWithChildren(
                     parentStats,
                     childStats.Select(c => new ChildCategoryStats(

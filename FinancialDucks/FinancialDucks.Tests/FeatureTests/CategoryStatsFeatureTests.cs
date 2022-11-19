@@ -57,11 +57,10 @@ namespace FinancialDucks.Tests.FeatureTests
                 new DateTime(2022, 1, 1),
                 new DateTime(2022, 12, 1)));
 
-            Assert.Equal(3, result.Children.Length);
+            Assert.Equal(2, result.Children.Length);
 
             Assert.Equal(0.57, result.Children[0].Percent,2);
             Assert.Equal(0.23, result.Children[1].Percent,2);
-            Assert.Equal(0.21, result.Children[2].Percent, 2);
         }
 
         [Fact]

@@ -28,6 +28,9 @@ namespace FinancialDucks.Application.Extensions
 
         public static bool WildcardMatch(this string str, string pattern)
         {
+            if (str.Length > 100)
+                return false;
+
             var parts = pattern.Split('*', StringSplitOptions.RemoveEmptyEntries);
             var regex = string.Join("(.*)", parts.Select(p => Regex.Escape(p)).ToArray());
 

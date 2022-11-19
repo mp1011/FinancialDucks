@@ -86,6 +86,9 @@ namespace FinancialDucks.Application.Extensions
                 if (cancellationToken.IsCancellationRequested)
                     throw new TaskCanceledException($"Task cancelled while waiting for selector {selector}");
 
+                if (page.IsClosed)
+                    throw new Exception("Browser was closed");
+
                 try
                 {
                     var pageElementWithFrames = await page.QuerySelectorAllAsyncEx(selector);

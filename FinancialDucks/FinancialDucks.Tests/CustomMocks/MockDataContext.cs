@@ -50,7 +50,8 @@ namespace FinancialDucks.Tests.CustomMocks
             }
         }
 
-       
+        public IQueryable<IBudgetLine> BudgetLines => _mockDataHelper.MockBudgetLines.AsQueryable();
+
         public Task<ICategoryRuleDetail> AddCategoryRule(ICategory category, ICategoryRule rule)
         {
             throw new NotImplementedException();
@@ -127,6 +128,27 @@ namespace FinancialDucks.Tests.CustomMocks
             _mockDataHelper.MockScraperCommands.Add(command);
             return Task.FromResult(command);
 
+        }
+
+        public Task<IBudgetLine> Update(IBudgetLine budgetLine)
+        {
+            var match = _mockDataHelper.MockBudgetLines.FirstOrDefault(p => p.Category.Id == budgetLine.Category.Id);
+            if(match != null)
+            {
+                match.Budget = budgetLine.Budget;
+                return Task.FromResult(match);
+            }
+            else
+            {
+                var line = new BudgetLineEdit
+                {
+                    Budget = budgetLine.Budget,
+                    Category = budgetLine.Category
+                };
+
+                _mockDataHelper.MockBudgetLines.Add(line);
+                return Task.FromResult(budgetLine);
+            }           
         }
     }
 }

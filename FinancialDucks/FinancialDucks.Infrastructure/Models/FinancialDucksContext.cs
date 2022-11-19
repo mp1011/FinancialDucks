@@ -7,6 +7,7 @@ namespace FinancialDucks.Infrastructure.Models
 {
     public partial class FinancialDucksContext : DbContext
     {
+        public virtual DbSet<BudgetLine> BudgetLines { get; set; }
         public virtual DbSet<Category> Categories { get; set; }
         public virtual DbSet<CategoryRule> CategoryRules { get; set; }
         public virtual DbSet<ScraperCommand> ScraperCommands { get; set; }
@@ -18,6 +19,17 @@ namespace FinancialDucks.Infrastructure.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<BudgetLine>(entity =>
+            {
+                entity.Property(e => e.Budget).HasColumnType("money");
+
+                entity.HasOne(d => d.Category)
+                    .WithMany(p => p.BudgetLines)
+                    .HasForeignKey(d => d.CategoryId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_BudgetLines_Categories");
+            });
+
             modelBuilder.Entity<Category>(entity =>
             {
                 entity.HasIndex(e => e.Name, "NonClusteredIndex-20220402-121716")
@@ -59,7 +71,7 @@ namespace FinancialDucks.Infrastructure.Models
 
                 entity.Property(e => e.Selector)
                     .IsRequired()
-                    .HasMaxLength(100)
+                    .HasMaxLength(500)
                     .IsUnicode(false);
 
                 entity.Property(e => e.Text)
@@ -145,7 +157,7 @@ namespace FinancialDucks.Infrastructure.Models
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_TransactionSources_TransactionSourceTypes");
             });
-           
+
             modelBuilder.Entity<TransactionSourceType>(entity =>
             {
                 entity.Property(e => e.Name)

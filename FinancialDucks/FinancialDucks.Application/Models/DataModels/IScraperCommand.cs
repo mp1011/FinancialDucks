@@ -7,7 +7,7 @@ namespace FinancialDucks.Application.Models
         int SourceId => Source.Id;
         ScraperCommandType TypeId { get; set; }
         int Sequence { get; set; }
-        bool WaitForNavigate { get; set; }
+        bool PauseBeforeStep { get; set; }
         string Selector { get; set; }
         string Text { get; set; }
         ITransactionSource Source { get; }

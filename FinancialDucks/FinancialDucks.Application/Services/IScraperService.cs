@@ -53,6 +53,16 @@ namespace FinancialDucks.Application.Services
                 try
                 {
                     lastCommand = command;
+
+                    if(command.PauseBeforeStep)
+                    {
+                        await _mediator.Publish(new WebTransactionExtractorFeature.Notification(FetchStatus.Processing, command, "Paused", DateTime.Now, Array.Empty<ScrapedElement>()));
+                        while(command.PauseBeforeStep)
+                        {
+                            await Task.Delay(1000);
+                        }
+                    }
+
                     await _mediator.Publish(new WebTransactionExtractorFeature.Notification(FetchStatus.Processing, command, "Begin", DateTime.Now, Array.Empty<ScrapedElement>()));
 
                     if (command.TypeId == ScraperCommandType.ClickAndDownload)
@@ -136,6 +146,9 @@ namespace FinancialDucks.Application.Services
 
             switch(command.TypeId)
             {
+                case ScraperCommandType.KeyPress:
+                    await browser.KeyPress(command.Text, cancellationToken);
+                    break;
                 case ScraperCommandType.Click:
                     await browser.DoClick(command.Selector, command.Text, cancellationToken);
                     break;
@@ -164,9 +177,6 @@ namespace FinancialDucks.Application.Services
                     await browser.NavigateTo(command.Text, cancellationToken);
                     break;
             }
-
-            if (command.WaitForNavigate)
-                await browser.WaitForNavigate(currentUrl);
         }
     }
 }

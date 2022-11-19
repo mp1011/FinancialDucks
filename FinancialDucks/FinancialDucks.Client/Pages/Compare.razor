@@ -1,0 +1,84 @@
+﻿@page "/compare"
+@using FinancialDucks.Application.Features
+@using FinancialDucks.Application.Models
+@using FinancialDucks.Application.Models.AppModels
+@using FinancialDucks.Client.Components
+@using FinancialDucks.Client.Components.Statistics
+
+<h3>Comparison</h3>
+
+<TransactionsFilterToolbar 
+    IncludeTransfersCategory="false"
+    IncludeIntervalSelector="false"     
+    OnFilterChanged="(f) => CurrentFilter = f" />
+
+ <div class="input-group pe-3">
+    <div class="input-group-text">Compare To</div>        
+    <input type="date" @bind="CompareDateStart" />
+</div>
+
+
+ <table class="table">
+    <thead>
+    <tr>
+      <th scope="col">
+        Category
+      </th>
+      <th scope="col">
+          @BeforeDate.ToShortDateString()
+      </th>
+      <th scope="col">
+          @AfterDate.ToShortDateString()
+      </th>
+      <th scope="col">
+          Difference
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+        @if(Loading)
+        {
+            <tr>
+                <td>
+                    <div class="spinner-border" role="status">
+                      <span class="visually-hidden">Loading...</span>
+                    </div>
+                </td>
+            </tr>
+        }
+        else 
+        {
+            @foreach(var row in Comparisons)
+            {
+                <tr>
+                    <td>@row.Category.Name</td>
+                    <td>
+                        <CurrencyLabel Amount=@row.BaseValue />
+                    </td>
+                    <td>
+                        <CurrencyLabel Amount=@row.CompareValue />
+                    </td>  
+                    <td>
+                        @if(@row.BaseValue < @row.CompareValue)
+                        {
+                            <span class="badge bg-success">
+                                @((row.BaseValue-@row.CompareValue).ToString("C"))
+                            </span>
+                        }
+                        else @if(@row.BaseValue > @row.CompareValue)
+                        {
+                            <span class="badge bg-danger">
+                                @((row.BaseValue-@row.CompareValue).ToString("C"))
+                            </span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-info">$0</span>
+                        }
+                    </td>
+
+                </tr>
+            }
+        }
+    </tbody>
+</table>

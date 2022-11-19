@@ -20,11 +20,18 @@ else
     OnTimeIntervalChanged="(t)=> TimeInterval=t"
     OnFilterChanged="(f) => CurrentFilter = f" />
 
-<HistoryGraph Filter=@CurrentFilter TimeInterval=@TimeInterval  />
+<div class="form-check form-switch">
+    <input class="form-check-input" type="checkbox" id="chkDistributeOverGaps" @bind="DistributeOverGaps">
+    <label class="form-check-label" for="chkDistributeOverGaps">Distribute Over Gaps</label>
+</div>
+
+<HistoryGraph Filter=@CurrentFilter TimeInterval=@TimeInterval DistributeOverGaps=@DistributeOverGaps  />
 <CategoryChart Filter=@CurrentFilter CategoryClicked="OnCategoryChanged" />
 
 @code 
 {
+    public bool DistributeOverGaps=false;
+
     public TransactionsFilter CurrentFilter { get; set; }
 
     public ICategory Category =>CurrentFilter?.Category;

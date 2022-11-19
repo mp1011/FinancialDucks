@@ -4,6 +4,7 @@
     {
         Daily,
         Weekly,
+        Biweekly,
         Monthly,
         Quarterly,
         Annual
@@ -19,6 +20,8 @@
                     return date.AddDays(1);
                 case TimeInterval.Weekly:
                     return date.AddDays(7);
+                case TimeInterval.Biweekly:
+                    return date.AddDays(14);
                 case TimeInterval.Monthly:
                     return date.AddMonths(1);
                 case TimeInterval.Quarterly:

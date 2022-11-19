@@ -50,6 +50,11 @@ namespace FinancialDucks.Infrastructure.Models
                 .Include(s=>s.Source)
                 .AsNoTracking();
 
+        IQueryable<IBudgetLine> IDataContext.BudgetLines =>
+            BudgetLines
+                .Include(s => s.Category)
+                .AsNoTracking();
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
@@ -255,6 +260,29 @@ namespace FinancialDucks.Infrastructure.Models
             await transaction.CommitAsync();
 
             return dbRecord;
+        }
+
+        public async Task<IBudgetLine> Update(IBudgetLine budgetLine)
+        {
+            var current = await BudgetLines.FirstOrDefaultAsync(p => p.CategoryId == budgetLine.Category.Id);
+            if(current == null)
+            {
+                var budget = new BudgetLine();
+                budget.CategoryId = budgetLine.Category.Id;
+                budget.Budget = budgetLine.Budget;
+
+                await BudgetLines.AddAsync(budget);
+                await SaveChangesAsync();
+
+                return budget;
+            }
+            else
+            {
+                current.Budget = budgetLine.Budget;
+                Entry(current).State = EntityState.Modified;
+                await SaveChangesAsync();
+                return current;
+            }
         }
 
         public async Task<ITransactionSourceDetail> Update(ITransactionSource source)

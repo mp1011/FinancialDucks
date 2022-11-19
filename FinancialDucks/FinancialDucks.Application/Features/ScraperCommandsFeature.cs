@@ -36,6 +36,12 @@ namespace FinancialDucks.Application.Features
             {
                 using var context = _contextProvider.CreateDataContext();
 
+                if(request.Command.Id > 0 && request.Command.Sequence == 0)
+                {
+                    await context.Delete(request.Command);
+                    return request.Command;
+                }
+
                 var conflict = context.ScraperCommandsDetail
                     .SingleOrDefault(p => p.SourceId == request.Command.SourceId
                                         && p.Sequence == request.Command.Sequence

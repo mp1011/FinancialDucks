@@ -14,15 +14,17 @@ namespace FinancialDucks.Application.Services
         IQueryable<ITransactionWithCategory> TransactionsWithCategories { get; }
 
         IQueryable<IScraperCommandDetail> ScraperCommandsDetail { get; }
+
+        IQueryable<IBudgetLine> BudgetLines { get;  }
         Task<ITransaction[]> UploadTransactions(ITransaction[] transactions);
         Task<ICategory> AddSubcategory(ICategory parent, string name);
         Task<ICategoryRuleDetail> AddCategoryRule(ICategory category, ICategoryRule rule);
         Task<ICategory> Update(ICategory category);
         Task<ICategory> Delete(ICategory category);
         Task<ITransactionSourceDetail> Update(ITransactionSource source);
+        Task<IBudgetLine> Update(IBudgetLine budgetLine);
         Task<IScraperCommandDetail> Update(IScraperCommandDetail command);
         Task<IScraperCommandDetail> Delete(IScraperCommandDetail command);
-
         Task<ICategoryRuleDetail> Delete(ICategoryRule rule);
         Task<T[]> ToArrayAsync<T>(IQueryable<T> query);
         IQueryable<T> WatchCommandText<T>(IQueryable<T> query, Action<string> watcher);

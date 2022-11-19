@@ -18,6 +18,7 @@ namespace FinancialDucks.Application.Services
         Task GoBack();
         Task WaitFor(string selector, CancellationToken cancellationToken);
         Task NavigateTo(string url, CancellationToken cancellationToken);
+        Task KeyPress(string keys, CancellationToken cancellationToken);
     }
 
     public interface IBrowserAutomationService
@@ -52,8 +53,8 @@ namespace FinancialDucks.Application.Services
                 element = await _page.WaitForSelectorAsyncEx(selector, cancellationToken)
                                      .HandleError(e=>OnSelectorFail(e,selector));
             else
-                element = await WaitForInnerHTMLAsync(selector, searchText, cancellationToken, TimeSpan.FromSeconds(30));
-
+                element = await WaitForInnerHTMLAsync(selector, searchText, cancellationToken, TimeSpan.MaxValue);
+            
             await element.ClickAsync()
                             .HandleError(e => OnSelectorFail(e, selector));
         }
@@ -97,6 +98,8 @@ namespace FinancialDucks.Application.Services
             while ((DateTime.Now-start) < timeout)
             {
                 cancellationToken.ThrowIfCancellationRequested();
+                if (_page.IsClosed)
+                    throw new InvalidOperationException("Browser was closed");
 
                 try
                 {
@@ -169,7 +172,14 @@ namespace FinancialDucks.Application.Services
             if (_page.Url != originalUrl)
                 return;
 
-            await _page.WaitForNavigationAsync();
+            try
+            {
+                await _page.WaitForNavigationAsync();
+            }
+            catch(Exception e)
+            {
+             //   throw;
+            }
         }
 
         public async Task<ScrapedElement[]> GetScrapedElements(string selector, string searchText)
@@ -270,7 +280,7 @@ namespace FinancialDucks.Application.Services
                     {
                         await element.ClickAsync();
 
-                        var itemElement = await WaitForInnerHTMLAsync("span,option", text, cancellationToken, TimeSpan.FromSeconds(5))
+                        var itemElement = await WaitForInnerHTMLAsync("span,option,li", text, cancellationToken, TimeSpan.FromSeconds(5))
                                                 .HandleError(e => Task.FromResult(null as ElementHandle));
 
                         if (itemElement != null)
@@ -289,6 +299,14 @@ namespace FinancialDucks.Application.Services
             throw lastError ?? new Exception($"Unable to select dropdown text {text}");
 
 
+        }
+
+        public async Task KeyPress(string keys, CancellationToken cancellationToken)
+        {
+            foreach (var key in keys.Split(','))
+            {
+                await _page.Keyboard.PressAsync(key);
+            }
         }
     }
 
@@ -319,7 +337,7 @@ namespace FinancialDucks.Application.Services
 
 
             var page = await browser.NewPageAsync();
-            await page.GoToAsync(url);
+            await page.GoToAsync(url, timeout: 120000);
 
             return new PuppeteerBrowser(browser, page);
         }

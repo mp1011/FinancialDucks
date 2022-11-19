@@ -68,5 +68,15 @@ namespace FinancialDucks.Tests.CustomMocks
         {
             return Task.CompletedTask;
         }
+
+        public Task NavigateTo(string url, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task KeyPress(string keys, CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

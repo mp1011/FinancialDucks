@@ -42,6 +42,8 @@ namespace FinancialDucks.Application.Models.AppModels
         {
             return new TransactionsFilter(RangeStart, RangeEnd, newCategory, Sources, IncludeTransfers, TextFilter);
         }
+
+        public TransactionsFilter Copy() => new TransactionsFilter(this);
     }
 
 }

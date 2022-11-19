@@ -39,7 +39,7 @@ namespace FinancialDucks.Tests.FeatureTests
 
             var result = await mediator.Send(new HistoryGraphFeature.Query(
                 new TransactionsFilter(DateTime.Parse(dateFrom), DateTime.Parse(dateTo), category),
-                interval));
+                interval,true));
 
             var firstResult = result.First();
             var lastResult = result.TakeWhile(x => x.Amount != 0).Last();

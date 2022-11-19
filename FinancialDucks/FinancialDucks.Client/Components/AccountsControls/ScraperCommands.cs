@@ -38,6 +38,15 @@ namespace FinancialDucks.Client.Components.AccountsControls
             await LoadCommands();
         }
 
+        public async Task Delete(ScraperCommandEdit command)
+        {
+            command.Sequence = 0;
+            var saved = await Mediator.Send(new ScraperCommandsFeature.SaveCommand(command));
+            command.Id = saved.Id;
+            await LoadCommands();
+        }
+
+
         protected override void OnInitialized()
         {
             Dispatcher.Register(this, NotificationPriority.Low);
@@ -68,7 +77,9 @@ namespace FinancialDucks.Client.Components.AccountsControls
         public async Task Test()
         {
             _notifications.Clear();
-            var files = await Mediator.Send(new WebTransactionExtractorFeature.QueryPreview(_commands.Where(p=>!p.IsDefault).ToArray()));
+            var files = await Mediator.Send(new WebTransactionExtractorFeature.QueryPreview(_commands.Where(p => !p.IsDefault).ToArray()))
+               .HandleError(e => Task.CompletedTask);
+
             _downloadedFiles = files;
         }
 

@@ -23,6 +23,9 @@ namespace FinancialDucks.Client.Components.Statistics
         [Parameter]
         public TimeInterval TimeInterval { get; set; } = TimeInterval.Monthly;
 
+        [Parameter]
+        public bool DistributeOverGaps { get; set; }
+
         public LabelledData<CategoryTimeSlice>[] TimeSlices { get; set; }
 
         public string Format(object value) => ((double)value).ToString("C");
@@ -32,7 +35,7 @@ namespace FinancialDucks.Client.Components.Statistics
             if(Filter == null) return;
 
             var timeSlices = await Mediator.Send(
-                new HistoryGraphFeature.Query(Filter, TimeInterval));
+                new HistoryGraphFeature.Query(Filter, TimeInterval, DistributeOverGaps));
 
             TimeSlices = timeSlices
                 .Select((x, i) => new LabelledData<CategoryTimeSlice>(

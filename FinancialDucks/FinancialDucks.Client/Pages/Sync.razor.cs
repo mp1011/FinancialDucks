@@ -62,11 +62,15 @@ namespace FinancialDucks.Client.Pages
             await Mediator.Send(new WebTransactionExtractorFeature.Query(selectedSources));
         }
 
-        Task INotificationHandler<WebTransactionExtractorFeature.Notification>.Handle(WebTransactionExtractorFeature.Notification notification, CancellationToken cancellationToken)
+        async Task INotificationHandler<WebTransactionExtractorFeature.Notification>.Handle(WebTransactionExtractorFeature.Notification notification, CancellationToken cancellationToken)
         {
             var status = Status.FirstOrDefault(p => p.AccountId == notification.Command.SourceId);
             if (status == null)
-                return Task.CompletedTask;
+                return;
+
+
+            if (status.FetchStatus == FetchStatus.Done || status.FetchStatus == FetchStatus.Failed)
+                await OnInitializedAsync();
 
             status.FetchStatus = notification.FetchStatus;
             if(status.FetchStatus == FetchStatus.Failed)
@@ -75,7 +79,7 @@ namespace FinancialDucks.Client.Pages
                 status.FetchMessage = $"Step {notification.Command.Sequence}";
 
             StateHasChanged();
-            return Task.CompletedTask;
+            return;
         }
 
         public void Dispose()

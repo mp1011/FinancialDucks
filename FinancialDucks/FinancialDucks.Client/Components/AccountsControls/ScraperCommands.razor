@@ -7,7 +7,7 @@
         <th scope="col">Command</th>
         <th scope="col">Selector</th>
         <th scope="col">Search Text</th>
-        <th scope="col">Wait for Navigate</th>
+        <th scope="col">Pause Before</th>
         <th></th>
         <th></th>
     </tr>
@@ -30,7 +30,7 @@
             </td>
             <td>
                 <div class="form-check">
-                  <input class="form-check-input" type="checkbox" value="" @bind=command.WaitForNavigate>
+                  <input class="form-check-input" type="checkbox" value="" @bind=command.PauseBeforeStep>
                 </div>
             </td>
             <td>
@@ -46,6 +46,15 @@
                     }
                 </button>
 
+                @if(command.Id != 0)
+                {
+                        
+                    <button type="button" class="btn btn-primary" @onclick="()=> Delete(command)">
+                  
+                        <span>Delete</span>
+                    
+                    </button>
+                }
             </td>
             <td>
                 <ul>
