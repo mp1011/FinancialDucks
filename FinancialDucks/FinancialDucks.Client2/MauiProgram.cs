@@ -44,7 +44,7 @@ namespace FinancialDucks.Client2
             builder.Services.AddSingleton<IBrowserAutomationService, PuppeteerService>();
             builder.Services.AddSingleton<ISecureStringSaver, SecureStringSaver>();
             builder.Services.AddSingleton<IExcelToCSVConverter, Word97ExcelConverter>();
-
+            builder.Services.AddScoped<Radzen.TooltipService>();
             builder.Services.AddSingleton((sp) =>
             {
 
