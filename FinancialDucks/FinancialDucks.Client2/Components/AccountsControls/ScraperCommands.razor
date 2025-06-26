@@ -1,0 +1,92 @@
+﻿@using FinancialDucks.Application.Extensions
+<h3>Scraper Commands</h3>
+<table class="table">
+  <thead>
+    <tr>
+        <th scope="col">#</th>
+        <th scope="col">Command</th>
+        <th scope="col">Selector</th>
+        <th scope="col">Search Text</th>
+        <th scope="col">Pause Before</th>
+        <th></th>
+        <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    @foreach(var command in Commands)
+    {
+        <tr>
+            <td>
+                <input type="number" class="form-control" @bind=command.Sequence>
+            </td>
+            <td>
+                <ScraperCommandTypeSelector SelectedValue=@command.TypeId OnSelectionChanged="(s)=>command.TypeId=s" />
+            </td>
+            <td>
+                <input type="text" class="form-control" @bind=command.Selector>
+            </td>
+            <td>
+                 <input type="text" class="form-control" @bind=command.Text>
+            </td>
+            <td>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" value="" @bind=command.PauseBeforeStep>
+                </div>
+            </td>
+            <td>
+               
+                <button type="button" class="btn btn-primary" @onclick="()=> Save(command)">
+                    @if(command.Id == 0)
+                    {
+                        <span>Create</span>
+                    }
+                    else
+                    {
+                        <span>Save</span>
+                    }
+                </button>
+
+                @if(command.Id != 0)
+                {
+                        
+                    <button type="button" class="btn btn-primary" @onclick="()=> Delete(command)">
+                  
+                        <span>Delete</span>
+                    
+                    </button>
+                }
+            </td>
+            <td>
+                <ul>
+                    @foreach(var notification in _notifications.Where(p=>p.Command.Id==command.Id)
+                                                           .OrderBy(p=>p.Timestamp))
+                    {
+                        <li>
+                            <span>@notification.Message</span>
+                        </li>
+                    }
+                </ul>
+            </td>
+
+        </tr> 
+    }
+          
+  </tbody>
+</table>
+<button type="button" class="btn btn-primary" @onclick="Test">Test</button>
+@if(_downloadedFiles.NotNullOrEmpty())
+{
+    <h3>Downloaded files:</h3>
+    <ul>
+        @foreach(var file in _downloadedFiles)
+        {
+            <li>
+                <span>@file.FullName</span>
+            </li>
+        }
+    </ul>
+}
+else 
+{
+    <span>No files downloaded</span>
+}

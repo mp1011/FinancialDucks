@@ -1,0 +1,40 @@
+﻿@using FinancialDucks.Application.Models
+@using FinancialDucks.Application.Models.AppModels
+@using FinancialDucks.Client2.Components.SimpleControls
+@using static FinancialDucks.Application.Features.CategoriesFeature
+
+<button class="list-group-item list-group-item-action" 
+    type="button"
+    data-bs-toggle="collapse" 
+    data-bs-target="#children_@Id"
+    @onclick="Category_Clicked">
+    @Category.Name
+    @if (!NumTransactions.HasValue)
+    {
+        <span class="badge bg-secondary">...</span> 
+        <span class="badge bg-secondary">...</span>
+    }
+    else
+    {
+        <span class="badge bg-secondary mx-2">@NumTransactions</span> 
+        <CurrencyLabel Amount=@DollarTotal.GetValueOrDefault() />
+    }
+</button> 
+
+<div id="children_@Id" class="list-group-item collapse">
+    <div class="list-group">
+        <div class="list-group-item">
+            <div class="input-group">
+                <input @bind=NewCategoryText type="text" class="form-control" aria-label="New Category Name">
+                <div class="input-group-append">
+                <button type="button" class="btn btn-primary"
+                    @onclick="NewButton_Clicked">+</button>
+                </div>
+            </div>   
+        </div>
+        @foreach (var child in Category.Children)
+        {
+            <CategoryTreeNode Category=child NewButtonClick=@NewButtonClick CategorySelected=@CategorySelected/>            
+        }                  
+    </div>  
+</div>

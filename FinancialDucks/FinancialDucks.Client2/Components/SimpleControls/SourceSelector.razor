@@ -1,0 +1,69 @@
+﻿@using FinancialDucks.Application.Extensions
+@using FinancialDucks.Application.Features
+@using FinancialDucks.Application.Models
+@using FinancialDucks.Client2.Models
+@using MediatR
+
+<div class="dropdown">
+  <button class="btn btn-secondary dropdown-toggle" type="button" id="sourceDropdownButton" 
+    data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+     @SelectionText
+  </button>
+  <ul class="dropdown-menu" aria-labelledby="sourceDropdownButton">
+        @foreach(var source in Sources.NullToEmpty())
+        {
+            <li>
+                @{var buttonClass = source.Selected ? "dropdown-item active" : "dropdown-item"; }
+                <button class="@buttonClass" type="button" @onclick="()=>ToggleSelection(source)">@source.Data.Name</button>
+            </li>
+        }
+  </ul>
+</div>
+
+@code 
+{
+    [Inject]
+    public IMediator Mediator { get; set; }
+
+    [Parameter]
+    public EventCallback<ITransactionSourceDetail[]> OnSelectionChanged { get; set; }
+
+
+    public Selection<ITransactionSourceDetail>[] Sources { get; private set; } 
+
+
+    public string SelectionText { get; private set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var sources = await Mediator.Send(new TransactionSourcesFeature.Query());
+        Sources = sources
+            .Select(s => new Selection<ITransactionSourceDetail>(s, true))
+            .ToArray();
+
+        UpdateSelectionText();
+    }
+
+    public async Task ToggleSelection(ISelection selection)
+    {
+        selection.Selected = !selection.Selected;
+        UpdateSelectionText();
+        await OnSelectionChanged.InvokeAsync(Sources.GetSelectedData());        
+    }
+
+    private void UpdateSelectionText()
+    {
+        var selected = Sources.Where(p=>p.Selected).ToArray();
+
+        if (selected.Length == Sources.Length)
+            SelectionText = "All";
+        else if (selected.Length == 1)
+            SelectionText = selected[0].Data.Name;
+        else
+            SelectionText = $"{selected.Length} Selected";
+
+        StateHasChanged();
+
+
+    }
+}

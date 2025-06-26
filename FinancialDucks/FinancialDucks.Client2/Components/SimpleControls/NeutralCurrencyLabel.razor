@@ -1,0 +1,21 @@
+﻿@if(Good == null)
+{
+    <span class="badge rounded-pill bg-light text-dark">@Amount.ToString("C")</span>
+}
+else if(!Good.Value)
+{
+    <span class="badge rounded-pill bg-danger">@((Amount).ToString("C"))</span>
+}
+else
+{
+    <span class="badge rounded-pill bg-success">@Amount.ToString("C")</span>
+}
+
+@code
+{
+    [Parameter]
+    public decimal Amount { get; set; } 
+
+    [Parameter]
+    public bool? Good { get; set; }
+}

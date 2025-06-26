@@ -1,0 +1,36 @@
+﻿@using FinancialDucks.Client2.Services
+@inherits LayoutComponentBase
+@inject NavigationService NavigationService;
+@inject NavigationManager NavigationManager;
+
+<div class="page">
+	<div class="sidebar">
+		<NavMenu />
+	</div>
+
+	<main>
+		<div class="top-row px-4">
+			@if (NavigationService.CanGoBack)
+			{
+				<button @onclick="BackButton_Click" type="button" class="btn btn-primary">Back</button>
+			}
+		</div>
+
+		<article class="content px-4">
+			@Body
+		</article>
+	</main>
+</div>
+
+@code 
+{
+	protected override void OnInitialized()
+	{
+		NavigationService.Initialize(NavigationManager);
+	}
+
+	public void BackButton_Click()
+	{
+		NavigationService.GoBack();
+	}
+}

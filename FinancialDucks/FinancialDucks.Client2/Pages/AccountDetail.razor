@@ -1,0 +1,35 @@
+﻿@page "/accounts/{Id:int}"
+@using FinancialDucks.Client2.Components.AccountsControls
+@if(_account != null)
+{
+    <h1>@_account.Name</h1>
+
+    <div class="mb-3">
+      <label for="name" class="form-label">Name</label>
+      <input type="text" class="form-control" id="name" @bind=_account.Name>
+    </div>
+
+    <div class="mb-3">
+      <label for="name" class="form-label">Url</label>
+      <input type="text" class="form-control" id="url" @bind=_account.Url>
+    </div>
+
+    <div class="mb-3">
+      <label for="name" class="form-label">Login Name</label>
+      <input type="password" class="form-control" id="loginname" @bind=_loginName>
+    </div>
+
+    <div class="mb-3">
+      <label for="name" class="form-label">Password</label>
+      <input type="password" class="form-control" id="password" @bind=_password>
+    </div>
+
+    <div class="col-12">
+        <button type="button" class="btn btn-primary" @onclick="Update">Update</button>
+    </div>
+    
+
+    <AccountSnapshots Source="@_account" />
+    <ScraperCommands Source="@_account" />
+}
+

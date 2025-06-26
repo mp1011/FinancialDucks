@@ -1,0 +1,35 @@
+﻿@using FinancialDucks.Application.Features
+@using FinancialDucks.Application.Models
+@using MediatR
+
+@if(CategoryRule.SubstringMatch != null)
+{
+    <div class="my-1">
+        <label for="formFile" class="form-label">
+            <span>Description contains</span>
+            <mark>@CategoryRule.SubstringMatch</mark>
+        </label>
+        <input class="btn btn-danger" type="button" 
+                value="Delete"
+                data-bs-toggle="modal" 
+                data-bs-target=@($"#ConfirmDeleteRulePrompt_{CategoryRule.Id}")/>
+   </div>
+}
+
+<ConfirmDialog Id=@($"ConfirmDeleteRulePrompt_{CategoryRule.Id}") Message="Are you sure you want to delete this rule?" 
+    OnDialogClosed="OnPromptDeleteDialog" />
+
+@code 
+{
+    [Inject]
+    public IMediator Mediator { get; set; }
+
+    [Parameter]
+    public ICategoryRule CategoryRule { get; set; }
+
+    public async void OnPromptDeleteDialog(bool confirm)
+    {
+        if (confirm)
+            await Mediator.Send(new CategoryRulesFeature.DeleteCommand(CategoryRule));
+    }
+}

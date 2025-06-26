@@ -1,0 +1,9 @@
+﻿ <form>
+    <div class="form-group row">
+    <label for="descriptionContains" class="col-sm-2 col-form-label">Description contains</label>
+    <div class="col-sm-10">
+        <input type="text" class="form-control-plaintext" id="descriptionContains" @bind="SubstringMatch">
+    </div>
+    </div>
+    <button @onclick="CreateButton_Click" type="button" class="btn btn-primary">Create</button>
+</form>

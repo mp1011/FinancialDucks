@@ -1,0 +1,62 @@
+﻿@using FinancialDucks.Application.Extensions
+@using FinancialDucks.Application.Models
+@using MediatR
+
+<div class="container">
+    <div class="row align-items-start">
+        <div class="col" style="position:relative">
+            <div class="pie-chart"
+                 @onmousemove="MouseMove"
+                 @onmouseout="MouseOut"
+                 @onmouseup="ChartClicked"
+                 style="background:conic-gradient(@PieChartGradientConicGradientCSS)">
+            </div>
+            @if(MouseoverStats != null)
+            {
+                <span style="position:absolute; left:@(MouseoverPosition.X)px; top:@(MouseoverPosition.Y-24)px" class="badge bg-primary">
+                    @($"{MouseoverStats.Category.Name} {MouseoverStats.Total.ToString("C")}")
+                </span>
+            }
+        </div>
+        <div class="col">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Category</th>
+                        <th scope="col">Total $</th>
+                        <th scope="col"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach(var chartSection in Sections.NullToEmpty())
+                    {
+                        <tr>
+                            <td>
+                                @if (chartSection.Selected)
+                                {
+                                    <span style="background-color: @(chartSection.Data.CSSColor)" class="badge badge-primary">&nbsp;</span>
+                                }
+                                else
+                                {
+                                    <span style="background-color: white" class="badge badge-primary">&nbsp;</span>
+                                }
+                                <a class="link-primary" 
+                                    href="#"
+                                    @onclick:preventDefault="true"
+                                    @onclick="async ()=> await CategoryClicked.InvokeAsync(chartSection.Data.Stats.Category)">
+                                    @chartSection.Data.Stats.Category.Name
+                                </a>
+                            </td>
+                            <td>@chartSection.Data.Stats.Total.ToString("C")</td>
+                            <td>
+                                <input class="form-check-input me-1" type="checkbox" 
+                                    checked="@chartSection.Selected" 
+                                    @onclick="()=>ToggleSelection(chartSection)" aria-label=@(chartSection.Data.Stats.Category.Name) />
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

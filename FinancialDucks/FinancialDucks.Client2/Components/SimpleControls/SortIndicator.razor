@@ -1,0 +1,18 @@
+﻿@using FinancialDucks.Application.Models.AppModels
+
+@if(Direction.HasValue)
+{
+    @if(Direction == SortDirection.Ascending)
+    {
+        <img src="\icons\svg\arrow-thick-top.svg" alt="Asc" />
+    }
+    else
+    {
+        <img src="\icons\svg\arrow-thick-bottom.svg" alt="Des" />
+    }
+}
+@code 
+{
+    [Parameter]
+    public SortDirection? Direction { get; set; }
+}

@@ -1,0 +1,45 @@
+﻿@page "/statistics"
+@using FinancialDucks.Application.Features
+@using FinancialDucks.Application.Models
+@using FinancialDucks.Application.Models.AppModels
+@using FinancialDucks.Client2.Components
+@using FinancialDucks.Client2.Components.Statistics
+
+@if (Category != null)
+{
+    <h3>Statistics: @Category.Name</h3>
+}
+else
+{
+    <h3>Statistics</h3>
+}
+
+<TransactionsFilterToolbar 
+    IncludeTransfersCategory="false"
+    IncludeIntervalSelector="true" 
+    OnTimeIntervalChanged="(t)=> TimeInterval=t"
+    OnFilterChanged="(f) => CurrentFilter = f" />
+
+<div class="form-check form-switch">
+    <input class="form-check-input" type="checkbox" id="chkDistributeOverGaps" @bind="DistributeOverGaps">
+    <label class="form-check-label" for="chkDistributeOverGaps">Distribute Over Gaps</label>
+</div>
+
+<HistoryGraph Filter=@CurrentFilter TimeInterval=@TimeInterval DistributeOverGaps=@DistributeOverGaps  />
+<CategoryChart Filter=@CurrentFilter CategoryClicked="OnCategoryChanged" />
+
+@code 
+{
+    public bool DistributeOverGaps=false;
+
+    public TransactionsFilter CurrentFilter { get; set; }
+
+    public ICategory Category =>CurrentFilter?.Category;
+
+    public TimeInterval TimeInterval { get; set; }
+
+    public void OnCategoryChanged(ICategoryDetail category)
+    {
+        CurrentFilter = CurrentFilter.ChangeCategory(category);
+    }
+}

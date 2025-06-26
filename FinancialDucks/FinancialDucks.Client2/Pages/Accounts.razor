@@ -1,0 +1,37 @@
+﻿@page "/accounts"
+@using FinancialDucks.Application.Extensions
+@using FinancialDucks.Application.Features
+@using FinancialDucks.Application.Models
+@using MediatR
+
+@inject IMediator Mediator;
+
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Type</th>
+      <th scope="col">Url</th>
+    </tr>
+  </thead>
+  <tbody>
+        @foreach(var source in Sources.NullToEmpty())
+        {
+            <tr>
+              <td><a href="/accounts/@source.Id">@source.Name</a></td>
+              <td>@source.SourceType.Name.AddSpacesAtCapitals()</td>
+              <td><a href="@source.Url">@source.Url</a></td>
+            </tr>      
+        }      
+  </tbody>
+</table>
+
+@code 
+{
+    public ITransactionSourceDetail[] Sources { get; private set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Sources = await Mediator.Send(new TransactionSourcesFeature.Query());
+    }
+}

@@ -1,0 +1,59 @@
+﻿<input type="date" @bind="Month" />
+
+@if(BudgetLines.Any())
+{
+    <div class="col">
+        <div class="card" style="width: 18rem;">
+            <div class="card-body">
+            <h5 class="card-title">Period Start: @BudgetLines[0].PeriodStart.ToShortDateString() </h5>
+            </div>
+        </div>
+    </div>
+}
+
+<table class="table">
+    <thead>
+    <tr>
+      <th scope="col">Category</th>
+      <th scope="col">12 mo Total</th>
+      <th scope="col">12 mo Avg</th>
+      <th scope="col">12 mo Std Dev</th>
+      <th scope="col">Budget</th>
+      <th scope="col">Spent</th>
+      <th scope="col">% Met</th>
+    </tr>
+  </thead>
+  <tbody>
+        @foreach(var row in BudgetLines)
+        {
+            <tr>
+                <td>@row.Category.Name</td>
+                <td>
+                    <NeutralCurrencyLabel Amount=@row.YearTotal />
+                </td>
+                <td>
+                    <NeutralCurrencyLabel Amount=@row.YearAvg />
+                </td>
+                <td>
+                    <NeutralCurrencyLabel Amount=@row.YearStd />
+                </td>
+                <td>
+                    <NeutralCurrencyLabel Amount=@row.Budget />
+                </td>
+                <td>
+                    <NeutralCurrencyLabel Good="@(row.ActualSpent <= row.Budget)" Amount=@row.ActualSpent />
+                </td>
+                <td>
+                    @if(row.PercentMet == 0f)
+                    {
+                        <span>0%</span>
+                    }
+                    else 
+                    {
+                        @row.PercentMet.ToString("P")
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

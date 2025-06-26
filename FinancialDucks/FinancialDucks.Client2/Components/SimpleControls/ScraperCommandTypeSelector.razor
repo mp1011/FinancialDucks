@@ -1,0 +1,43 @@
+﻿@using FinancialDucks.Application.Extensions
+@using FinancialDucks.Application.Features
+@using FinancialDucks.Application.Models
+@using FinancialDucks.Application.Models.AppModels
+@using FinancialDucks.Client2.Models
+@using MediatR
+
+<div class="dropdown">
+  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+    @SelectedValue.ToString().AddSpacesAtCapitals()
+  </button>
+  <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+        @foreach(var choice in Choices)
+        {
+            <li>
+                <button type="button" class="dropdown-item" @onclick="()=>Set(choice)">@choice.ToString().AddSpacesAtCapitals()</button>
+            </li>
+        }
+  </ul>
+</div>
+
+@code 
+{
+
+    [Parameter]
+    public EventCallback<ScraperCommandType> OnSelectionChanged { get; set; }
+
+    [Parameter]
+    public ScraperCommandType SelectedValue { get; set; }
+
+    public ScraperCommandType[] Choices { get; private set; }
+
+    protected override void OnInitialized()
+    {
+        Choices = Enum.GetValues<ScraperCommandType>();
+    }
+
+    public async Task Set(ScraperCommandType value)
+    {
+        SelectedValue = value;
+        await OnSelectionChanged.InvokeAsync(value);
+    }
+}

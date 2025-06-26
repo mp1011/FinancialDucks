@@ -1,0 +1,42 @@
+﻿@using FinancialDucks.Client2.Components.SimpleControls
+<div class="btn-toolbar" role="toolbar" aria-label="Toolbar">
+
+    @if (IncludeTextFilter)
+    {
+        <div class="input-group pe-3">
+            <div class="input-group-text">Filter</div>
+            <input @bind="TextFilter" type="text" class="form-control" placeholder="" aria-label="Filter" aria-describedby="btnGroupAddon">    
+        </div>
+    }
+
+    <div class="input-group pe-3">
+        <div class="input-group-text">Sources</div>
+        <SourceSelector OnSelectionChanged="OnSourcesChanged" />
+    </div>
+
+    <div class="input-group pe-3">
+        <div class="input-group-text">From</div>        
+        <input type="date" @bind="RangeStart" />
+    </div>
+
+    <div class="input-group pe-3">
+        <div class="input-group-text">To</div>        
+        <input type="date" @bind ="RangeEnd" />
+    </div>
+
+    @if (IncludeIntervalSelector)
+    {
+        <div class="input-group">
+            <div class="input-group-text">Interval</div>        
+            <TimeIntervalSelector 
+                OnIntervalSelected="OnTimeIntervalChanged" />
+        </div>
+    }
+
+
+</div>
+
+@if (IncludeCategorySelector)
+{
+    <CategoryFilter OnCategorySelected="OnCategorySelected" OnIncludeTransfersChanged="OnIncludeTransfersChanged" IncludeTransfersCategory="IncludeTransfersCategory" SelectedCategory="@CategoryFilter" />
+}

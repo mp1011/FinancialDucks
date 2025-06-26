@@ -1,0 +1,36 @@
+﻿@page "/categories"
+@using FinancialDucks.Application.Models.AppModels
+@using FinancialDucks.Client2.Components
+@using FinancialDucks.Client2.Components.Categories
+
+<h1>Categories</h1>
+
+<div class="container">
+  <div class="row">
+    <div class="col-sm">
+        @if(Root == null)
+        {
+            <p>Loading categories...</p>
+        }
+        else 
+        {
+            <div class="list-group">
+                @foreach(var child in Root.Children.Where(p=>p.Name != SpecialCategory.Unclassified.ToString()))
+                {
+                    <CategoryTreeNode   Category=child 
+                                        NewButtonClick=NewCategoryButton_Click
+                                        CategorySelected=OnCategorySelected />                                       
+                }
+            </div>
+        }
+    </div>
+    <div class="col-sm">
+        @if(SelectedCategory != null)
+        {
+            <CategoryDetailView Category=@SelectedCategory />       
+        }        
+    </div>
+  </div>
+</div>
+
+

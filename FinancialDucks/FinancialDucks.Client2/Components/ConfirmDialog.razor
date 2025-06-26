@@ -1,0 +1,31 @@
+﻿<div class="modal fade" id="@Id" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalLabel">@Message</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cancel"></button>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" @onclick="()=>DialogClosed(false)" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" @onclick="()=>DialogClosed(true)" data-bs-dismiss="modal">OK</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+@code 
+{
+    [Parameter]
+    public string Id { get; set; }
+
+    [Parameter]
+    public string Message { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> OnDialogClosed { get; set; }
+
+    public async Task DialogClosed(bool confirm)
+    {
+        await OnDialogClosed.InvokeAsync(confirm);
+    }
+}
