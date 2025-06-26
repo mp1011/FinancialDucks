@@ -10,7 +10,7 @@
     @foreach(var categorySelection in CategorySelections)
     {
         <div class="dropdown">
-            <button class="btn btn-secondary dropdown-toggle" id=@Id type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <button class="btn btn-secondary dropdown-toggle" id="@Id" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                 @if(categorySelection.SelectedChild != null)
                 {
                     @categorySelection.SelectedChild.Name
@@ -20,7 +20,7 @@
                     <span>All</span>
                 }
             </button>
-            <ul class="dropdown-menu" aria-labelledby=@Id>
+            <ul class="dropdown-menu" aria-labelledby="@Id">
                 @if(IncludeTransfersCategory)
                 {
                     <li><button type="button" class="dropdown-item" @onclick="()=>SetCategory(categorySelection,null)">All</button></li>

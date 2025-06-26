@@ -12,6 +12,15 @@ namespace FinancialDucks.Infrastructure.Models
         private readonly IEqualityComparer<ITransaction> _transactionEqualityComparer;
         private readonly IObjectMapper _objectMapper;
 
+
+        // constructor for command line tools 
+        public FinancialDucksContext()
+        {
+            _settingsService = new EfToolsSettingsService();
+            _transactionEqualityComparer = null;
+            _objectMapper = null;
+        }
+
         public FinancialDucksContext(ISettingsService settingsService, IEqualityComparer<ITransaction> transactionEqualityComparer,
             IObjectMapper objectMapper)
         {

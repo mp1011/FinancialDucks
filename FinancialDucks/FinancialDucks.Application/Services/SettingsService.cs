@@ -24,4 +24,14 @@ namespace FinancialDucks.Application.Services
 
         public string ConnectionString => _configuration.GetConnectionString("DB");
     }
+
+    // used for command line tools
+    public class EfToolsSettingsService : ISettingsService
+    {
+
+        public DirectoryInfo SourcePath => null;
+        public DirectoryInfo DownloadsFolder => null;
+
+        public string ConnectionString => "Server=localhost;Database=FinancialDucks;Trusted_Connection=True;";
+    }
 }
