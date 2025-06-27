@@ -67,7 +67,7 @@ namespace FinancialDucks.Application.Services
             else if (filter.Category != null && filter.Category.Name == SpecialCategory.Credits.ToString())
                 query = GetNonTransferTransactions(dataContext, categoryTree).Where(p => p.Amount > 0);
             else if (filter.Category != null && filter.Category.Name == SpecialCategory.Unclassified.ToString())
-                query = GetNonTransferTransactions(dataContext, categoryTree).Where(p => p.CategoryId == null);
+                query = GetNonTransferTransactions(dataContext, categoryTree).Where(p => p.CategoryId == unclassifiedCategory.Id);
             else if (categoryIds.Length > 0)
             {
                 if (filter.IncludeTransfers)
@@ -100,7 +100,7 @@ namespace FinancialDucks.Application.Services
 
             return query.Where(p=>p.Date >= filter.RangeStart.StartOfDay()
                                 && p.Date <= filter.RangeEnd.EndOfDay()
-                                && (sourceIds==null || sourceIds.Contains(p.SourceId))
+                                && (sourceIds == null || sourceIds.Contains(p.SourceId))
                                 && (textFilter == null || p.Description.Contains(textFilter)));
         }
     

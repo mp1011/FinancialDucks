@@ -1,0 +1,14 @@
+@page "/cash_flow"
+@using FinancialDucks.Client2.Components
+
+<h3>Cash Flow</h3>
+
+<TransactionsFilterToolbar 
+    IncludeTransfersCategory="false"
+    IncludeIntervalSelector="true"
+    IncludeCategorySelector="false"
+    OnTimeIntervalChanged="async (t)=> { TimeInterval=t; await LoadReport(); }"
+    OnFilterChanged="async (f) => { CurrentFilter = f; await LoadReport(); }" />
+
+<CashFlowReportTable Items="ReportItems" />
+
