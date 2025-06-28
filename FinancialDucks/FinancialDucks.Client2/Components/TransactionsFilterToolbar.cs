@@ -1,12 +1,18 @@
 ﻿using FinancialDucks.Application.Features;
 using FinancialDucks.Application.Models;
 using FinancialDucks.Application.Models.AppModels;
+using MediatR;
 using Microsoft.AspNetCore.Components;
+using Microsoft.Maui.Storage;
+using System.ComponentModel;
 
 namespace FinancialDucks.Client2.Components
 {
-    public partial class TransactionsFilterToolbar
+    public partial class TransactionsFilterToolbar : IAsyncDisposable
     {
+        [Inject]
+        public IMediator Mediator { get; set; }
+
         [Parameter]
         public bool IncludeTransfersCategory { get; set; } = true;
 
@@ -16,10 +22,8 @@ namespace FinancialDucks.Client2.Components
         [Parameter]
         public bool IncludeCategorySelector { get; set; } = true;
 
-
         [Parameter]
         public bool IncludeTextFilter { get; set; } = true;
-
 
         [Parameter]
         public TransactionSortColumn SortColumn { get; set; }
@@ -69,6 +73,13 @@ namespace FinancialDucks.Client2.Components
             }
         }
 
+        protected override async Task OnInitializedAsync()
+        {
+            var settings = await Mediator.Send(new UserPreferencesFeature.LoadUserPreferencesQuery());
+            RangeStart = settings.RangeStart;
+            RangeEnd = settings.RangeEnd;
+        }
+
         private async Task UpdateCurrentFilter(bool forceUpdate = false)
         {
             if (forceUpdate
@@ -96,6 +107,13 @@ namespace FinancialDucks.Client2.Components
         {
             Sources = selectedSources;
             await UpdateCurrentFilter(forceUpdate: true);
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            await Mediator.Send(new UserPreferencesFeature.SaveUserPreferencesCommand(
+                new UserPreferences(RangeStart: RangeStart, RangeEnd: RangeEnd)
+                ));
         }
     }
 }
