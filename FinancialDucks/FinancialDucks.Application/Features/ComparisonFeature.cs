@@ -34,12 +34,13 @@ namespace FinancialDucks.Application.Features
                 var beforeValues = (request.Filter.RangeStart < request.CompareDateStart) ? baseValuesByCategory : compareValuesByCategory;
                 var afterValues = (request.Filter.RangeStart > request.CompareDateStart) ? baseValuesByCategory : compareValuesByCategory;
 
-                var result = new List<TransactionComparison>();
-                result.Add(new TransactionComparison(
-                    Category: new Category(-1, "Total", false, null),
-                    BaseValue: beforeValues.Sum(p => p.Value),
-                    CompareValue: afterValues.Sum(p => p.Value)));
-
+                var result = new List<TransactionComparison>
+                {
+                    new TransactionComparison(
+                    Category: baseValues.Main.Category,
+                    BaseValue: baseValues.Main.Total,
+                    CompareValue: compareValues.Main.Total)
+                };
 
                 result.AddRange(categories.Select(c =>
                     new TransactionComparison(
