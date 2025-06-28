@@ -1,21 +1,24 @@
-﻿// See https://aka.ms/new-console-template for more information
-Console.WriteLine("Hello, World!");
+﻿using System.Net.Http.Json;
+using System.Text.Json;
 
-var lines = File.ReadAllLines(@"E:\Documents\pc.txt");
+var question = "What is the capital of France?";
+var model = "llama3.2"; // Change to your preferred model
 
-List<decimal> amounts = new List<decimal>();
-int skip = 9;
-while(true)
+var requestBody = new
 {
-    var batch = lines
-        .Skip(skip)
-        .TakeWhile(p => p.Trim().Length > 0)
-        .ToArray();
+    model = model,
+    prompt = question,
+    stream = false
+};
 
-    if (batch.Length < 3)
-        break;
+using var httpClient = new HttpClient();
+var response = await httpClient.PostAsJsonAsync(
+    "http://localhost:11434/api/generate", requestBody);
 
-    amounts.Add(decimal.Parse(batch[2]));
-    skip += batch.Length+1;
-}
-Console.ReadKey();
+response.EnsureSuccessStatusCode();
+
+var responseString = await response.Content.ReadAsStringAsync();
+using var doc = JsonDocument.Parse(responseString);
+var content = doc.RootElement.GetProperty("response").GetString();
+
+Console.WriteLine("Ollama says: " + content);

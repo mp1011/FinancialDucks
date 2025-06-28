@@ -95,5 +95,8 @@ namespace FinancialDucks.Application.Extensions
 
             return 0;
         }
+
+        public static string StringJoin(this IEnumerable<string> str, string separator) => 
+            String.Join(separator, str);
     }
 }

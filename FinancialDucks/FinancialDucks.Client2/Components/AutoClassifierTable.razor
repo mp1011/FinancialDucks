@@ -1,0 +1,32 @@
+@using FinancialDucks.Application.Extensions
+@using FinancialDucks.Application.Features
+@using FinancialDucks.Application.Models.AppModels
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Date</th>
+            <th>Amount</th>
+            <th>Matched Categories</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var result in Results.NullToEmpty())
+        {
+            <tr>
+                <td>@result.Transaction.Description</td>
+                <td>@result.Transaction.Date.ToShortDateString()</td>
+                <td><NeutralCurrencyLabel Amount="@result.Transaction.Amount" /></td>
+                <td>
+                    @foreach (var category in result.MatchedCategories)
+                    {
+                        <button class="btn btn-outline-primary btn-sm" @onclick="() => OnCategoryClicked?.Invoke(category)">
+                            @category.Name
+                        </button>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

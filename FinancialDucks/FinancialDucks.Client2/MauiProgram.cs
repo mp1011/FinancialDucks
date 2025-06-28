@@ -45,10 +45,10 @@ namespace FinancialDucks.Client2
             builder.Services.AddSingleton<ISecureStringSaver, SecureStringSaver>();
             builder.Services.AddSingleton<IExcelToCSVConverter, Word97ExcelConverter>();
             builder.Services.AddSingleton<IUserPreferencesService, UserPreferencesService>();
+            builder.Services.AddSingleton<IPromptEngine, OllamaPromptEngine>();
             builder.Services.AddScoped<Radzen.TooltipService>();
             builder.Services.AddSingleton((sp) =>
             {
-
                 var dispatcher = sp.GetRequiredService<NotificationDispatcher<CategoryChangeNotification>>();
                 var realProvider = sp.GetRequiredService<SqlCategoryTreeProvider>();
                 ICategoryTreeProvider p = new CachedCategoryTreeProvider(realProvider, dispatcher);
@@ -56,6 +56,7 @@ namespace FinancialDucks.Client2
             });
 
             builder.Services.AddSingleton<NotificationDispatcher<CategoryChangeNotification>>();
+            builder.Services.AddSingleton<NotificationDispatcher<AutoClassifierFeature.AutoClassifyNotification>>();
             builder.Services.AddSingleton<NotificationDispatcher<WebTransactionExtractorFeature.Notification>>();
 
             builder.Services.AddSingleton<ITransactionsQueryBuilder, TransactionsQueryBuilder>();
