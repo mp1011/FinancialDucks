@@ -1,0 +1,29 @@
+@* Pagination component for reusable page navigation *@
+
+<ul class="pagination">
+    @if (Page > 1)
+    {
+        <li class="page-item">
+            <button type="button" class="page-link" @onclick="() => OnPageChanged.InvokeAsync(Page - 1)" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+            </button>
+        </li>
+    }
+
+    @foreach (var pageNum in VisibleNavigationPages)
+    {
+        <li class="page-item @(pageNum == Page ? "active" : "")">
+            <button type="button" class="page-link" @onclick="() => OnPageChanged.InvokeAsync(pageNum)">@pageNum</button>
+        </li>
+    }
+
+    @if (Page < TotalPages)
+    {
+        <li class="page-item">
+            <button type="button" class="page-link" @onclick="() => OnPageChanged.InvokeAsync(Page + 1)" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+            </button>
+        </li>
+    }
+</ul>
+

@@ -21,12 +21,30 @@
                 <td>
                     @foreach (var category in result.MatchedCategories)
                     {
-                        <button class="btn btn-outline-primary btn-sm" @onclick="() => OnCategoryClicked?.Invoke(category)">
+                        <button class="btn btn-outline-primary btn-sm me-1 mb-1" @onclick="async () => await OnCategoryClicked(result, category)">
                             @category.Name
                         </button>
                     }
+                    <button class="btn btn-outline-primary btn-sm me-1 mb-1" @onclick="async () => await OnCategoryClicked(result, null)">
+                        Other
+                    </button>
                 </td>
             </tr>
         }
     </tbody>
 </table>
+
+@if(Results.IsNullOrEmpty())
+{
+    <div class="d-flex justify-content-center my-4">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">Loading...</span>
+        </div>
+    </div>
+}
+
+<nav aria-label="Page navigation">
+    <Pagination Page="@Page" PageSize="@PageSize" TotalPages="@TotalPages" OnPageChanged="SetPage" />
+</nav>
+
+<CategoryQuickAdd Text="@SelectedTransactionText" Transaction="@SelectedTransaction" InitialCategory="@SelectedCategory" />

@@ -12,7 +12,10 @@ namespace FinancialDucks.Client2.Components
         public string Text { get; set; }
 
         [Parameter]
-        public ITransactionDetail Transaction { get; set; }
+        public ITransaction Transaction { get; set; }
+
+        [Parameter]
+        public ICategoryDetail? InitialCategory { get; set; }
 
         [Parameter]
         public EventCallback<ICategoryDetail> AfterCreate { get; set; }

@@ -52,29 +52,11 @@ namespace FinancialDucks.Client2.Components
         public bool Loading { get; private set; }
 
         public TransactionWithCategories[] Transactions { get; private set; } = Array.Empty<TransactionWithCategories>();
-
+        public int Page { get; set; } = 1;
         public int PageSize { get; private set; } = 10;
-
-        public int Page { get; private set; } = 1;
-
         public int TotalPages => Summary.TotalPages;
         public TransactionsSummary Summary { get; private set; } = new TransactionsSummary(0, 0, 0);
-        public int VisibleNavigationPageRange { get; } = 3;
-
-        public int[] VisibleNavigationPages
-        {
-            get
-            {
-                if (TotalPages == 0)
-                    return Array.Empty<int>();
-
-                var start = Math.Max(1, Page - VisibleNavigationPageRange);
-                var end = Math.Min(TotalPages, start + (VisibleNavigationPageRange * 2));
-
-                return Enumerable.Range(start, (end - start) + 1).ToArray();
-            }
-        }
-
+     
         public async Task ToggleSortDate()
         {
             SortColumn = TransactionSortColumn.Date;

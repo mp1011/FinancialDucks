@@ -1,6 +1,4 @@
 ﻿namespace FinancialDucks.Application.Models.AppModels
 {
-    public record AutoClassificationResult(ITransaction Transaction, ICategory[] MatchedCategories)
-    {
-    }
+    public record AutoClassificationResult(ITransaction Transaction, ICategoryDetail[] MatchedCategories);
 }

@@ -11,7 +11,7 @@ namespace FinancialDucks.Application.Features
 {  
     public class AutoClassifierFeature
     {
-        public record AutoClassifyTransactionsQuery() : IRequest<AutoClassificationResult[]>;
+        public record AutoClassifyTransactionsQuery(int Page, int ResultsPerPage, TransactionsFilter Filter) : IRequest<AutoClassificationResult[]>;
         public record AutoClassifyTransactionQuery(ITransaction Transaction, ICategoryDetail[] PossibleCategories) : IRequest<AutoClassificationResult>;
         public record AutoClassifyNotification(AutoClassificationResult Result) : INotification
         {
@@ -51,17 +51,18 @@ namespace FinancialDucks.Application.Features
             {
                 var categoryTree = await _mediator.Send(new CategoryTreeRequest());
                 var unclassifiedCategory = categoryTree.GetDescendant(SpecialCategory.Unclassified.ToString())!;
-
                 var possibleCategories = PossibleCategories(categoryTree);
+
+                var filter = new TransactionsFilter(new DateTime(2000, 1, 1), DateTime.Now, unclassifiedCategory, null);
+
+                var summary = await _mediator.Send(new QuerySummary(filter, request.ResultsPerPage), cancellationToken);
                 var transactions = await _mediator.Send(new QueryTransactions(
-                    new TransactionsFilter(new DateTime(2000, 1, 1), DateTime.Now, unclassifiedCategory, null),
+                    filter ,
                     TransactionSortColumn.Date,
                     SortDirection.Ascending,
-                    Page: 0,
-                    ResultsPerPage: 1000));
-
-                List<AutoClassificationResult> results = new();
-
+                    Page: request.Page-1,
+                    ResultsPerPage: request.ResultsPerPage));
+                
                 return await Task.WhenAll(transactions.Select(transaction =>
                   _mediator.Send(new AutoClassifyTransactionQuery(transaction, possibleCategories), cancellationToken)));
             }
