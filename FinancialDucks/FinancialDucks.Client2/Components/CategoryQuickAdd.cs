@@ -15,14 +15,12 @@ namespace FinancialDucks.Client2.Components
         public ITransaction Transaction { get; set; }
 
         [Parameter]
-        public ICategoryDetail? InitialCategory { get; set; }
-
-        [Parameter]
         public EventCallback<ICategoryDetail> AfterCreate { get; set; }
 
         [Inject]
         public IMediator Mediator { get; set; }
 
+        [Parameter]
         public ICategoryDetail Category { get; set; }
 
         public string NewCategoryName { get; set; }
