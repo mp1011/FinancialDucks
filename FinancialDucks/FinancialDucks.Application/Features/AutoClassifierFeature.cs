@@ -12,7 +12,7 @@ namespace FinancialDucks.Application.Features
     public class AutoClassifierFeature
     {
         public record AutoClassifyTransactionsQuery(int Page, int ResultsPerPage, TransactionsFilter Filter) : IRequest<AutoClassificationResult[]>;
-        public record AutoClassifyTransactionQuery(ITransaction Transaction, ICategoryDetail[] PossibleCategories) : IRequest<AutoClassificationResult>;
+        public record AutoClassifyTransactionQuery(ITransaction Transaction, ICategoryDetail CategoryTree) : IRequest<AutoClassificationResult>;
         public record AutoClassifyNotification(AutoClassificationResult Result) : INotification
         {
             public class Handler : INotificationHandler<AutoClassifyNotification>
@@ -39,32 +39,20 @@ namespace FinancialDucks.Application.Features
                 _mediator = mediator;
             }
 
-            private ICategoryDetail[] PossibleCategories(ICategoryDetail root)
-            {
-                string[] Ignore = { SpecialCategory.Credits.ToString(), SpecialCategory.Debits.ToString(), SpecialCategory.Unclassified.ToString() };
-                return root.GetDescendants()
-                           .Where(p => !Ignore.Contains(p.Name))
-                           .ToArray();
-            }
-
             public async Task<AutoClassificationResult[]> Handle(AutoClassifyTransactionsQuery request, CancellationToken cancellationToken)
             {
                 var categoryTree = await _mediator.Send(new CategoryTreeRequest());
-                var unclassifiedCategory = categoryTree.GetDescendant(SpecialCategory.Unclassified.ToString())!;
-                var possibleCategories = PossibleCategories(categoryTree);
-
-                var filter = new TransactionsFilter(new DateTime(2000, 1, 1), DateTime.Now, unclassifiedCategory, null);
-
-                var summary = await _mediator.Send(new QuerySummary(filter, request.ResultsPerPage), cancellationToken);
+                              
+                var summary = await _mediator.Send(new QuerySummary(request.Filter, request.ResultsPerPage), cancellationToken);
                 var transactions = await _mediator.Send(new QueryTransactions(
-                    filter ,
+                    request.Filter,
                     TransactionSortColumn.Date,
                     SortDirection.Ascending,
                     Page: request.Page-1,
                     ResultsPerPage: request.ResultsPerPage));
                 
                 return await Task.WhenAll(transactions.Select(transaction =>
-                  _mediator.Send(new AutoClassifyTransactionQuery(transaction, possibleCategories), cancellationToken)));
+                  _mediator.Send(new AutoClassifyTransactionQuery(transaction, categoryTree), cancellationToken)));
             }
         }
         public class AutoClassifyTransactionHandler : IRequestHandler<AutoClassifyTransactionQuery, AutoClassificationResult>
@@ -80,25 +68,57 @@ namespace FinancialDucks.Application.Features
                 _categoryTreeProvider = categoryTreeProvider;
             }
 
-            private string Prompt(AutoClassifyTransactionQuery request) =>
-                $"Classify the following transaction into one of the following categories: {request.PossibleCategories.Select(p=>p.Name).StringJoin(", ")} \n" +
-                $"Description: {request.Transaction.Description}\n" +
-                $"Amount: {request.Transaction.Amount}\n" +
-                $"Date: {request.Transaction.Date:yyyy-MM-dd}\n" +
-                $"Return only the three most likely categories, separated by a comma. Do not return any other text.";
+            private string Prompt(AutoClassifyTransactionQuery request, ICategory[] categories) =>
+                $"Which categories best match \"{request.Transaction.Description}\"? Choices are {categories.Select(p => p.Name).StringJoin(", ")}. Return only the category names separated by comma.";
 
+            private async Task<ICategoryDetail[]> BestMatches(AutoClassifyTransactionQuery request, IEnumerable<ICategoryDetail> possibleCategories)
+            {
+                var chatResult = await _promptEngine.Chat(Prompt(request, possibleCategories.ToArray())) ?? "";
+
+                return chatResult.Split(',')
+                                 .Select(p => possibleCategories.FirstOrDefault(c => c.Name.Equals(p.Trim())))
+                                 .Where(c => c != null)
+                                 .ToArray()!;
+            }
+
+            private ICategoryDetail[] InitialCategories(ICategoryDetail categoryTree)
+            {
+                var debits = categoryTree.GetDescendant(SpecialCategory.Debits.ToString())!;
+                var credits = categoryTree.GetDescendant(SpecialCategory.Credits.ToString())!;
+
+                return debits.Children.Union(credits.Children).ToArray();
+            }
             public async Task<AutoClassificationResult> Handle(AutoClassifyTransactionQuery request, CancellationToken cancellationToken)
             {
-                var chatResult = await _promptEngine.Chat(Prompt(request));
+                var initialClassification = await BestMatches(request, InitialCategories(request.CategoryTree));
+              
+                List<ICategoryDetail> bestMatches = new List<ICategoryDetail>();    
+                foreach (var initialCategory in initialClassification)
+                {
+                    var subMatches = await BestMatchesInCategory(request, initialCategory);
+                    bestMatches.AddRange(subMatches);
+                }
 
-                var matchedCategories = chatResult.Split(',')
-                                                  .Select(p=> request.PossibleCategories.FirstOrDefault(c => c.Name.Equals(p.Trim())))
-                                                  .Where(c => c != null)
-                                                  .ToArray();
-
-                var result = new AutoClassificationResult(request.Transaction, matchedCategories!);
+                var result = new AutoClassificationResult(request.Transaction, bestMatches.Distinct().ToArray());
                 await _mediator.Publish(new AutoClassifyNotification(result), cancellationToken);
                 return result;
+            }
+
+            private async Task<IEnumerable<ICategoryDetail>> BestMatchesInCategory(AutoClassifyTransactionQuery query, ICategoryDetail category)
+            {
+                List<ICategoryDetail> bestMatches = new List<ICategoryDetail>();
+                bestMatches.Add(category);
+
+                var matches = await BestMatches(query, category.Children);
+                bestMatches.AddRange(matches);
+
+                foreach (var match in matches)
+                {
+                    var subMatches = await BestMatchesInCategory(query, match);
+                    bestMatches.AddRange(subMatches);
+                }
+
+                return bestMatches;
             }
         }
     }

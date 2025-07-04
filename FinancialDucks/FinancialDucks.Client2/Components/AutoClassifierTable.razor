@@ -2,6 +2,13 @@
 @using FinancialDucks.Application.Features
 @using FinancialDucks.Application.Models.AppModels
 
+<div class="form-check mb-3">
+    <input class="form-check-input" type="checkbox" id="includeAllTransactions" @bind="IncludeAllTransactions">
+    <label class="form-check-label" for="includeAllTransactions">
+        Include All Transactions
+    </label>
+</div>
+
 <table class="table">
     <thead>
         <tr>

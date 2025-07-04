@@ -25,6 +25,22 @@ namespace FinancialDucks.Client2.Components
         public IMediator Mediator { get; set; }
 
 
+        private bool IncludeAllTransactions
+        {
+            get => _includeAllTransactions;
+            set
+            {
+                if (_includeAllTransactions != value)
+                {
+                    _includeAllTransactions = value;
+                    OnIncludeAllTransactionsChanged.InvokeAsync(value);
+                }
+            }
+        }
+        private bool _includeAllTransactions;
+        private EventCallback<bool> OnIncludeAllTransactionsChanged;
+    
+
         public List<AutoClassificationResult> Results = new();
 
         public string SelectedTransactionText { get; set; }
@@ -40,10 +56,11 @@ namespace FinancialDucks.Client2.Components
         protected override async Task OnInitializedAsync()
         {
             Dispatcher.Register(this, NotificationPriority.Low);
-            await SetPage(Page);
+            OnIncludeAllTransactionsChanged = EventCallback.Factory.Create<bool>(this, async (value) => { _filter = null; await SetPage(Page); });
+            await SetPage(Page);            
         }
 
-        private TransactionsFilter _filter;
+        private TransactionsFilter? _filter;
         private CancellationTokenSource _cancelTokenSource = new CancellationTokenSource();
 
         private async Task<TransactionsFilter> Filter()
@@ -52,8 +69,8 @@ namespace FinancialDucks.Client2.Components
                 return _filter;
 
             var categoryTree = await Mediator.Send(new CategoryTreeRequest());
-            var unclassifiedCategory = categoryTree.GetDescendant(SpecialCategory.Unclassified.ToString())!;
-            _filter = new TransactionsFilter(new DateTime(2000, 1, 1), DateTime.Now, unclassifiedCategory, null);
+            var category = IncludeAllTransactions ? categoryTree : categoryTree.GetDescendant(SpecialCategory.Unclassified.ToString())!;
+            _filter = new TransactionsFilter(new DateTime(2000, 1, 1), DateTime.Now, category, null);
             return _filter;
         }
 

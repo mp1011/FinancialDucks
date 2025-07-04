@@ -1,5 +1,29 @@
 @page "/autoclassifier"
+@using FinancialDucks.Application.Extensions
 
 <h3>Auto Classification</h3>
+
+
+<div class="mb-3">
+    <label for="quickInput" class="form-label">Quick Test</label>
+    <input type="text" id="quickInput" class="form-control" @bind="QuickTest" />
+
+    @if (QuickTestResult.IsNullOrEmpty())
+    {
+        <div class="d-flex justify-content-center my-4">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    }
+    else
+    {
+        <label class="form-label mt-2" for="quickInput">
+            @QuickTestResult
+        </label>
+    }
+</div>
+
+
 
 <FinancialDucks.Client2.Components.AutoClassifierTable />
